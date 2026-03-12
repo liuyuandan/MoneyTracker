@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 主色调 -->
+    <color name="primary">#4A90E2</color>
+    <color name="primary_dark">#357ABD</color>
+    <color name="primary_light">#7EB3F0</color>
+
+    <!-- 辅助色 -->
+    <color name="secondary">#50E3C2</color>
+    <color name="secondary_dark">#3CC4A8</color>
+
+    <!-- 收支颜色 -->
+    <color name="income">#4CAF50</color>
+    <color name="expense">#FF5252</color>
+
+    <!-- 背景和卡片 -->
+    <color name="background">#FAFAFA</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="surface">#FFFFFF</color>
+
+    <!-- 文字颜色 -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#9E9E9E</color>
+    <color name="text_white">#FFFFFF</color>
+
+    <!-- 分割线 -->
+    <color name="divider">#E0E0E0</color>
+
+    <!-- 图标背景 -->
+    <color name="icon_background">#F5F5F5</color>
+
+    <!-- 分类预设颜色 -->
+    <color name="cat_orange">#FF9800</color>
+    <color name="cat_blue">#2196F3</color>
+    <color name="cat_pink">#E91E63</color>
+    <color name="cat_purple">#9C27B0</color>
+    <color name="cat_red">#F44336</color>
+    <color name="cat_cyan">#00BCD4</color>
+    <color name="cat_brown">#795548</color>
+    <color name="cat_gray">#607D8B</color>
+    <color name="cat_yellow">#FFEB3B</color>
+    <color name="cat_green">#4CAF50</color>
+    <color name="cat_light_green">#8BC34A</color>
+</resources>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">记账本</string>
+
+    <!-- 底部导航 -->
+    <string name="nav_home">首页</string>
+    <string name="nav_statistics">统计</string>
+    <string name="nav_settings">设置</string>
+
+    <!-- 首页 -->
+    <string name="monthly_overview">本月概览</string>
+    <string name="income">收入</string>
+    <string name="expense">支出</string>
+    <string name="balance">结余</string>
+    <string name="recent_transactions">最近记录</string>
+    <string name="no_transactions">暂无记录</string>
+    <string name="add_first_transaction">点击右下角按钮添加第一条记录</string>
+
+    <!-- 添加交易 -->
+    <string name="add_transaction">添加记录</string>
+    <string name="edit_transaction">编辑记录</string>
+    <string name="amount">金额</string>
+    <string name="category">分类</string>
+    <string name="date">日期</string>
+    <string name="description">备注</string>
+    <string name="description_hint">添加备注（可选）</string>
+    <string name="save">保存</string>
+    <string name="cancel">取消</string>
+    <string name="delete">删除</string>
+    <string name="select_category">选择分类</string>
+
+    <!-- 统计页面 -->
+    <string name="monthly_statistics">月度统计</string>
+    <string name="expense_distribution">支出分布</string>
+    <string name="income_distribution">收入分布</string>
+    <string name="trend">收支趋势</string>
+    <string name="no_data">暂无数据</string>
+
+    <!-- 分类管理 -->
+    <string name="category_management">分类管理</string>
+    <string name="expense_category">支出分类</string>
+    <string name="income_category">收入分类</string>
+    <string name="add_category">添加分类</string>
+    <string name="edit_category">编辑分类</string>
+    <string name="category_name">分类名称</string>
+    <string name="select_icon">选择图标</string>
+    <string name="select_color">选择颜色</string>
+    <string name="delete_category_confirm">确定要删除该分类吗？</string>
+    <string name="cannot_delete_default">默认分类不可删除</string>
+
+    <!-- 设置页面 -->
+    <string name="currency">货币单位</string>
+    <string name="currency_symbol">货币符号</string>
+    <string name="first_day_of_month">首月日期</string>
+    <string name="data_management">数据管理</string>
+    <string name="backup">备份数据</string>
+    <string name="restore">恢复数据</string>
+    <string name="about">关于</string>
+    <string name="version">版本</string>
+    <string name="feedback">反馈建议</string>
+
+    <!-- 消息提示 -->
+    <string name="saved">已保存</string>
+    <string name="deleted">已删除</string>
+    <string name="backup_success">备份成功</string>
+    <string name="backup_failed">备份失败</string>
+    <string name="restore_success">恢复成功</string>
+    <string name="restore_failed">恢复失败</string>
+    <string name="please_input_amount">请输入金额</string>
+    <string name="please_select_category">请选择分类</string>
+
+    <!-- 占位符 -->
+    <string name="zero_amount">0.00</string>
+</resources>
