@@ -8,6 +8,7 @@ import com.example.moneytracker.data.database.dao.CategoryDao
 import com.example.moneytracker.data.database.dao.TransactionDao
 import com.example.moneytracker.data.database.entities.Category
 import com.example.moneytracker.data.database.entities.DefaultCategories
+import com.example.moneytracker.data.database.entities.Transaction
 
 @Database(
     entities = [Transaction::class, Category::class],
