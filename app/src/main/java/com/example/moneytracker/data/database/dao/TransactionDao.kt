@@ -2,6 +2,8 @@ package com.example.moneytracker.data.database.dao
 
 import androidx.room.*
 import com.example.moneytracker.data.database.entities.Transaction
+import com.example.moneytracker.data.database.entities.CategoryTotal
+import com.example.moneytracker.data.database.entities.DailyTotal
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -63,24 +65,3 @@ interface TransactionDao {
     """)
     fun getDailyTotalsByType(type: Int, startTime: Long, endTime: Long): Flow<List<DailyTotal>>
 }
-
-/**
- * 分类统计结果
- */
-data class CategoryTotal(
-    val id: Long,
-    val name: String,
-    val icon: String,
-    val color: Int,
-    val type: Int,
-    val isDefault: Boolean,
-    val totalAmount: Double
-)
-
-/**
- * 每日统计结果
- */
-data class DailyTotal(
-    val day: Long,
-    val totalAmount: Double
-)
