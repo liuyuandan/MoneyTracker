@@ -6,8 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.moneytracker.data.database.AppDatabase
-import com.example.moneytracker.data.database.dao.CategoryTotal
-import com.example.moneytracker.data.database.dao.DailyTotal
+import com.example.moneytracker.data.database.entities.CategoryTotal
+import com.example.moneytracker.data.database.entities.DailyTotal
 import com.example.moneytracker.data.database.entities.Transaction
 import com.example.moneytracker.data.repository.TransactionRepository
 import com.example.moneytracker.utils.DateUtils
