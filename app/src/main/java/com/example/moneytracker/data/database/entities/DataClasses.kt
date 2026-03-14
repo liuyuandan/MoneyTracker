@@ -1,11 +1,9 @@
 package com.example.moneytracker.data.database.entities
 
-import androidx.room.Embedded
-
 /**
  * 分类统计结果
+ * 用于DAO查询返回的统计结果
  */
-@Embedded
 data class CategoryTotal(
     val id: Long,
     val name: String,
@@ -18,8 +16,8 @@ data class CategoryTotal(
 
 /**
  * 每日统计结果
+ * 用于DAO查询返回的统计结果
  */
-@Embedded
 data class DailyTotal(
     val day: Long,
     val totalAmount: Double
