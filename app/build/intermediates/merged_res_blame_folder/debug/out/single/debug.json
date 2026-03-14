@@ -1,0 +1,226 @@
+[
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/mipmap-xxxhdpi_ic_launcher_round.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/mipmap-xxxhdpi/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/layout_item_category.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/layout/item_category.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/navigation_nav_graph.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/navigation/nav_graph.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/mipmap-xxhdpi_ic_launcher_round.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/mipmap-xxhdpi/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_home.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_home.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_income.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_income.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_settings.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_settings.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_education.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_education.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/layout_fragment_home.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/layout/fragment_home.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_restaurant.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_restaurant.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_other_expense.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_other_expense.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_category.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_category.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/layout_item_transaction.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/layout/item_transaction.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_expense.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_expense.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/layout_activity_category_manager.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/layout/activity_category_manager.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/mipmap-xhdpi_ic_launcher_round.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/mipmap-xhdpi/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/mipmap-hdpi_ic_launcher.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/mipmap-hdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/xml_data_extraction_rules.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_card_background.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/card_background.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_number_button_background.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/number_button_background.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_info.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_info.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_shopping.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_shopping.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_investment.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_investment.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/mipmap-hdpi_ic_launcher_round.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/mipmap-hdpi/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/menu_bottom_nav_menu.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/menu/bottom_nav_menu.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/layout_fragment_statistics.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/layout/fragment_statistics.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_fab_background.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/fab_background.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_restore.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_restore.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/xml_backup_rules.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_bonus.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_bonus.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_salary.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_salary.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/layout_fragment_settings.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/layout/fragment_settings.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/mipmap-xxhdpi_ic_launcher.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/mipmap-xxhdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_close.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_close.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_transport.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_transport.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/layout_activity_add_transaction.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/layout/activity_add_transaction.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/mipmap-mdpi_ic_launcher_round.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/mipmap-mdpi/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/mipmap-mdpi_ic_launcher.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/mipmap-mdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_communication.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_communication.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_clothing.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_clothing.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_parttime.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_parttime.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_entertainment.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_entertainment.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_medical.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_medical.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_other_income.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_other_income.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/mipmap-xxxhdpi_ic_launcher.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/mipmap-xxxhdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_backup.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_backup.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/mipmap-xhdpi_ic_launcher.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/mipmap-xhdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_time.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_time.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_more.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_more.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/layout_activity_main.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_add.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_add.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_menu.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_menu.xml"
+    },
+    {
+        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_ic_statistics.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/drawable/ic_statistics.xml"
+    }
+]
