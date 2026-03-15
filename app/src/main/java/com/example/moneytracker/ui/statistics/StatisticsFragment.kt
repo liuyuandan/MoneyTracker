@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.moneytracker.R
 import com.example.moneytracker.databinding.FragmentStatisticsBinding
+import com.example.moneytracker.data.database.entities.CategoryTotal
+import com.example.moneytracker.data.database.entities.DailyTotal
 import com.example.moneytracker.utils.CurrencyUtils
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.Entry
@@ -138,7 +140,7 @@ class StatisticsFragment : Fragment() {
 
     private fun updatePieChart(
         chart: com.github.mikephil.charting.charts.PieChart,
-        totals: List<com.example.moneytracker.data.database.dao.CategoryTotal>
+        totals: List<CategoryTotal>
     ) {
         if (totals.isEmpty()) {
             chart.clear()
@@ -167,8 +169,8 @@ class StatisticsFragment : Fragment() {
     }
 
     private fun updateLineChart(
-        expenseTotals: List<com.example.moneytracker.data.database.dao.DailyTotal>,
-        incomeTotals: List<com.example.moneytracker.data.database.dao.DailyTotal>
+        expenseTotals: List<DailyTotal>,
+        incomeTotals: List<DailyTotal>
     ) {
         if (expenseTotals.isEmpty() && incomeTotals.isEmpty()) {
             binding.lineChart.clear()
