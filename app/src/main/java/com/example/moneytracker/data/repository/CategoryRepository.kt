@@ -1,49 +1,104 @@
 package com.example.moneytracker.data.repository
 
+import android.util.Log
 import com.example.moneytracker.data.database.dao.CategoryDao
 import com.example.moneytracker.data.database.entities.Category
 import com.example.moneytracker.data.database.entities.DefaultCategories
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 
 /**
  * 分类仓库
  */
 class CategoryRepository(private val categoryDao: CategoryDao) {
 
-    // 获取所有分类
-    fun getAllCategories(): Flow<List<Category>> = categoryDao.getAllCategories()
+    companion object {
+        private const val TAG = "CategoryRepository"
+    }
 
-    // 根据类型获取分类
+    fun getAllCategories(): Flow<List<Category>> = 
+        categoryDao.getAllCategories()
+            .catch { e -> 
+                Log.e(TAG, "getAllCategories: Error", e)
+                emit(emptyList())
+            }
+
     fun getCategoriesByType(type: Int): Flow<List<Category>> =
         categoryDao.getCategoriesByType(type)
+            .catch { e -> 
+                Log.e(TAG, "getCategoriesByType: Error", e)
+                emit(emptyList())
+            }
 
-    // 根据ID获取分类
-    suspend fun getCategoryById(id: Long): Category? = categoryDao.getCategoryById(id)
+    suspend fun getCategoryById(id: Long): Category? = 
+        try {
+            categoryDao.getCategoryById(id)
+        } catch (e: Exception) {
+            Log.e(TAG, "getCategoryById: Error", e)
+            null
+        }
 
-    // 插入分类
-    suspend fun insert(category: Category): Long = categoryDao.insert(category)
+    suspend fun insert(category: Category): Long = 
+        try {
+            categoryDao.insert(category)
+        } catch (e: Exception) {
+            Log.e(TAG, "insert: Error", e)
+            throw e
+        }
 
-    // 更新分类
-    suspend fun update(category: Category) = categoryDao.update(category)
-
-    // 删除分类
-    suspend fun delete(category: Category) = categoryDao.delete(category)
-
-    // 删除所有自定义分类
-    suspend fun deleteCustomCategories() = categoryDao.deleteCustomCategories()
-
-    // 初始化默认分类
-    suspend fun initializeDefaultCategories() {
-        val count = categoryDao.getCategoryCount()
-        if (count == 0) {
-            categoryDao.insertAll(DefaultCategories.getAllDefaultCategories())
+    suspend fun update(category: Category) {
+        try {
+            categoryDao.update(category)
+        } catch (e: Exception) {
+            Log.e(TAG, "update: Error", e)
+            throw e
         }
     }
 
-    // 根据名称和类型查找分类
-    suspend fun getCategoryByNameAndType(name: String, type: Int): Category? =
-        categoryDao.getCategoryByNameAndType(name, type)
+    suspend fun delete(category: Category) {
+        try {
+            categoryDao.delete(category)
+        } catch (e: Exception) {
+            Log.e(TAG, "delete: Error", e)
+            throw e
+        }
+    }
 
-    // 获取分类数量
-    suspend fun getCategoryCount(): Int = categoryDao.getCategoryCount()
+    suspend fun deleteCustomCategories() {
+        try {
+            categoryDao.deleteCustomCategories()
+        } catch (e: Exception) {
+            Log.e(TAG, "deleteCustomCategories: Error", e)
+            throw e
+        }
+    }
+
+    suspend fun initializeDefaultCategories() {
+        try {
+            val count = categoryDao.getCategoryCount()
+            if (count == 0) {
+                Log.d(TAG, "initializeDefaultCategories: Inserting default categories")
+                categoryDao.insertAll(DefaultCategories.getAllDefaultCategories())
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "initializeDefaultCategories: Error", e)
+            throw e
+        }
+    }
+
+    suspend fun getCategoryByNameAndType(name: String, type: Int): Category? =
+        try {
+            categoryDao.getCategoryByNameAndType(name, type)
+        } catch (e: Exception) {
+            Log.e(TAG, "getCategoryByNameAndType: Error", e)
+            null
+        }
+
+    suspend fun getCategoryCount(): Int = 
+        try {
+            categoryDao.getCategoryCount()
+        } catch (e: Exception) {
+            Log.e(TAG, "getCategoryCount: Error", e)
+            0
+        }
 }

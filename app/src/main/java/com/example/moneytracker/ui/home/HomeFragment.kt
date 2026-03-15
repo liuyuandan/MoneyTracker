@@ -3,6 +3,7 @@ package com.example.moneytracker.ui.home
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +19,10 @@ import com.example.moneytracker.utils.CurrencyUtils
 
 class HomeFragment : Fragment() {
 
+    companion object {
+        private const val TAG = "HomeFragment"
+    }
+
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
@@ -29,28 +34,37 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.d(TAG, "onCreateView: Creating view")
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d(TAG, "onViewCreated: View created")
 
-        setupRecyclerView()
-        setupFab()
-        observeData()
+        try {
+            setupRecyclerView()
+            setupFab()
+            observeData()
+        } catch (e: Exception) {
+            Log.e(TAG, "onViewCreated: Error setting up view", e)
+        }
     }
 
     private fun setupRecyclerView() {
+        Log.d(TAG, "setupRecyclerView: Setting up recycler view")
         transactionAdapter = TransactionAdapter(
             onTransactionClick = { transaction ->
-                // 点击查看详情或编辑
-                val intent = Intent(requireContext(), AddTransactionActivity::class.java)
-                intent.putExtra("transaction_id", transaction.id)
-                startActivity(intent)
+                try {
+                    val intent = Intent(requireContext(), AddTransactionActivity::class.java)
+                    intent.putExtra("transaction_id", transaction.id)
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    Log.e(TAG, "onTransactionClick: Error", e)
+                }
             },
             onTransactionLongClick = { transaction ->
-                // 长按删除
                 showDeleteConfirmDialog(transaction)
                 true
             }
@@ -60,19 +74,31 @@ class HomeFragment : Fragment() {
     }
 
     private fun showDeleteConfirmDialog(transaction: com.example.moneytracker.data.database.entities.Transaction) {
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.delete)
-            .setMessage("确定要删除这条记录吗？")
-            .setPositiveButton(R.string.delete) { _, _ ->
-                viewModel.deleteTransaction(transaction)
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+        try {
+            AlertDialog.Builder(requireContext())
+                .setTitle(R.string.delete)
+                .setMessage("确定要删除这条记录吗？")
+                .setPositiveButton(R.string.delete) { _, _ ->
+                    viewModel.deleteTransaction(transaction)
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+        } catch (e: Exception) {
+            Log.e(TAG, "showDeleteConfirmDialog: Error", e)
+        }
     }
 
     private fun setupFab() {
+        Log.d(TAG, "setupFab: Setting up FAB")
         binding.fabAdd.setOnClickListener {
-            startActivity(Intent(requireContext(), AddTransactionActivity::class.java))
+            try {
+                Log.d(TAG, "setupFab: FAB clicked, starting AddTransactionActivity")
+                val intent = Intent(requireContext(), AddTransactionActivity::class.java)
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "setupFab: Error starting activity", e)
+                android.widget.Toast.makeText(requireContext(), "打开失败: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -116,6 +142,7 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        Log.d(TAG, "onDestroyView: Destroying view")
         _binding = null
     }
 }
