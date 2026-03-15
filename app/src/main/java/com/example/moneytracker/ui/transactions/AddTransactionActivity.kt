@@ -41,21 +41,77 @@ class AddTransactionActivity : AppCompatActivity() {
 
             editingTransactionId = intent.getLongExtra("transaction_id", -1)
             FileLogger.log(TAG, "onCreate: editingTransactionId = $editingTransactionId")
-
+        } catch (e: Exception) {
+            FileLogger.logError(TAG, "onCreate: Error inflating layout", e)
+            showErrorAndFinish("布局加载失败", e)
+            return
+        }
+        
+        try {
             setupCategoryRecyclerView()
+            FileLogger.log(TAG, "onCreate: CategoryRecyclerView setup done")
+        } catch (e: Exception) {
+            FileLogger.logError(TAG, "onCreate: Error setting up category recycler view", e)
+            showErrorAndFinish("分类列表初始化失败", e)
+            return
+        }
+        
+        try {
             setupTabLayout()
+            FileLogger.log(TAG, "onCreate: TabLayout setup done")
+        } catch (e: Exception) {
+            FileLogger.logError(TAG, "onCreate: Error setting up tab layout", e)
+            showErrorAndFinish("标签页初始化失败", e)
+            return
+        }
+        
+        try {
             setupDatePicker()
+            FileLogger.log(TAG, "onCreate: DatePicker setup done")
+        } catch (e: Exception) {
+            FileLogger.logError(TAG, "onCreate: Error setting up date picker", e)
+            showErrorAndFinish("日期选择初始化失败", e)
+            return
+        }
+        
+        try {
             setupNumberKeyboard()
+            FileLogger.log(TAG, "onCreate: NumberKeyboard setup done")
+        } catch (e: Exception) {
+            FileLogger.logError(TAG, "onCreate: Error setting up number keyboard", e)
+            showErrorAndFinish("数字键盘初始化失败", e)
+            return
+        }
+        
+        try {
             setupSaveButton()
             setupBackButton()
-            observeData()
-            
-            FileLogger.log(TAG, "onCreate: Setup completed successfully")
+            FileLogger.log(TAG, "onCreate: Buttons setup done")
         } catch (e: Exception) {
-            FileLogger.logError(TAG, "onCreate: Error during initialization", e)
-            Toast.makeText(this, "初始化失败: ${e.message}", Toast.LENGTH_LONG).show()
-            finish()
+            FileLogger.logError(TAG, "onCreate: Error setting up buttons", e)
+            showErrorAndFinish("按钮初始化失败", e)
+            return
         }
+        
+        try {
+            observeData()
+            FileLogger.log(TAG, "onCreate: observeData setup done")
+        } catch (e: Exception) {
+            FileLogger.logError(TAG, "onCreate: Error setting up data observation", e)
+            showErrorAndFinish("数据监听初始化失败", e)
+            return
+        }
+            
+        FileLogger.log(TAG, "onCreate: All setup completed successfully")
+    }
+    
+    private fun showErrorAndFinish(message: String, e: Exception) {
+        android.app.AlertDialog.Builder(this)
+            .setTitle("发生错误")
+            .setMessage("$message\n\n错误信息: ${e.message}\n\n日志已保存到文件，请查看设置页面获取日志路径。")
+            .setPositiveButton("确定") { _, _ -> finish() }
+            .setCancelable(false)
+            .show()
     }
 
     private fun setupCategoryRecyclerView() {
@@ -196,18 +252,20 @@ class AddTransactionActivity : AppCompatActivity() {
 
     private fun observeData() {
         viewModel.transactionType.observe(this) { type ->
-            val isExpense = type == Transaction.TYPE_EXPENSE
-            val color = if (isExpense) {
-                ContextCompat.getColor(this, R.color.expense)
-            } else {
-                ContextCompat.getColor(this, R.color.income)
+            type?.let {
+                val isExpense = it == Transaction.TYPE_EXPENSE
+                val color = if (isExpense) {
+                    ContextCompat.getColor(this, R.color.expense)
+                } else {
+                    ContextCompat.getColor(this, R.color.income)
+                }
+                binding.tvAmountDisplay.setTextColor(color)
             }
-            binding.tvAmountDisplay.setTextColor(color)
         }
 
         viewModel.categories.observe(this) { categories ->
-            FileLogger.log(TAG, "observeData: categories updated, size = ${categories.size}")
-            categoryAdapter.submitList(categories)
+            FileLogger.log(TAG, "observeData: categories updated, size = ${categories?.size ?: 0}")
+            categoryAdapter.submitList(categories ?: emptyList())
         }
 
         viewModel.selectedCategory.observe(this) { category ->
@@ -217,7 +275,9 @@ class AddTransactionActivity : AppCompatActivity() {
         }
 
         viewModel.selectedDate.observe(this) { timestamp ->
-            binding.tvDate.text = DateUtils.formatDate(timestamp)
+            timestamp?.let {
+                binding.tvDate.text = DateUtils.formatDate(it)
+            }
         }
     }
 }
