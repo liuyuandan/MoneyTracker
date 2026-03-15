@@ -14,6 +14,7 @@ import com.example.moneytracker.adapters.CategoryAdapter
 import com.example.moneytracker.data.database.entities.Transaction
 import com.example.moneytracker.databinding.ActivityAddTransactionBinding
 import com.example.moneytracker.utils.DateUtils
+import com.example.moneytracker.utils.FileLogger
 import com.google.android.material.tabs.TabLayout
 import java.util.Calendar
 
@@ -32,14 +33,14 @@ class AddTransactionActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate: Starting AddTransactionActivity")
+        FileLogger.log(TAG, "onCreate: Starting AddTransactionActivity")
         
         try {
             binding = ActivityAddTransactionBinding.inflate(layoutInflater)
             setContentView(binding.root)
 
             editingTransactionId = intent.getLongExtra("transaction_id", -1)
-            Log.d(TAG, "onCreate: editingTransactionId = $editingTransactionId")
+            FileLogger.log(TAG, "onCreate: editingTransactionId = $editingTransactionId")
 
             setupCategoryRecyclerView()
             setupTabLayout()
@@ -49,16 +50,16 @@ class AddTransactionActivity : AppCompatActivity() {
             setupBackButton()
             observeData()
             
-            Log.d(TAG, "onCreate: Setup completed successfully")
+            FileLogger.log(TAG, "onCreate: Setup completed successfully")
         } catch (e: Exception) {
-            Log.e(TAG, "onCreate: Error during initialization", e)
+            FileLogger.logError(TAG, "onCreate: Error during initialization", e)
             Toast.makeText(this, "初始化失败: ${e.message}", Toast.LENGTH_LONG).show()
             finish()
         }
     }
 
     private fun setupCategoryRecyclerView() {
-        Log.d(TAG, "setupCategoryRecyclerView: Setting up category adapter")
+        FileLogger.log(TAG, "setupCategoryRecyclerView: Setting up category adapter")
         categoryAdapter = CategoryAdapter { category ->
             viewModel.setSelectedCategory(category)
         }
@@ -67,7 +68,7 @@ class AddTransactionActivity : AppCompatActivity() {
     }
 
     private fun setupTabLayout() {
-        Log.d(TAG, "setupTabLayout: Setting up tab layout")
+        FileLogger.log(TAG, "setupTabLayout: Setting up tab layout")
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 val type = when (tab?.position) {
@@ -181,7 +182,7 @@ class AddTransactionActivity : AppCompatActivity() {
                     finish()
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "setupSaveButton: Error saving transaction", e)
+                FileLogger.logError(TAG, "setupSaveButton: Error saving transaction", e)
                 Toast.makeText(this, "保存失败: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
@@ -205,7 +206,7 @@ class AddTransactionActivity : AppCompatActivity() {
         }
 
         viewModel.categories.observe(this) { categories ->
-            Log.d(TAG, "observeData: categories updated, size = ${categories.size}")
+            FileLogger.log(TAG, "observeData: categories updated, size = ${categories.size}")
             categoryAdapter.submitList(categories)
         }
 

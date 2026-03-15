@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,6 +17,7 @@ import com.example.moneytracker.adapters.TransactionWithCategory
 import com.example.moneytracker.databinding.FragmentHomeBinding
 import com.example.moneytracker.ui.transactions.AddTransactionActivity
 import com.example.moneytracker.utils.CurrencyUtils
+import com.example.moneytracker.utils.FileLogger
 
 class HomeFragment : Fragment() {
 
@@ -34,26 +36,26 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d(TAG, "onCreateView: Creating view")
+        FileLogger.log(TAG, "onCreateView: Creating view")
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(TAG, "onViewCreated: View created")
+        FileLogger.log(TAG, "onViewCreated: View created")
 
         try {
             setupRecyclerView()
             setupFab()
             observeData()
         } catch (e: Exception) {
-            Log.e(TAG, "onViewCreated: Error setting up view", e)
+            FileLogger.logError(TAG, "onViewCreated: Error setting up view", e)
         }
     }
 
     private fun setupRecyclerView() {
-        Log.d(TAG, "setupRecyclerView: Setting up recycler view")
+        FileLogger.log(TAG, "setupRecyclerView: Setting up recycler view")
         transactionAdapter = TransactionAdapter(
             onTransactionClick = { transaction ->
                 try {
@@ -61,7 +63,7 @@ class HomeFragment : Fragment() {
                     intent.putExtra("transaction_id", transaction.id)
                     startActivity(intent)
                 } catch (e: Exception) {
-                    Log.e(TAG, "onTransactionClick: Error", e)
+                    FileLogger.logError(TAG, "onTransactionClick: Error", e)
                 }
             },
             onTransactionLongClick = { transaction ->
@@ -84,20 +86,20 @@ class HomeFragment : Fragment() {
                 .setNegativeButton(R.string.cancel, null)
                 .show()
         } catch (e: Exception) {
-            Log.e(TAG, "showDeleteConfirmDialog: Error", e)
+            FileLogger.logError(TAG, "showDeleteConfirmDialog: Error", e)
         }
     }
 
     private fun setupFab() {
-        Log.d(TAG, "setupFab: Setting up FAB")
+        FileLogger.log(TAG, "setupFab: Setting up FAB")
         binding.fabAdd.setOnClickListener {
             try {
-                Log.d(TAG, "setupFab: FAB clicked, starting AddTransactionActivity")
+                FileLogger.log(TAG, "setupFab: FAB clicked, starting AddTransactionActivity")
                 val intent = Intent(requireContext(), AddTransactionActivity::class.java)
                 startActivity(intent)
             } catch (e: Exception) {
-                Log.e(TAG, "setupFab: Error starting activity", e)
-                android.widget.Toast.makeText(requireContext(), "打开失败: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+                FileLogger.logError(TAG, "setupFab: Error starting activity", e)
+                Toast.makeText(requireContext(), "打开失败: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -142,7 +144,7 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.d(TAG, "onDestroyView: Destroying view")
+        FileLogger.log(TAG, "onDestroyView: Destroying view")
         _binding = null
     }
 }

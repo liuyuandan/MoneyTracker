@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import com.example.moneytracker.R
 import com.example.moneytracker.databinding.FragmentSettingsBinding
 import com.example.moneytracker.ui.categories.CategoryManagerActivity
+import com.example.moneytracker.utils.FileLogger
 
 class SettingsFragment : Fragment() {
 
@@ -46,6 +47,33 @@ class SettingsFragment : Fragment() {
         binding.layoutRestore.setOnClickListener {
             Toast.makeText(requireContext(), R.string.restore_success, Toast.LENGTH_SHORT).show()
         }
+        
+        // 查看日志（长按备份按钮）
+        binding.layoutBackup.setOnLongClickListener {
+            showLogDialog()
+            true
+        }
+    }
+    
+    private fun showLogDialog() {
+        val logContent = FileLogger.getLogContent()
+        val logPath = FileLogger.getLogFilePath()
+        
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle("应用日志")
+            .setMessage("日志文件路径:\n$logPath\n\n日志内容:\n\n${logContent.take(2000)}${if (logContent.length > 2000) "\n...(已截断)" else ""}")
+            .setPositiveButton("复制日志路径") { _, _ ->
+                val clipboard = requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                val clip = android.content.ClipData.newPlainText("日志路径", logPath)
+                clipboard.setPrimaryClip(clip)
+                Toast.makeText(requireContext(), "日志路径已复制", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("关闭", null)
+            .setNeutralButton("清空日志") { _, _ ->
+                FileLogger.clearLog()
+                Toast.makeText(requireContext(), "日志已清空", Toast.LENGTH_SHORT).show()
+            }
+            .show()
     }
 
     override fun onDestroyView() {
