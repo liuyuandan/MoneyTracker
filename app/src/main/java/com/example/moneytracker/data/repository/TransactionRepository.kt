@@ -13,15 +13,15 @@ import kotlinx.coroutines.flow.Flow
  */
 class TransactionRepository(private val transactionDao: TransactionDao) {
 
-    fun insert(transaction: Transaction): Long = transactionDao.insert(transaction)
+    suspend fun insert(transaction: Transaction): Long = transactionDao.insert(transaction)
 
-    fun update(transaction: Transaction) = transactionDao.update(transaction)
+    suspend fun update(transaction: Transaction) = transactionDao.update(transaction)
 
-    fun delete(transaction: Transaction) = transactionDao.delete(transaction)
+    suspend fun delete(transaction: Transaction) = transactionDao.delete(transaction)
 
     fun getAllTransactions(): Flow<List<Transaction>> = transactionDao.getAllTransactions()
 
-    fun getTransactionById(id: Long) = transactionDao.getTransactionById(id)
+    suspend fun getTransactionById(id: Long): Transaction? = transactionDao.getTransactionById(id)
 
     fun getTransactionsByDateRange(startTime: Long, endTime: Long): Flow<List<Transaction>> = 
         transactionDao.getTransactionsByDateRange(startTime, endTime)
@@ -48,7 +48,7 @@ class TransactionRepository(private val transactionDao: TransactionDao) {
     fun getRecentTransactions(limit: Int = 10): Flow<List<Transaction>> = 
         transactionDao.getRecentTransactions(limit)
 
-    fun deleteAll() = transactionDao.deleteAll()
+    suspend fun deleteAll() = transactionDao.deleteAll()
 
     fun getDailyTotalsByType(type: Int, startTime: Long, endTime: Long): Flow<List<DailyTotal>> = 
         transactionDao.getDailyTotalsByType(type, startTime, endTime)
