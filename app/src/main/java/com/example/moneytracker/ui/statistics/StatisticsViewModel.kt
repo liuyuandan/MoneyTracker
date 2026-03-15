@@ -11,6 +11,7 @@ import com.example.moneytracker.data.database.entities.DailyTotal
 import com.example.moneytracker.data.database.entities.Transaction
 import com.example.moneytracker.data.repository.TransactionRepository
 import com.example.moneytracker.utils.DateUtils
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class StatisticsViewModel(application: Application) : AndroidViewModel(application) {
@@ -66,67 +67,91 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
         _currentMonth.value = DateUtils.formatMonth(currentTimestamp)
 
         // 加载收支总额
-        viewModelScope.launch {
-            transactionRepository.getTotalAmountByTypeAndDateRange(
-                Transaction.TYPE_INCOME,
-                monthStart,
-                monthEnd
-            ).collect { income ->
-                _monthlyIncome.postValue(income ?: 0.0)
-                updateBalance()
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                transactionRepository.getTotalAmountByTypeAndDateRange(
+                    Transaction.TYPE_INCOME,
+                    monthStart,
+                    monthEnd
+                ).collect { income ->
+                    _monthlyIncome.postValue(income ?: 0.0)
+                    updateBalance()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
 
-        viewModelScope.launch {
-            transactionRepository.getTotalAmountByTypeAndDateRange(
-                Transaction.TYPE_EXPENSE,
-                monthStart,
-                monthEnd
-            ).collect { expense ->
-                _monthlyExpense.postValue(expense ?: 0.0)
-                updateBalance()
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                transactionRepository.getTotalAmountByTypeAndDateRange(
+                    Transaction.TYPE_EXPENSE,
+                    monthStart,
+                    monthEnd
+                ).collect { expense ->
+                    _monthlyExpense.postValue(expense ?: 0.0)
+                    updateBalance()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
 
         // 加载分类统计
-        viewModelScope.launch {
-            transactionRepository.getCategoryTotalsByTypeAndDateRange(
-                Transaction.TYPE_EXPENSE,
-                monthStart,
-                monthEnd
-            ).collect { totals ->
-                _expenseCategoryTotals.postValue(totals)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                transactionRepository.getCategoryTotalsByTypeAndDateRange(
+                    Transaction.TYPE_EXPENSE,
+                    monthStart,
+                    monthEnd
+                ).collect { totals ->
+                    _expenseCategoryTotals.postValue(totals)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
 
-        viewModelScope.launch {
-            transactionRepository.getCategoryTotalsByTypeAndDateRange(
-                Transaction.TYPE_INCOME,
-                monthStart,
-                monthEnd
-            ).collect { totals ->
-                _incomeCategoryTotals.postValue(totals)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                transactionRepository.getCategoryTotalsByTypeAndDateRange(
+                    Transaction.TYPE_INCOME,
+                    monthStart,
+                    monthEnd
+                ).collect { totals ->
+                    _incomeCategoryTotals.postValue(totals)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
 
         // 加载每日统计
-        viewModelScope.launch {
-            transactionRepository.getDailyTotalsByType(
-                Transaction.TYPE_EXPENSE,
-                monthStart,
-                monthEnd
-            ).collect { totals ->
-                _dailyExpenseTotals.postValue(totals)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                transactionRepository.getDailyTotalsByType(
+                    Transaction.TYPE_EXPENSE,
+                    monthStart,
+                    monthEnd
+                ).collect { totals ->
+                    _dailyExpenseTotals.postValue(totals)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
 
-        viewModelScope.launch {
-            transactionRepository.getDailyTotalsByType(
-                Transaction.TYPE_INCOME,
-                monthStart,
-                monthEnd
-            ).collect { totals ->
-                _dailyIncomeTotals.postValue(totals)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                transactionRepository.getDailyTotalsByType(
+                    Transaction.TYPE_INCOME,
+                    monthStart,
+                    monthEnd
+                ).collect { totals ->
+                    _dailyIncomeTotals.postValue(totals)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }

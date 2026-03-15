@@ -12,6 +12,7 @@ import com.example.moneytracker.data.database.entities.Transaction
 import com.example.moneytracker.data.repository.CategoryRepository
 import com.example.moneytracker.data.repository.TransactionRepository
 import com.example.moneytracker.utils.DateUtils
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
@@ -60,25 +61,33 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private fun loadCurrentMonth() {
         _currentMonth.value = DateUtils.formatMonth(System.currentTimeMillis())
 
-        viewModelScope.launch {
-            transactionRepository.getTotalAmountByTypeAndDateRange(
-                Transaction.TYPE_INCOME,
-                currentMonthStart,
-                currentMonthEnd
-            ).collect { income ->
-                _monthlyIncome.postValue(income ?: 0.0)
-                updateBalance()
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                transactionRepository.getTotalAmountByTypeAndDateRange(
+                    Transaction.TYPE_INCOME,
+                    currentMonthStart,
+                    currentMonthEnd
+                ).collect { income ->
+                    _monthlyIncome.postValue(income ?: 0.0)
+                    updateBalance()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
 
-        viewModelScope.launch {
-            transactionRepository.getTotalAmountByTypeAndDateRange(
-                Transaction.TYPE_EXPENSE,
-                currentMonthStart,
-                currentMonthEnd
-            ).collect { expense ->
-                _monthlyExpense.postValue(expense ?: 0.0)
-                updateBalance()
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                transactionRepository.getTotalAmountByTypeAndDateRange(
+                    Transaction.TYPE_EXPENSE,
+                    currentMonthStart,
+                    currentMonthEnd
+                ).collect { expense ->
+                    _monthlyExpense.postValue(expense ?: 0.0)
+                    updateBalance()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -90,25 +99,37 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun loadCategories() {
-        viewModelScope.launch {
-            categoryRepository.getAllCategories().collect { categoryList ->
-                val categoryMap = categoryList.associateBy { it.id }
-                _categories.postValue(categoryMap)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                categoryRepository.getAllCategories().collect { categoryList ->
+                    val categoryMap = categoryList.associateBy { it.id }
+                    _categories.postValue(categoryMap)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
 
     private fun loadRecentTransactions() {
-        viewModelScope.launch {
-            transactionRepository.getRecentTransactions(20).collect { transactions ->
-                _recentTransactions.postValue(transactions)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                transactionRepository.getRecentTransactions(20).collect { transactions ->
+                    _recentTransactions.postValue(transactions)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
 
     fun deleteTransaction(transaction: Transaction) {
-        viewModelScope.launch {
-            transactionRepository.delete(transaction)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                transactionRepository.delete(transaction)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }

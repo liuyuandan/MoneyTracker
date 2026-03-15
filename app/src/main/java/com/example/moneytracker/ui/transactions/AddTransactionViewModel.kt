@@ -11,7 +11,9 @@ import com.example.moneytracker.data.database.entities.Transaction
 import com.example.moneytracker.data.repository.CategoryRepository
 import com.example.moneytracker.data.repository.TransactionRepository
 import com.example.moneytracker.utils.DateUtils
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AddTransactionViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -51,10 +53,15 @@ class AddTransactionViewModel(application: Application) : AndroidViewModel(appli
     }
 
     private fun loadCategories() {
-        viewModelScope.launch {
-            val type = _transactionType.value ?: Transaction.TYPE_EXPENSE
-            categoryRepository.getCategoriesByType(type).collect { categoryList ->
-                _categories.postValue(categoryList)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val type = _transactionType.value ?: Transaction.TYPE_EXPENSE
+                categoryRepository.getCategoriesByType(type).collect { categoryList ->
+                    _categories.postValue(categoryList)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _categories.postValue(emptyList())
             }
         }
     }
@@ -87,8 +94,12 @@ class AddTransactionViewModel(application: Application) : AndroidViewModel(appli
             date = _selectedDate.value ?: System.currentTimeMillis()
         )
 
-        viewModelScope.launch {
-            transactionRepository.insert(transaction)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                transactionRepository.insert(transaction)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
 
         return true
@@ -113,8 +124,12 @@ class AddTransactionViewModel(application: Application) : AndroidViewModel(appli
             date = _selectedDate.value ?: System.currentTimeMillis()
         )
 
-        viewModelScope.launch {
-            transactionRepository.update(transaction)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                transactionRepository.update(transaction)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
 
         return true

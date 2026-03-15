@@ -23,10 +23,14 @@ class MoneyTrackerApp : Application() {
         val prefs = PreferenceManager(this)
         CurrencyUtils.setCurrencySymbol(prefs.getCurrencySymbol())
 
-        // 初始化默认分类
-        applicationScope.launch {
-            val database = AppDatabase.getDatabase(this@MoneyTrackerApp)
-            AppDatabase.initializeDefaultCategories(database.categoryDao())
+        // 初始化默认分类 - 确保在IO线程执行
+        applicationScope.launch(Dispatchers.IO) {
+            try {
+                val database = AppDatabase.getDatabase(this@MoneyTrackerApp)
+                AppDatabase.initializeDefaultCategories(database.categoryDao())
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }
