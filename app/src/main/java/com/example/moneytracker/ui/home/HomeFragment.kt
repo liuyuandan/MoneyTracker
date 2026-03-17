@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.moneytracker.R
-import com.example.moneytracker.adapters.TransactionAdapter
+import com.example.moneytracker.adapters.GroupedTransactionAdapter
 import com.example.moneytracker.adapters.TransactionWithCategory
 import com.example.moneytracker.databinding.FragmentHomeBinding
 import com.example.moneytracker.ui.transactions.AddTransactionActivity
@@ -29,7 +29,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: HomeViewModel by viewModels()
-    private lateinit var transactionAdapter: TransactionAdapter
+    private lateinit var transactionAdapter: GroupedTransactionAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,7 +56,7 @@ class HomeFragment : Fragment() {
 
     private fun setupRecyclerView() {
         FileLogger.log(TAG, "setupRecyclerView: Setting up recycler view")
-        transactionAdapter = TransactionAdapter(
+        transactionAdapter = GroupedTransactionAdapter(
             onTransactionClick = { transaction ->
                 try {
                     val intent = Intent(requireContext(), AddTransactionActivity::class.java)

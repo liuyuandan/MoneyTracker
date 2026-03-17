@@ -3051,6 +3051,7 @@ drawable btn_radio_off_to_on_mtrl_animation
 drawable btn_radio_on_mtrl
 drawable btn_radio_on_to_off_mtrl_animation
 drawable card_background
+drawable category_selected_background
 drawable design_fab_background
 drawable design_ic_visibility
 drawable design_ic_visibility_off
@@ -3322,6 +3323,7 @@ id constraint
 id container
 id content
 id contentPanel
+id content_layout
 id contiguous
 id continuousVelocity
 id coordinator
@@ -3612,6 +3614,7 @@ id search_src_text
 id search_voice_btn
 id select_dialog_listview
 id selected
+id selected_indicator
 id selection_type
 id sharedValueSet
 id sharedValueUnset
@@ -3700,12 +3703,14 @@ id transition_position
 id transition_scene_layoutid_cache
 id transition_transform
 id triangle
+id tvVersion
 id tv_amount
 id tv_amount_display
 id tv_balance
 id tv_category
 id tv_current_month
 id tv_date
+id tv_date_header
 id tv_description
 id tv_expense
 id tv_income
@@ -3874,6 +3879,7 @@ layout fragment_statistics
 layout ime_base_split_test_activity
 layout ime_secondary_split_test_activity
 layout item_category
+layout item_date_header
 layout item_transaction
 layout m3_alert_dialog
 layout m3_alert_dialog_actions

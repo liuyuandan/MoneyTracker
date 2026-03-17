@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,15 +22,24 @@ public final class ItemCategoryBinding implements ViewBinding {
   private final ConstraintLayout rootView;
 
   @NonNull
+  public final LinearLayout contentLayout;
+
+  @NonNull
   public final ImageView ivIcon;
+
+  @NonNull
+  public final View selectedIndicator;
 
   @NonNull
   public final TextView tvName;
 
-  private ItemCategoryBinding(@NonNull ConstraintLayout rootView, @NonNull ImageView ivIcon,
-      @NonNull TextView tvName) {
+  private ItemCategoryBinding(@NonNull ConstraintLayout rootView,
+      @NonNull LinearLayout contentLayout, @NonNull ImageView ivIcon,
+      @NonNull View selectedIndicator, @NonNull TextView tvName) {
     this.rootView = rootView;
+    this.contentLayout = contentLayout;
     this.ivIcon = ivIcon;
+    this.selectedIndicator = selectedIndicator;
     this.tvName = tvName;
   }
 
@@ -60,9 +70,21 @@ public final class ItemCategoryBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.content_layout;
+      LinearLayout contentLayout = ViewBindings.findChildViewById(rootView, id);
+      if (contentLayout == null) {
+        break missingId;
+      }
+
       id = R.id.iv_icon;
       ImageView ivIcon = ViewBindings.findChildViewById(rootView, id);
       if (ivIcon == null) {
+        break missingId;
+      }
+
+      id = R.id.selected_indicator;
+      View selectedIndicator = ViewBindings.findChildViewById(rootView, id);
+      if (selectedIndicator == null) {
         break missingId;
       }
 
@@ -72,7 +94,8 @@ public final class ItemCategoryBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemCategoryBinding((ConstraintLayout) rootView, ivIcon, tvName);
+      return new ItemCategoryBinding((ConstraintLayout) rootView, contentLayout, ivIcon,
+          selectedIndicator, tvName);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
@@ -27,13 +28,17 @@ public final class FragmentSettingsBinding implements ViewBinding {
   @NonNull
   public final LinearLayout layoutRestore;
 
+  @NonNull
+  public final TextView tvVersion;
+
   private FragmentSettingsBinding(@NonNull LinearLayout rootView,
       @NonNull LinearLayout layoutBackup, @NonNull LinearLayout layoutCategory,
-      @NonNull LinearLayout layoutRestore) {
+      @NonNull LinearLayout layoutRestore, @NonNull TextView tvVersion) {
     this.rootView = rootView;
     this.layoutBackup = layoutBackup;
     this.layoutCategory = layoutCategory;
     this.layoutRestore = layoutRestore;
+    this.tvVersion = tvVersion;
   }
 
   @Override
@@ -81,8 +86,14 @@ public final class FragmentSettingsBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tvVersion;
+      TextView tvVersion = ViewBindings.findChildViewById(rootView, id);
+      if (tvVersion == null) {
+        break missingId;
+      }
+
       return new FragmentSettingsBinding((LinearLayout) rootView, layoutBackup, layoutCategory,
-          layoutRestore);
+          layoutRestore, tvVersion);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

@@ -1,34 +1,38 @@
 [
     {
-        "merged": "com.example.moneytracker.app-mergeDebugResources-51:/layout/item_category.xml",
-        "source": "com.example.moneytracker.app-main-54:/layout/item_category.xml"
+        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-mergeDebugResources-51:/layout/fragment_home.xml",
+        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/fragment_home.xml"
     },
     {
-        "merged": "com.example.moneytracker.app-mergeDebugResources-51:/layout/activity_add_transaction.xml",
-        "source": "com.example.moneytracker.app-main-54:/layout/activity_add_transaction.xml"
+        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-mergeDebugResources-51:/layout/fragment_settings.xml",
+        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/fragment_settings.xml"
     },
     {
-        "merged": "com.example.moneytracker.app-mergeDebugResources-51:/layout/activity_category_manager.xml",
-        "source": "com.example.moneytracker.app-main-54:/layout/activity_category_manager.xml"
+        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-mergeDebugResources-51:/layout/item_transaction.xml",
+        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/item_transaction.xml"
     },
     {
-        "merged": "com.example.moneytracker.app-mergeDebugResources-51:/layout/fragment_settings.xml",
-        "source": "com.example.moneytracker.app-main-54:/layout/fragment_settings.xml"
+        "merged": "com.example.moneytracker.app-mergeDebugResources-51:/layout/item_date_header.xml",
+        "source": "com.example.moneytracker.app-main-54:/layout/item_date_header.xml"
     },
     {
-        "merged": "com.example.moneytracker.app-mergeDebugResources-51:/layout/fragment_home.xml",
-        "source": "com.example.moneytracker.app-main-54:/layout/fragment_home.xml"
+        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-mergeDebugResources-51:/layout/activity_add_transaction.xml",
+        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/activity_add_transaction.xml"
     },
     {
-        "merged": "com.example.moneytracker.app-mergeDebugResources-51:/layout/item_transaction.xml",
-        "source": "com.example.moneytracker.app-main-54:/layout/item_transaction.xml"
+        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-mergeDebugResources-51:/layout/item_category.xml",
+        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/item_category.xml"
     },
     {
-        "merged": "com.example.moneytracker.app-mergeDebugResources-51:/layout/fragment_statistics.xml",
-        "source": "com.example.moneytracker.app-main-54:/layout/fragment_statistics.xml"
+        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-mergeDebugResources-51:/layout/activity_main.xml",
+        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/activity_main.xml"
     },
     {
-        "merged": "com.example.moneytracker.app-mergeDebugResources-51:/layout/activity_main.xml",
-        "source": "com.example.moneytracker.app-main-54:/layout/activity_main.xml"
+        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-mergeDebugResources-51:/layout/activity_category_manager.xml",
+        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/activity_category_manager.xml"
+    },
+    {
+        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-mergeDebugResources-51:/layout/fragment_statistics.xml",
+        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/fragment_statistics.xml"
     }
 ]
