@@ -80,7 +80,13 @@ class TransactionAdapter(
                 if (resourceId != 0) {
                     val drawable = ContextCompat.getDrawable(context, resourceId)
                     binding.ivCategoryIcon.setImageDrawable(drawable)
-                    binding.ivCategoryIcon.setColorFilter(cat.color)
+                    // 根据交易类型设置图标颜色：收入显示绿色，支出显示红色
+                    val iconColor = if (transaction.isIncome()) {
+                        ContextCompat.getColor(context, R.color.income)
+                    } else {
+                        ContextCompat.getColor(context, R.color.expense)
+                    }
+                    binding.ivCategoryIcon.setColorFilter(iconColor)
                 }
             }
 
