@@ -11,6 +11,7 @@ object DateUtils {
     
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+    private val fullDateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
     private val shortDateFormat = SimpleDateFormat("MM-dd", Locale.getDefault())
     private val monthFormat = SimpleDateFormat("yyyy年MM月", Locale.getDefault())
     
@@ -26,6 +27,13 @@ object DateUtils {
      */
     fun formatDateTime(timestamp: Long): String {
         return dateTimeFormat.format(timestamp)
+    }
+    
+    /**
+     * 格式化完整日期时间（年月日时分秒）
+     */
+    fun formatFullDateTime(timestamp: Long): String {
+        return fullDateTimeFormat.format(timestamp)
     }
     
     /**

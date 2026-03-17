@@ -66,8 +66,8 @@ class TransactionAdapter(
                 )
             )
 
-            // 设置日期
-            binding.tvDate.text = DateUtils.formatShortDate(transaction.date)
+            // 设置日期（年月日时分秒）
+            binding.tvDate.text = DateUtils.formatFullDateTime(transaction.date)
 
             // 设置图标
             val context = binding.root.context
