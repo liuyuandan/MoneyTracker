@@ -30,6 +30,19 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupClickListeners()
+        setupVersionDisplay()
+    }
+
+    private fun setupVersionDisplay() {
+        try {
+            val packageInfo = requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
+            val versionName = packageInfo.versionName
+            binding.tvVersion.text = versionName
+            FileLogger.log("SettingsFragment", "setupVersionDisplay: version = $versionName")
+        } catch (e: Exception) {
+            FileLogger.logError("SettingsFragment", "setupVersionDisplay: Error getting version", e)
+            binding.tvVersion.text = "1.0"
+        }
     }
 
     private fun setupClickListeners() {
