@@ -121,24 +121,34 @@ class HomeFragment : Fragment() {
             binding.tvBalance.text = CurrencyUtils.format(balance)
         }
 
-        viewModel.recentTransactions.observe(viewLifecycleOwner) { transactions ->
-            val categories = viewModel.categories.value ?: emptyMap()
+        // 同时监听分类变化，更新交易列表显示
+        viewModel.categories.observe(viewLifecycleOwner) {
+            updateTransactionList()
+        }
 
-            if (transactions.isEmpty()) {
-                binding.emptyState.visibility = View.VISIBLE
-                binding.rvTransactions.visibility = View.GONE
-            } else {
-                binding.emptyState.visibility = View.GONE
-                binding.rvTransactions.visibility = View.VISIBLE
+        viewModel.recentTransactions.observe(viewLifecycleOwner) {
+            updateTransactionList()
+        }
+    }
 
-                val items = transactions.map { transaction ->
-                    TransactionWithCategory(
-                        transaction = transaction,
-                        category = categories[transaction.categoryId]
-                    )
-                }
-                transactionAdapter.submitList(items)
+    private fun updateTransactionList() {
+        val transactions = viewModel.recentTransactions.value ?: emptyList()
+        val categories = viewModel.categories.value ?: emptyMap()
+
+        if (transactions.isEmpty()) {
+            binding.emptyState.visibility = View.VISIBLE
+            binding.rvTransactions.visibility = View.GONE
+        } else {
+            binding.emptyState.visibility = View.GONE
+            binding.rvTransactions.visibility = View.VISIBLE
+
+            val items = transactions.map { transaction ->
+                TransactionWithCategory(
+                    transaction = transaction,
+                    category = categories[transaction.categoryId]
+                )
             }
+            transactionAdapter.submitList(items)
         }
     }
 
