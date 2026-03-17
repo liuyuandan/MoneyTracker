@@ -289,5 +289,15 @@ class AddTransactionActivity : AppCompatActivity() {
                 binding.tvDate.text = DateUtils.formatDate(it)
             }
         }
+
+        // 监听加载的交易记录，更新金额显示
+        viewModel.loadedTransaction.observe(this) { transaction ->
+            transaction?.let {
+                currentAmount = it.amount.toString()
+                updateAmountDisplay()
+                binding.etDescription.setText(it.description)
+                FileLogger.log(TAG, "observeData: Loaded transaction amount = ${it.amount}")
+            }
+        }
     }
 }

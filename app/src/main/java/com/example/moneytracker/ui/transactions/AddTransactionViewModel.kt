@@ -36,6 +36,9 @@ class AddTransactionViewModel(application: Application) : AndroidViewModel(appli
     private val _selectedDate = MutableLiveData<Long>()
     val selectedDate: LiveData<Long> = _selectedDate
 
+    private val _loadedTransaction = MutableLiveData<Transaction?>()
+    val loadedTransaction: LiveData<Transaction?> = _loadedTransaction
+
     init {
         FileLogger.log(TAG, "init: Initializing ViewModel")
         try {
@@ -159,9 +162,10 @@ class AddTransactionViewModel(application: Application) : AndroidViewModel(appli
                 transaction?.let {
                     _transactionType.postValue(it.type)
                     _selectedDate.postValue(it.date)
+                    _loadedTransaction.postValue(it)
                     val category = categoryRepository.getCategoryById(it.categoryId)
                     _selectedCategory.postValue(category)
-                    FileLogger.log(TAG, "loadTransaction: Transaction loaded, categoryId = ${it.categoryId}")
+                    FileLogger.log(TAG, "loadTransaction: Transaction loaded, amount = ${it.amount}, categoryId = ${it.categoryId}")
                 }
             } catch (e: Exception) {
                 FileLogger.logError(TAG, "loadTransaction: Error loading transaction", e)
