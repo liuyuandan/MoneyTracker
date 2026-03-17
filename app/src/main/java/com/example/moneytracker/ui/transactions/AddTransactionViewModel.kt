@@ -151,4 +151,21 @@ class AddTransactionViewModel(application: Application) : AndroidViewModel(appli
 
         return true
     }
+
+    fun loadTransaction(transactionId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val transaction = transactionRepository.getTransactionById(transactionId)
+                transaction?.let {
+                    _transactionType.postValue(it.type)
+                    _selectedDate.postValue(it.date)
+                    val category = categoryRepository.getCategoryById(it.categoryId)
+                    _selectedCategory.postValue(category)
+                    FileLogger.log(TAG, "loadTransaction: Transaction loaded, categoryId = ${it.categoryId}")
+                }
+            } catch (e: Exception) {
+                FileLogger.logError(TAG, "loadTransaction: Error loading transaction", e)
+            }
+        }
+    }
 }

@@ -62,6 +62,11 @@ class CategoryAdapter(
 
             // 设置选中状态
             val isSelected = category.id == selectedCategoryId
+            binding.selectedIndicator.visibility = if (isSelected) {
+                android.view.View.VISIBLE
+            } else {
+                android.view.View.GONE
+            }
             binding.root.alpha = if (isSelected) 1.0f else 0.6f
 
             binding.root.setOnClickListener {

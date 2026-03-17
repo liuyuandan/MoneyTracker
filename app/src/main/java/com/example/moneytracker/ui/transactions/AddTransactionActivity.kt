@@ -101,6 +101,11 @@ class AddTransactionActivity : AppCompatActivity() {
             showErrorAndFinish("数据监听初始化失败", e)
             return
         }
+        
+        // 如果是编辑模式，加载交易详情
+        if (editingTransactionId > 0) {
+            loadTransactionDetails()
+        }
             
         FileLogger.log(TAG, "onCreate: All setup completed successfully")
     }
@@ -248,6 +253,11 @@ class AddTransactionActivity : AppCompatActivity() {
         binding.ivBack.setOnClickListener {
             finish()
         }
+    }
+
+    private fun loadTransactionDetails() {
+        FileLogger.log(TAG, "loadTransactionDetails: Loading transaction $editingTransactionId")
+        viewModel.loadTransaction(editingTransactionId)
     }
 
     private fun observeData() {
