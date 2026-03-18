@@ -163,9 +163,13 @@ class AddTransactionViewModel(application: Application) : AndroidViewModel(appli
                     _transactionType.postValue(it.type)
                     _selectedDate.postValue(it.date)
                     _loadedTransaction.postValue(it)
+                    // 加载对应类型的分类列表
+                    categoryRepository.getCategoriesByType(it.type).collect { categoryList ->
+                        _categories.postValue(categoryList)
+                    }
                     val category = categoryRepository.getCategoryById(it.categoryId)
                     _selectedCategory.postValue(category)
-                    FileLogger.log(TAG, "loadTransaction: Transaction loaded, amount = ${it.amount}, categoryId = ${it.categoryId}")
+                    FileLogger.log(TAG, "loadTransaction: Transaction loaded, type = ${it.type}, categoryId = ${it.categoryId}")
                 }
             } catch (e: Exception) {
                 FileLogger.logError(TAG, "loadTransaction: Error loading transaction", e)

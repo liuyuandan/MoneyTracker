@@ -270,6 +270,12 @@ class AddTransactionActivity : AppCompatActivity() {
                     ContextCompat.getColor(this, R.color.income)
                 }
                 binding.tvAmountDisplay.setTextColor(color)
+                
+                // 更新 TabLayout 选中状态
+                val tabIndex = if (isExpense) 0 else 1
+                if (binding.tabLayout.selectedTabPosition != tabIndex) {
+                    binding.tabLayout.getTabAt(tabIndex)?.select()
+                }
             }
         }
 
