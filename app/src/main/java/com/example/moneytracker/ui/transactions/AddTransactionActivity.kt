@@ -102,9 +102,12 @@ class AddTransactionActivity : AppCompatActivity() {
             return
         }
         
-        // 如果是编辑模式，加载交易详情
+        // 如果是编辑模式，设置标题并加载交易详情
         if (editingTransactionId > 0) {
+            binding.tvTitle.text = getString(R.string.edit_transaction)
             loadTransactionDetails()
+        } else {
+            binding.tvTitle.text = getString(R.string.add_transaction)
         }
             
         FileLogger.log(TAG, "onCreate: All setup completed successfully")

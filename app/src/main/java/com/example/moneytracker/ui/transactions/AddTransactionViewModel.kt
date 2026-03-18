@@ -13,6 +13,7 @@ import com.example.moneytracker.data.repository.CategoryRepository
 import com.example.moneytracker.data.repository.TransactionRepository
 import com.example.moneytracker.utils.FileLogger
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class AddTransactionViewModel(application: Application) : AndroidViewModel(application) {
@@ -163,13 +164,13 @@ class AddTransactionViewModel(application: Application) : AndroidViewModel(appli
                     _transactionType.postValue(it.type)
                     _selectedDate.postValue(it.date)
                     _loadedTransaction.postValue(it)
-                    // 加载对应类型的分类列表
-                    categoryRepository.getCategoriesByType(it.type).collect { categoryList ->
-                        _categories.postValue(categoryList)
-                    }
+                    // 先获取分类列表的第一个值
+                    val categoryList = categoryRepository.getCategoriesByType(it.type).first()
+                    _categories.postValue(categoryList)
+                    // 然后设置选中的分类
                     val category = categoryRepository.getCategoryById(it.categoryId)
                     _selectedCategory.postValue(category)
-                    FileLogger.log(TAG, "loadTransaction: Transaction loaded, type = ${it.type}, categoryId = ${it.categoryId}")
+                    FileLogger.log(TAG, "loadTransaction: Transaction loaded, type = ${it.type}, categoryId = ${it.categoryId}, categories size = ${categoryList.size}")
                 }
             } catch (e: Exception) {
                 FileLogger.logError(TAG, "loadTransaction: Error loading transaction", e)

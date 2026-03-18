@@ -115,6 +115,7 @@ id tv_expense
 id tv_income
 id tv_month
 id tv_name
+id tv_title
 layout activity_add_transaction
 layout activity_category_manager
 layout activity_main

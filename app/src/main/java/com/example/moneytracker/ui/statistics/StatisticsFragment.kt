@@ -160,7 +160,11 @@ class StatisticsFragment : Fragment() {
         }
 
         val data = PieData(dataSet).apply {
-            setValueFormatter(PercentFormatter())
+            setValueFormatter(object : com.github.mikephil.charting.formatter.ValueFormatter() {
+                override fun getFormattedValue(value: Float): String {
+                    return "¥${value.toInt()}"
+                }
+            })
             setValueTextSize(11f)
             setValueTextColor(Color.WHITE)
         }
