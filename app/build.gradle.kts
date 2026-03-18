@@ -32,7 +32,7 @@ android {
     applicationVariants.all {
         outputs.all {
             val outputImpl = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
-            outputImpl.outputFileName = "MoneyTracker-${versionName}.apk"
+            outputImpl.outputFileName = "MoneyTracker.apk"
         }
     }
     compileOptions {
