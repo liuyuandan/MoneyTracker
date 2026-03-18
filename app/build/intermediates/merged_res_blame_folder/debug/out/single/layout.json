@@ -4,16 +4,16 @@
         "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/fragment_home.xml"
     },
     {
+        "merged": "com.example.moneytracker.app-mergeDebugResources-51:/layout/dialog_add_category.xml",
+        "source": "com.example.moneytracker.app-main-54:/layout/dialog_add_category.xml"
+    },
+    {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-mergeDebugResources-51:/layout/fragment_settings.xml",
         "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/fragment_settings.xml"
     },
     {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-mergeDebugResources-51:/layout/item_transaction.xml",
         "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/item_transaction.xml"
-    },
-    {
-        "merged": "com.example.moneytracker.app-mergeDebugResources-51:/layout/activity_add_transaction.xml",
-        "source": "com.example.moneytracker.app-main-54:/layout/activity_add_transaction.xml"
     },
     {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-mergeDebugResources-51:/layout/activity_add_transaction.xml",

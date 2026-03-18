@@ -1,9 +1,13 @@
 package com.example.moneytracker.ui.categories
 
 import android.os.Bundle
+import android.widget.EditText
+import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.moneytracker.R
 import com.example.moneytracker.adapters.CategoryAdapter
 import com.example.moneytracker.data.database.entities.Category
 import com.example.moneytracker.databinding.ActivityCategoryManagerBinding
@@ -32,6 +36,16 @@ class CategoryManagerActivity : AppCompatActivity() {
         }
         binding.rvCategories.layoutManager = GridLayoutManager(this, 4)
         binding.rvCategories.adapter = categoryAdapter
+
+        // 长按删除分类
+        categoryAdapter.setOnLongClickListener { category ->
+            if (category.isDefault) {
+                Toast.makeText(this, "默认分类不能删除", Toast.LENGTH_SHORT).show()
+            } else {
+                showDeleteConfirmDialog(category)
+            }
+            true
+        }
     }
 
     private fun setupTabLayout() {
@@ -56,14 +70,48 @@ class CategoryManagerActivity : AppCompatActivity() {
         }
 
         binding.ivAdd.setOnClickListener {
-            // 添加自定义分类（暂不实现，可以后续扩展）
             showAddCategoryDialog()
         }
     }
 
     private fun showAddCategoryDialog() {
-        // 简单的添加分类对话框，实际项目中可以做得更完善
-        // 这里暂时不实现，预留接口
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_category, null)
+        val etCategoryName = dialogView.findViewById<EditText>(R.id.et_category_name)
+
+        AlertDialog.Builder(this)
+            .setTitle("添加分类")
+            .setView(dialogView)
+            .setPositiveButton(R.string.save) { _, _ ->
+                val name = etCategoryName.text.toString().trim()
+                if (name.isNotEmpty()) {
+                    val type = viewModel.currentType.value ?: Category.TYPE_EXPENSE
+                    val category = Category(
+                        name = name,
+                        icon = "ic_category_other",
+                        color = 0xFF9E9E9E.toInt(),
+                        type = type,
+                        isDefault = false
+                    )
+                    viewModel.addCategory(category)
+                    Toast.makeText(this, "分类添加成功", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "请输入分类名称", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun showDeleteConfirmDialog(category: Category) {
+        AlertDialog.Builder(this)
+            .setTitle("删除分类")
+            .setMessage("确定要删除分类 ${category.name} 吗？")
+            .setPositiveButton("删除") { _, _ ->
+                viewModel.deleteCategory(category)
+                Toast.makeText(this, "分类已删除", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("取消", null)
+            .show()
     }
 
     private fun observeData() {

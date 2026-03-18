@@ -44,16 +44,8 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun addCategory(name: String, icon: String, color: Int) {
+    fun addCategory(category: Category) {
         viewModelScope.launch {
-            val type = _currentType.value ?: Category.TYPE_EXPENSE
-            val category = Category(
-                name = name,
-                icon = icon,
-                color = color,
-                type = type,
-                isDefault = false
-            )
             repository.insert(category)
         }
     }

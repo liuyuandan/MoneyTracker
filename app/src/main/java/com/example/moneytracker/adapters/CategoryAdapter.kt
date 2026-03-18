@@ -19,10 +19,15 @@ class CategoryAdapter(
 ) : ListAdapter<Category, CategoryAdapter.CategoryViewHolder>(CategoryDiffCallback()) {
 
     private var selectedCategoryId: Long = -1
+    private var onLongClickListener: ((Category) -> Boolean)? = null
 
     fun setSelectedCategory(categoryId: Long) {
         selectedCategoryId = categoryId
         notifyDataSetChanged()
+    }
+
+    fun setOnLongClickListener(listener: (Category) -> Boolean) {
+        onLongClickListener = listener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
@@ -71,6 +76,10 @@ class CategoryAdapter(
 
             binding.root.setOnClickListener {
                 onCategoryClick(category)
+            }
+
+            binding.root.setOnLongClickListener {
+                onLongClickListener?.invoke(category) ?: false
             }
         }
     }
