@@ -31,7 +31,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "money_tracker_database"
                 )
-                    .fallbackToDestructiveMigration()
+                    // 不使用 fallbackToDestructiveMigration，避免数据丢失
+                    // 如果需要数据库迁移，应该添加迁移策略
                     .build()
                 INSTANCE = instance
                 instance
