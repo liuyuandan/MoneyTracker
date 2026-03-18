@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.moneytracker.R
@@ -186,8 +187,8 @@ class StatisticsFragment : Fragment() {
         }
 
         val expenseDataSet = LineDataSet(entries, getString(R.string.expense)).apply {
-            color = Color.parseColor("#FF5252")
-            setCircleColor(Color.parseColor("#FF5252"))
+            color = ContextCompat.getColor(requireContext(), R.color.expense)
+            setCircleColor(ContextCompat.getColor(requireContext(), R.color.expense))
             lineWidth = 2f
             circleRadius = 4f
             setDrawCircleHole(false)
@@ -201,8 +202,8 @@ class StatisticsFragment : Fragment() {
         }
 
         val incomeDataSet = LineDataSet(incomeEntries, getString(R.string.income)).apply {
-            color = Color.parseColor("#4CAF50")
-            setCircleColor(Color.parseColor("#4CAF50"))
+            color = ContextCompat.getColor(requireContext(), R.color.income)
+            setCircleColor(ContextCompat.getColor(requireContext(), R.color.income))
             lineWidth = 2f
             circleRadius = 4f
             setDrawCircleHole(false)
