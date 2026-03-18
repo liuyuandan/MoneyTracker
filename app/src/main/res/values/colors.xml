@@ -10,8 +10,8 @@
     <color name="secondary_dark">#3CC4A8</color>
 
     <!-- 收支颜色 -->
-    <color name="income">#4CAF50</color>
-    <color name="expense">#FF5252</color>
+    <color name="income">#FF5252</color>
+    <color name="expense">#4CAF50</color>
 
     <!-- 背景和卡片 -->
     <color name="background">#FAFAFA</color>
