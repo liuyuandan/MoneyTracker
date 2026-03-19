@@ -21,7 +21,6 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
-import com.google.android.material.chip.Chip
 
 class StatisticsFragment : Fragment() {
 
@@ -59,14 +58,13 @@ class StatisticsFragment : Fragment() {
     }
 
     private fun setupPeriodToggle() {
-        binding.chipMonth.isChecked = true
-        
-        binding.chipMonth.setOnClickListener {
-            viewModel.setViewMode(false)
-        }
-        
-        binding.chipYear.setOnClickListener {
-            viewModel.setViewMode(true)
+        // 使用 ChipGroup 的选中状态监听器，而不是单独设置 Chip 的点击事件
+        binding.chipGroupPeriod.setOnCheckedStateChangeListener { group, checkedIds ->
+            if (checkedIds.contains(R.id.chip_year)) {
+                viewModel.setViewMode(true)
+            } else {
+                viewModel.setViewMode(false)
+            }
         }
     }
 
@@ -153,10 +151,13 @@ class StatisticsFragment : Fragment() {
             updateLineChart(expenseTotals, incomeTotals, isYearView)
         }
 
-        // 监听视图模式变化
+        // 监听视图模式变化，更新 ChipGroup 选中状态
         viewModel.isYearView.observe(viewLifecycleOwner) { isYear ->
-            binding.chipMonth.isChecked = !isYear
-            binding.chipYear.isChecked = isYear
+            if (isYear) {
+                binding.chipGroupPeriod.check(R.id.chip_year)
+            } else {
+                binding.chipGroupPeriod.check(R.id.chip_month)
+            }
         }
     }
 
