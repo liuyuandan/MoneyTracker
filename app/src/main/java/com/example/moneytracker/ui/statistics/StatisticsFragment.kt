@@ -29,6 +29,9 @@ class StatisticsFragment : Fragment() {
 
     private val viewModel: StatisticsViewModel by viewModels()
 
+    // 用于避免循环触发的标志位
+    private var isUpdatingFromViewModel = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -58,12 +61,15 @@ class StatisticsFragment : Fragment() {
     }
 
     private fun setupPeriodToggle() {
-        // 使用 ChipGroup 的选中状态监听器，而不是单独设置 Chip 的点击事件
+        // 使用 ChipGroup 的选中状态监听器
         binding.chipGroupPeriod.setOnCheckedStateChangeListener { group, checkedIds ->
-            if (checkedIds.contains(R.id.chip_year)) {
-                viewModel.setViewMode(true)
-            } else {
-                viewModel.setViewMode(false)
+            // 避免从 ViewModel 更新时重复触发
+            if (!isUpdatingFromViewModel) {
+                if (checkedIds.contains(R.id.chip_year)) {
+                    viewModel.setViewMode(true)
+                } else if (checkedIds.contains(R.id.chip_month)) {
+                    viewModel.setViewMode(false)
+                }
             }
         }
     }
@@ -153,11 +159,13 @@ class StatisticsFragment : Fragment() {
 
         // 监听视图模式变化，更新 ChipGroup 选中状态
         viewModel.isYearView.observe(viewLifecycleOwner) { isYear ->
+            isUpdatingFromViewModel = true
             if (isYear) {
                 binding.chipGroupPeriod.check(R.id.chip_year)
             } else {
                 binding.chipGroupPeriod.check(R.id.chip_month)
             }
+            isUpdatingFromViewModel = false
         }
     }
 
