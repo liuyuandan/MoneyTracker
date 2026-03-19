@@ -3042,6 +3042,10 @@ drawable abc_textfield_search_material
 drawable abc_vector_test
 drawable avd_hide_password
 drawable avd_show_password
+drawable bg_color_picker
+drawable bg_color_picker_selected
+drawable bg_icon_picker
+drawable bg_icon_picker_selected
 drawable btn_checkbox_checked_mtrl
 drawable btn_checkbox_checked_to_unchecked_mtrl_animation
 drawable btn_checkbox_unchecked_mtrl
@@ -3592,6 +3596,8 @@ id rounded
 id row_index_key
 id rtl
 id rv_categories
+id rv_colors
+id rv_icons
 id rv_transactions
 id save_non_transition_alpha
 id save_overlay_view
@@ -3724,6 +3730,7 @@ id unlabeled
 id up
 id useLogo
 id vertical_only
+id view_color
 id view_offset_helper
 id view_transition
 id view_tree_lifecycle_owner
@@ -3882,7 +3889,9 @@ layout fragment_statistics
 layout ime_base_split_test_activity
 layout ime_secondary_split_test_activity
 layout item_category
+layout item_color_picker
 layout item_date_header
+layout item_icon_picker
 layout item_transaction
 layout m3_alert_dialog
 layout m3_alert_dialog_actions

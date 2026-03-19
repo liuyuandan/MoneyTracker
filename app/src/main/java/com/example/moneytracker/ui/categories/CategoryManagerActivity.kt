@@ -7,8 +7,11 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.moneytracker.R
 import com.example.moneytracker.adapters.CategoryAdapter
+import com.example.moneytracker.adapters.ColorPickerAdapter
+import com.example.moneytracker.adapters.IconPickerAdapter
 import com.example.moneytracker.data.database.entities.Category
 import com.example.moneytracker.databinding.ActivityCategoryManagerBinding
 import com.google.android.material.tabs.TabLayout
@@ -18,6 +21,30 @@ class CategoryManagerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCategoryManagerBinding
     private val viewModel: CategoryViewModel by viewModels()
     private lateinit var categoryAdapter: CategoryAdapter
+
+    // 可选图标列表
+    private val availableIcons = listOf(
+        "ic_restaurant", "ic_transport", "ic_shopping", "ic_entertainment",
+        "ic_medical", "ic_education", "ic_home", "ic_communication",
+        "ic_clothing", "ic_other_expense", "ic_salary", "ic_parttime",
+        "ic_investment", "ic_bonus", "ic_other_income", "ic_category"
+    )
+
+    // 可选颜色列表
+    private val availableColors = listOf(
+        0xFFFF9800.toInt(), // 橙色
+        0xFF2196F3.toInt(), // 蓝色
+        0xFFE91E63.toInt(), // 粉色
+        0xFF9C27B0.toInt(), // 紫色
+        0xFFF44336.toInt(), // 红色
+        0xFF00BCD4.toInt(), // 青色
+        0xFF4CAF50.toInt(), // 绿色
+        0xFF795548.toInt(), // 棕色
+        0xFF607D8B.toInt(), // 灰蓝
+        0xFFFFEB3B.toInt(), // 黄色
+        0xFF9E9E9E.toInt(), // 灰色
+        0xFF8BC34A.toInt()  // 浅绿
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +104,24 @@ class CategoryManagerActivity : AppCompatActivity() {
     private fun showAddCategoryDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_category, null)
         val etCategoryName = dialogView.findViewById<EditText>(R.id.et_category_name)
+        val rvIcons = dialogView.findViewById<RecyclerView>(R.id.rv_icons)
+        val rvColors = dialogView.findViewById<RecyclerView>(R.id.rv_colors)
+
+        // 设置图标选择
+        var selectedIcon = availableIcons[0]
+        val iconAdapter = IconPickerAdapter(availableIcons) { icon ->
+            selectedIcon = icon
+        }
+        rvIcons.layoutManager = GridLayoutManager(this, 8)
+        rvIcons.adapter = iconAdapter
+
+        // 设置颜色选择
+        var selectedColor = availableColors[0]
+        val colorAdapter = ColorPickerAdapter(availableColors) { color ->
+            selectedColor = color
+        }
+        rvColors.layoutManager = GridLayoutManager(this, 8)
+        rvColors.adapter = colorAdapter
 
         AlertDialog.Builder(this)
             .setTitle("添加分类")
@@ -87,8 +132,8 @@ class CategoryManagerActivity : AppCompatActivity() {
                     val type = viewModel.currentType.value ?: Category.TYPE_EXPENSE
                     val category = Category(
                         name = name,
-                        icon = "ic_category_other",
-                        color = 0xFF9E9E9E.toInt(),
+                        icon = selectedIcon,
+                        color = selectedColor,
                         type = type,
                         isDefault = false
                     )

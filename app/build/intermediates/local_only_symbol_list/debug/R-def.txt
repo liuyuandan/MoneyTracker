@@ -28,6 +28,10 @@ color text_hint
 color text_primary
 color text_secondary
 color text_white
+drawable bg_color_picker
+drawable bg_color_picker_selected
+drawable bg_icon_picker
+drawable bg_icon_picker_selected
 drawable card_background
 drawable category_selected_background
 drawable fab_background
@@ -100,6 +104,8 @@ id pie_chart_expense
 id pie_chart_income
 id root_layout
 id rv_categories
+id rv_colors
+id rv_icons
 id rv_transactions
 id selected_indicator
 id tab_layout
@@ -117,6 +123,7 @@ id tv_income
 id tv_month
 id tv_name
 id tv_title
+id view_color
 layout activity_add_transaction
 layout activity_category_manager
 layout activity_main
@@ -125,7 +132,9 @@ layout fragment_home
 layout fragment_settings
 layout fragment_statistics
 layout item_category
+layout item_color_picker
 layout item_date_header
+layout item_icon_picker
 layout item_transaction
 menu bottom_nav_menu
 mipmap ic_launcher

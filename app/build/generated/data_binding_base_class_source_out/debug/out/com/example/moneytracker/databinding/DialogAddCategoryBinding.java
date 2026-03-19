@@ -8,6 +8,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.moneytracker.R;
@@ -22,10 +23,18 @@ public final class DialogAddCategoryBinding implements ViewBinding {
   @NonNull
   public final EditText etCategoryName;
 
-  private DialogAddCategoryBinding(@NonNull LinearLayout rootView,
-      @NonNull EditText etCategoryName) {
+  @NonNull
+  public final RecyclerView rvColors;
+
+  @NonNull
+  public final RecyclerView rvIcons;
+
+  private DialogAddCategoryBinding(@NonNull LinearLayout rootView, @NonNull EditText etCategoryName,
+      @NonNull RecyclerView rvColors, @NonNull RecyclerView rvIcons) {
     this.rootView = rootView;
     this.etCategoryName = etCategoryName;
+    this.rvColors = rvColors;
+    this.rvIcons = rvIcons;
   }
 
   @Override
@@ -61,7 +70,20 @@ public final class DialogAddCategoryBinding implements ViewBinding {
         break missingId;
       }
 
-      return new DialogAddCategoryBinding((LinearLayout) rootView, etCategoryName);
+      id = R.id.rv_colors;
+      RecyclerView rvColors = ViewBindings.findChildViewById(rootView, id);
+      if (rvColors == null) {
+        break missingId;
+      }
+
+      id = R.id.rv_icons;
+      RecyclerView rvIcons = ViewBindings.findChildViewById(rootView, id);
+      if (rvIcons == null) {
+        break missingId;
+      }
+
+      return new DialogAddCategoryBinding((LinearLayout) rootView, etCategoryName, rvColors,
+          rvIcons);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));
