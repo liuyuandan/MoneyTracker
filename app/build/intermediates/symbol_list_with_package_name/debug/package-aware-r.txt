@@ -3313,6 +3313,9 @@ id chain2
 id chains
 id checkbox
 id checked
+id chipGroup_period
+id chip_month
+id chip_year
 id chronometer
 id circle_center
 id clear_text

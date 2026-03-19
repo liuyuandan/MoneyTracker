@@ -21,7 +21,7 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
-import com.github.mikephil.charting.utils.ColorTemplate
+import com.google.android.material.chip.Chip
 
 class StatisticsFragment : Fragment() {
 
@@ -42,18 +42,28 @@ class StatisticsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupMonthNavigation()
+        setupPeriodNavigation()
+        setupPeriodToggle()
         setupCharts()
         observeData()
     }
 
-    private fun setupMonthNavigation() {
+    private fun setupPeriodNavigation() {
         binding.ivPrevMonth.setOnClickListener {
-            viewModel.goToPreviousMonth()
+            viewModel.goToPreviousPeriod()
         }
 
         binding.ivNextMonth.setOnClickListener {
-            viewModel.goToNextMonth()
+            viewModel.goToNextPeriod()
+        }
+    }
+
+    private fun setupPeriodToggle() {
+        binding.chipMonth.isChecked = true
+        
+        binding.chipGroupPeriod.setOnCheckedStateChangeListener { group, checkedIds ->
+            val isYearView = checkedIds.contains(R.id.chip_year)
+            viewModel.setViewMode(isYearView)
         }
     }
 
@@ -103,19 +113,19 @@ class StatisticsFragment : Fragment() {
     }
 
     private fun observeData() {
-        viewModel.currentMonth.observe(viewLifecycleOwner) { month ->
-            binding.tvCurrentMonth.text = month
+        viewModel.currentPeriod.observe(viewLifecycleOwner) { period ->
+            binding.tvCurrentMonth.text = period
         }
 
-        viewModel.monthlyIncome.observe(viewLifecycleOwner) { income ->
+        viewModel.periodIncome.observe(viewLifecycleOwner) { income ->
             binding.tvIncome.text = CurrencyUtils.format(income)
         }
 
-        viewModel.monthlyExpense.observe(viewLifecycleOwner) { expense ->
+        viewModel.periodExpense.observe(viewLifecycleOwner) { expense ->
             binding.tvExpense.text = CurrencyUtils.format(expense)
         }
 
-        viewModel.monthlyBalance.observe(viewLifecycleOwner) { balance ->
+        viewModel.periodBalance.observe(viewLifecycleOwner) { balance ->
             binding.tvBalance.text = CurrencyUtils.format(balance)
         }
 
@@ -127,15 +137,23 @@ class StatisticsFragment : Fragment() {
             updatePieChart(binding.pieChartIncome, totals)
         }
 
-        // 同时监听每日支出和收入数据来更新折线图
-        viewModel.dailyExpenseTotals.observe(viewLifecycleOwner) { expenseTotals ->
-            val incomeTotals = viewModel.dailyIncomeTotals.value ?: emptyList()
-            updateLineChart(expenseTotals, incomeTotals)
+        // 监听趋势数据
+        viewModel.periodExpenseTotals.observe(viewLifecycleOwner) { expenseTotals ->
+            val incomeTotals = viewModel.periodIncomeTotals.value ?: emptyList()
+            val isYearView = viewModel.isYearView.value ?: false
+            updateLineChart(expenseTotals, incomeTotals, isYearView)
         }
 
-        viewModel.dailyIncomeTotals.observe(viewLifecycleOwner) { incomeTotals ->
-            val expenseTotals = viewModel.dailyExpenseTotals.value ?: emptyList()
-            updateLineChart(expenseTotals, incomeTotals)
+        viewModel.periodIncomeTotals.observe(viewLifecycleOwner) { incomeTotals ->
+            val expenseTotals = viewModel.periodExpenseTotals.value ?: emptyList()
+            val isYearView = viewModel.isYearView.value ?: false
+            updateLineChart(expenseTotals, incomeTotals, isYearView)
+        }
+
+        // 监听视图模式变化
+        viewModel.isYearView.observe(viewLifecycleOwner) { isYear ->
+            binding.chipMonth.isChecked = !isYear
+            binding.chipYear.isChecked = isYear
         }
     }
 
@@ -171,7 +189,8 @@ class StatisticsFragment : Fragment() {
 
     private fun updateLineChart(
         expenseTotals: List<DailyTotal>,
-        incomeTotals: List<DailyTotal>
+        incomeTotals: List<DailyTotal>,
+        isYearView: Boolean
     ) {
         if (expenseTotals.isEmpty() && incomeTotals.isEmpty()) {
             binding.lineChart.clear()
@@ -179,14 +198,13 @@ class StatisticsFragment : Fragment() {
             return
         }
 
-        val entries = mutableListOf<Entry>()
-
         // 添加支出数据
+        val expenseEntries = mutableListOf<Entry>()
         expenseTotals.forEachIndexed { index, total ->
-            entries.add(Entry(index.toFloat(), total.totalAmount.toFloat()))
+            expenseEntries.add(Entry(index.toFloat(), total.totalAmount.toFloat()))
         }
 
-        val expenseDataSet = LineDataSet(entries, getString(R.string.expense)).apply {
+        val expenseDataSet = LineDataSet(expenseEntries, getString(R.string.expense)).apply {
             color = ContextCompat.getColor(requireContext(), R.color.expense)
             setCircleColor(ContextCompat.getColor(requireContext(), R.color.expense))
             lineWidth = 2f
@@ -212,6 +230,16 @@ class StatisticsFragment : Fragment() {
 
         val lineData = LineData(expenseDataSet, incomeDataSet)
         binding.lineChart.data = lineData
+        
+        // 设置X轴标签
+        binding.lineChart.xAxis.valueFormatter = com.github.mikephil.charting.formatter.IndexAxisValueFormatter(
+            if (isYearView) {
+                listOf("1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月")
+            } else {
+                (1..31).map { "${it}日" }
+            }
+        )
+        
         binding.lineChart.invalidate()
     }
 

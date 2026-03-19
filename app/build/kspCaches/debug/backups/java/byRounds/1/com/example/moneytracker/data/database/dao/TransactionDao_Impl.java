@@ -695,6 +695,54 @@ public final class TransactionDao_Impl implements TransactionDao {
     });
   }
 
+  @Override
+  public Flow<List<DailyTotal>> getMonthlyTotalsByType(final int type, final long startTime,
+      final long endTime) {
+    final String _sql = "\n"
+            + "        SELECT (date/2592000000) as day, SUM(amount) as totalAmount\n"
+            + "        FROM transactions\n"
+            + "        WHERE type = ? AND date BETWEEN ? AND ?\n"
+            + "        GROUP BY day\n"
+            + "        ORDER BY day\n"
+            + "    ";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 3);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, type);
+    _argIndex = 2;
+    _statement.bindLong(_argIndex, startTime);
+    _argIndex = 3;
+    _statement.bindLong(_argIndex, endTime);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"transactions"}, new Callable<List<DailyTotal>>() {
+      @Override
+      @NonNull
+      public List<DailyTotal> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfDay = 0;
+          final int _cursorIndexOfTotalAmount = 1;
+          final List<DailyTotal> _result = new ArrayList<DailyTotal>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final DailyTotal _item;
+            final long _tmpDay;
+            _tmpDay = _cursor.getLong(_cursorIndexOfDay);
+            final double _tmpTotalAmount;
+            _tmpTotalAmount = _cursor.getDouble(_cursorIndexOfTotalAmount);
+            _item = new DailyTotal(_tmpDay,_tmpTotalAmount);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
   @NonNull
   public static List<Class<?>> getRequiredConverters() {
     return Collections.emptyList();

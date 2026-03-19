@@ -18,24 +18,28 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
 
     private val transactionRepository: TransactionRepository
 
+    // 视图模式：true=年度，false=月度
+    private val _isYearView = MutableLiveData(false)
+    val isYearView: LiveData<Boolean> = _isYearView
+
     // 当前时间戳
     private var currentTimestamp: Long = System.currentTimeMillis()
 
-    // 当前月份显示
-    private val _currentMonth = MutableLiveData<String>()
-    val currentMonth: LiveData<String> = _currentMonth
+    // 当前月份/年份显示
+    private val _currentPeriod = MutableLiveData<String>()
+    val currentPeriod: LiveData<String> = _currentPeriod
 
-    // 本月收入
-    private val _monthlyIncome = MutableLiveData<Double>()
-    val monthlyIncome: LiveData<Double> = _monthlyIncome
+    // 本期收入
+    private val _periodIncome = MutableLiveData<Double>()
+    val periodIncome: LiveData<Double> = _periodIncome
 
-    // 本月支出
-    private val _monthlyExpense = MutableLiveData<Double>()
-    val monthlyExpense: LiveData<Double> = _monthlyExpense
+    // 本期支出
+    private val _periodExpense = MutableLiveData<Double>()
+    val periodExpense: LiveData<Double> = _periodExpense
 
-    // 本月结余
-    private val _monthlyBalance = MutableLiveData<Double>()
-    val monthlyBalance: LiveData<Double> = _monthlyBalance
+    // 本期结余
+    private val _periodBalance = MutableLiveData<Double>()
+    val periodBalance: LiveData<Double> = _periodBalance
 
     // 支出分类统计
     private val _expenseCategoryTotals = MutableLiveData<List<CategoryTotal>>()
@@ -45,13 +49,21 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
     private val _incomeCategoryTotals = MutableLiveData<List<CategoryTotal>>()
     val incomeCategoryTotals: LiveData<List<CategoryTotal>> = _incomeCategoryTotals
 
-    // 每日支出统计
-    private val _dailyExpenseTotals = MutableLiveData<List<DailyTotal>>()
-    val dailyExpenseTotals: LiveData<List<DailyTotal>> = _dailyExpenseTotals
+    // 每日/月支出统计
+    private val _periodExpenseTotals = MutableLiveData<List<DailyTotal>>()
+    val periodExpenseTotals: LiveData<List<DailyTotal>> = _periodExpenseTotals
 
-    // 每日收入统计
-    private val _dailyIncomeTotals = MutableLiveData<List<DailyTotal>>()
-    val dailyIncomeTotals: LiveData<List<DailyTotal>> = _dailyIncomeTotals
+    // 每日/月收入统计
+    private val _periodIncomeTotals = MutableLiveData<List<DailyTotal>>()
+    val periodIncomeTotals: LiveData<List<DailyTotal>> = _periodIncomeTotals
+
+    // 兼容旧代码
+    val currentMonth: LiveData<String> = _currentPeriod
+    val monthlyIncome: LiveData<Double> = _periodIncome
+    val monthlyExpense: LiveData<Double> = _periodExpense
+    val monthlyBalance: LiveData<Double> = _periodBalance
+    val dailyExpenseTotals: LiveData<List<DailyTotal>> = _periodExpenseTotals
+    val dailyIncomeTotals: LiveData<List<DailyTotal>> = _periodIncomeTotals
 
     init {
         val database = AppDatabase.getDatabase(application)
@@ -61,20 +73,29 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     private fun loadData() {
-        val monthStart = DateUtils.getMonthStart(currentTimestamp)
-        val monthEnd = DateUtils.getMonthEnd(currentTimestamp)
+        val isYear = _isYearView.value ?: false
+        val startTime: Long
+        val endTime: Long
 
-        _currentMonth.value = DateUtils.formatMonth(currentTimestamp)
+        if (isYear) {
+            startTime = DateUtils.getYearStart(currentTimestamp)
+            endTime = DateUtils.getYearEnd(currentTimestamp)
+            _currentPeriod.value = DateUtils.formatYear(currentTimestamp)
+        } else {
+            startTime = DateUtils.getMonthStart(currentTimestamp)
+            endTime = DateUtils.getMonthEnd(currentTimestamp)
+            _currentPeriod.value = DateUtils.formatMonth(currentTimestamp)
+        }
 
         // 加载收支总额
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 transactionRepository.getTotalAmountByTypeAndDateRange(
                     Transaction.TYPE_INCOME,
-                    monthStart,
-                    monthEnd
+                    startTime,
+                    endTime
                 ).collect { income ->
-                    _monthlyIncome.postValue(income ?: 0.0)
+                    _periodIncome.postValue(income ?: 0.0)
                     updateBalance()
                 }
             } catch (e: Exception) {
@@ -86,10 +107,10 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
             try {
                 transactionRepository.getTotalAmountByTypeAndDateRange(
                     Transaction.TYPE_EXPENSE,
-                    monthStart,
-                    monthEnd
+                    startTime,
+                    endTime
                 ).collect { expense ->
-                    _monthlyExpense.postValue(expense ?: 0.0)
+                    _periodExpense.postValue(expense ?: 0.0)
                     updateBalance()
                 }
             } catch (e: Exception) {
@@ -102,8 +123,8 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
             try {
                 transactionRepository.getCategoryTotalsByTypeAndDateRange(
                     Transaction.TYPE_EXPENSE,
-                    monthStart,
-                    monthEnd
+                    startTime,
+                    endTime
                 ).collect { totals ->
                     _expenseCategoryTotals.postValue(totals)
                 }
@@ -116,8 +137,8 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
             try {
                 transactionRepository.getCategoryTotalsByTypeAndDateRange(
                     Transaction.TYPE_INCOME,
-                    monthStart,
-                    monthEnd
+                    startTime,
+                    endTime
                 ).collect { totals ->
                     _incomeCategoryTotals.postValue(totals)
                 }
@@ -126,49 +147,107 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
             }
         }
 
-        // 加载每日统计
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                transactionRepository.getDailyTotalsByType(
-                    Transaction.TYPE_EXPENSE,
-                    monthStart,
-                    monthEnd
-                ).collect { totals ->
-                    _dailyExpenseTotals.postValue(totals)
+        // 加载每日/月统计
+        if (isYear) {
+            // 年度视图：按月统计
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    transactionRepository.getMonthlyTotalsByType(
+                        Transaction.TYPE_EXPENSE,
+                        startTime,
+                        endTime
+                    ).collect { totals ->
+                        _periodExpenseTotals.postValue(totals)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
-        }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                transactionRepository.getDailyTotalsByType(
-                    Transaction.TYPE_INCOME,
-                    monthStart,
-                    monthEnd
-                ).collect { totals ->
-                    _dailyIncomeTotals.postValue(totals)
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    transactionRepository.getMonthlyTotalsByType(
+                        Transaction.TYPE_INCOME,
+                        startTime,
+                        endTime
+                    ).collect { totals ->
+                        _periodIncomeTotals.postValue(totals)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            }
+        } else {
+            // 月度视图：按日统计
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    transactionRepository.getDailyTotalsByType(
+                        Transaction.TYPE_EXPENSE,
+                        startTime,
+                        endTime
+                    ).collect { totals ->
+                        _periodExpenseTotals.postValue(totals)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    transactionRepository.getDailyTotalsByType(
+                        Transaction.TYPE_INCOME,
+                        startTime,
+                        endTime
+                    ).collect { totals ->
+                        _periodIncomeTotals.postValue(totals)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
     }
 
     private fun updateBalance() {
-        val income = _monthlyIncome.value ?: 0.0
-        val expense = _monthlyExpense.value ?: 0.0
-        _monthlyBalance.postValue(income - expense)
+        val income = _periodIncome.value ?: 0.0
+        val expense = _periodExpense.value ?: 0.0
+        _periodBalance.postValue(income - expense)
     }
 
-    fun goToPreviousMonth() {
-        currentTimestamp = DateUtils.getPreviousMonth(currentTimestamp)
+    fun toggleViewMode() {
+        _isYearView.value = !(_isYearView.value ?: false)
         loadData()
     }
 
-    fun goToNextMonth() {
-        currentTimestamp = DateUtils.getNextMonth(currentTimestamp)
+    fun setViewMode(isYear: Boolean) {
+        if (_isYearView.value != isYear) {
+            _isYearView.value = isYear
+            loadData()
+        }
+    }
+
+    fun goToPreviousPeriod() {
+        val isYear = _isYearView.value ?: false
+        currentTimestamp = if (isYear) {
+            DateUtils.getPreviousYear(currentTimestamp)
+        } else {
+            DateUtils.getPreviousMonth(currentTimestamp)
+        }
         loadData()
     }
+
+    fun goToNextPeriod() {
+        val isYear = _isYearView.value ?: false
+        currentTimestamp = if (isYear) {
+            DateUtils.getNextYear(currentTimestamp)
+        } else {
+            DateUtils.getNextMonth(currentTimestamp)
+        }
+        loadData()
+    }
+
+    // 兼容旧代码
+    fun goToPreviousMonth() = goToPreviousPeriod()
+    fun goToNextMonth() = goToNextPeriod()
 }

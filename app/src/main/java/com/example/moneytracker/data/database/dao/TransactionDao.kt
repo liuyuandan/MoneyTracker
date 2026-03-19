@@ -64,4 +64,14 @@ interface TransactionDao {
         ORDER BY day
     """)
     fun getDailyTotalsByType(type: Int, startTime: Long, endTime: Long): Flow<List<DailyTotal>>
+
+    // 获取指定年份的每月收支统计
+    @Query("""
+        SELECT (date/2592000000) as day, SUM(amount) as totalAmount
+        FROM transactions
+        WHERE type = :type AND date BETWEEN :startTime AND :endTime
+        GROUP BY day
+        ORDER BY day
+    """)
+    fun getMonthlyTotalsByType(type: Int, startTime: Long, endTime: Long): Flow<List<DailyTotal>>
 }

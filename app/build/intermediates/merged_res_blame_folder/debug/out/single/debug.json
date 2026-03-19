@@ -1,15 +1,11 @@
 [
     {
-        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/mipmap-anydpi-v26/ic_launcher.xml"
-    },
-    {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/drawable_ic_menu.xml.flat",
         "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/drawable/ic_menu.xml"
     },
     {
-        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_bg_color_picker_selected.xml.flat",
-        "source": "com.example.moneytracker.app-main-54:/drawable/bg_color_picker_selected.xml"
+        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/mipmap-anydpi-v26/ic_launcher.xml"
     },
     {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/mipmap-mdpi_ic_launcher.xml.flat",
@@ -32,28 +28,24 @@
         "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/fragment_statistics.xml"
     },
     {
-        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_bg_color_picker.xml.flat",
-        "source": "com.example.moneytracker.app-main-54:/drawable/bg_color_picker.xml"
-    },
-    {
-        "merged": "com.example.moneytracker.app-merged_res-52:/layout_item_icon_picker.xml.flat",
-        "source": "com.example.moneytracker.app-main-54:/layout/item_icon_picker.xml"
-    },
-    {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/drawable_ic_bonus.xml.flat",
         "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/drawable/ic_bonus.xml"
+    },
+    {
+        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/drawable_bg_icon_picker.xml.flat",
+        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/drawable/bg_icon_picker.xml"
     },
     {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/xml_data_extraction_rules.xml.flat",
         "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/xml/data_extraction_rules.xml"
     },
     {
-        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/mipmap-hdpi_ic_launcher_round.xml.flat",
-        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/mipmap-hdpi/ic_launcher_round.xml"
-    },
-    {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/drawable_ic_statistics.xml.flat",
         "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/drawable/ic_statistics.xml"
+    },
+    {
+        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/mipmap-hdpi_ic_launcher_round.xml.flat",
+        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/mipmap-hdpi/ic_launcher_round.xml"
     },
     {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/drawable_ic_other_expense.xml.flat",
@@ -88,12 +80,8 @@
         "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/drawable/ic_communication.xml"
     },
     {
-        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_bg_icon_picker.xml.flat",
-        "source": "com.example.moneytracker.app-main-54:/drawable/bg_icon_picker.xml"
-    },
-    {
-        "merged": "com.example.moneytracker.app-merged_res-52:/layout_dialog_add_category.xml.flat",
-        "source": "com.example.moneytracker.app-main-54:/layout/dialog_add_category.xml"
+        "merged": "com.example.moneytracker.app-merged_res-52:/layout_fragment_statistics.xml.flat",
+        "source": "com.example.moneytracker.app-main-54:/layout/fragment_statistics.xml"
     },
     {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/drawable_card_background.xml.flat",
@@ -116,12 +104,12 @@
         "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/fragment_home.xml"
     },
     {
-        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/layout_activity_category_manager.xml.flat",
-        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/activity_category_manager.xml"
+        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/layout_item_color_picker.xml.flat",
+        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/item_color_picker.xml"
     },
     {
-        "merged": "com.example.moneytracker.app-merged_res-52:/layout_item_color_picker.xml.flat",
-        "source": "com.example.moneytracker.app-main-54:/layout/item_color_picker.xml"
+        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/layout_activity_category_manager.xml.flat",
+        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/activity_category_manager.xml"
     },
     {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/drawable_ic_settings.xml.flat",
@@ -136,10 +124,6 @@
         "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/drawable/ic_clothing.xml"
     },
     {
-        "merged": "com.example.moneytracker.app-merged_res-52:/drawable_bg_icon_picker_selected.xml.flat",
-        "source": "com.example.moneytracker.app-main-54:/drawable/bg_icon_picker_selected.xml"
-    },
-    {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/layout_item_date_header.xml.flat",
         "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/item_date_header.xml"
     },
@@ -150,6 +134,10 @@
     {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/layout_fragment_settings.xml.flat",
         "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/fragment_settings.xml"
+    },
+    {
+        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/drawable_bg_color_picker_selected.xml.flat",
+        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/drawable/bg_color_picker_selected.xml"
     },
     {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/mipmap-xxhdpi_ic_launcher.xml.flat",
@@ -166,6 +154,10 @@
     {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/drawable_number_button_background.xml.flat",
         "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/drawable/number_button_background.xml"
+    },
+    {
+        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/layout_item_icon_picker.xml.flat",
+        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/layout/item_icon_picker.xml"
     },
     {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/drawable_category_selected_background.xml.flat",
@@ -194,6 +186,10 @@
     {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/drawable_ic_home.xml.flat",
         "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/drawable/ic_home.xml"
+    },
+    {
+        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/drawable_bg_icon_picker_selected.xml.flat",
+        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/drawable/bg_icon_picker_selected.xml"
     },
     {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/layout_item_transaction.xml.flat",
@@ -234,6 +230,10 @@
     {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/drawable_ic_expense.xml.flat",
         "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/drawable/ic_expense.xml"
+    },
+    {
+        "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/drawable_bg_color_picker.xml.flat",
+        "source": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-main-54:/drawable/bg_color_picker.xml"
     },
     {
         "merged": "/root/.gradle/daemon/8.2/com.example.moneytracker.app-merged_res-52:/mipmap-mdpi_ic_launcher_round.xml.flat",

@@ -79,6 +79,9 @@ id btn_9
 id btn_delete
 id btn_dot
 id btn_save
+id chipGroup_period
+id chip_month
+id chip_year
 id content_layout
 id empty_state
 id et_category_name

@@ -14,6 +14,8 @@ import androidx.viewbinding.ViewBindings;
 import com.example.moneytracker.R;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
@@ -21,6 +23,15 @@ import java.lang.String;
 public final class FragmentStatisticsBinding implements ViewBinding {
   @NonNull
   private final LinearLayout rootView;
+
+  @NonNull
+  public final ChipGroup chipGroupPeriod;
+
+  @NonNull
+  public final Chip chipMonth;
+
+  @NonNull
+  public final Chip chipYear;
 
   @NonNull
   public final ImageView ivNextMonth;
@@ -49,12 +60,16 @@ public final class FragmentStatisticsBinding implements ViewBinding {
   @NonNull
   public final TextView tvIncome;
 
-  private FragmentStatisticsBinding(@NonNull LinearLayout rootView, @NonNull ImageView ivNextMonth,
-      @NonNull ImageView ivPrevMonth, @NonNull LineChart lineChart,
+  private FragmentStatisticsBinding(@NonNull LinearLayout rootView,
+      @NonNull ChipGroup chipGroupPeriod, @NonNull Chip chipMonth, @NonNull Chip chipYear,
+      @NonNull ImageView ivNextMonth, @NonNull ImageView ivPrevMonth, @NonNull LineChart lineChart,
       @NonNull PieChart pieChartExpense, @NonNull PieChart pieChartIncome,
       @NonNull TextView tvBalance, @NonNull TextView tvCurrentMonth, @NonNull TextView tvExpense,
       @NonNull TextView tvIncome) {
     this.rootView = rootView;
+    this.chipGroupPeriod = chipGroupPeriod;
+    this.chipMonth = chipMonth;
+    this.chipYear = chipYear;
     this.ivNextMonth = ivNextMonth;
     this.ivPrevMonth = ivPrevMonth;
     this.lineChart = lineChart;
@@ -93,6 +108,24 @@ public final class FragmentStatisticsBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.chipGroup_period;
+      ChipGroup chipGroupPeriod = ViewBindings.findChildViewById(rootView, id);
+      if (chipGroupPeriod == null) {
+        break missingId;
+      }
+
+      id = R.id.chip_month;
+      Chip chipMonth = ViewBindings.findChildViewById(rootView, id);
+      if (chipMonth == null) {
+        break missingId;
+      }
+
+      id = R.id.chip_year;
+      Chip chipYear = ViewBindings.findChildViewById(rootView, id);
+      if (chipYear == null) {
+        break missingId;
+      }
+
       id = R.id.iv_next_month;
       ImageView ivNextMonth = ViewBindings.findChildViewById(rootView, id);
       if (ivNextMonth == null) {
@@ -147,9 +180,9 @@ public final class FragmentStatisticsBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentStatisticsBinding((LinearLayout) rootView, ivNextMonth, ivPrevMonth,
-          lineChart, pieChartExpense, pieChartIncome, tvBalance, tvCurrentMonth, tvExpense,
-          tvIncome);
+      return new FragmentStatisticsBinding((LinearLayout) rootView, chipGroupPeriod, chipMonth,
+          chipYear, ivNextMonth, ivPrevMonth, lineChart, pieChartExpense, pieChartIncome, tvBalance,
+          tvCurrentMonth, tvExpense, tvIncome);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

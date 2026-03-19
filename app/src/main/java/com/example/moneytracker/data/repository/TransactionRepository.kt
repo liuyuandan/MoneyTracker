@@ -132,4 +132,11 @@ class TransactionRepository(private val transactionDao: TransactionDao) {
                 Log.e(TAG, "getDailyTotalsByType: Error", e)
                 emit(emptyList())
             }
+
+    fun getMonthlyTotalsByType(type: Int, startTime: Long, endTime: Long): Flow<List<DailyTotal>> = 
+        transactionDao.getMonthlyTotalsByType(type, startTime, endTime)
+            .catch { e -> 
+                Log.e(TAG, "getMonthlyTotalsByType: Error", e)
+                emit(emptyList())
+            }
 }
