@@ -61,9 +61,12 @@ class StatisticsFragment : Fragment() {
     private fun setupPeriodToggle() {
         binding.chipMonth.isChecked = true
         
-        binding.chipGroupPeriod.setOnCheckedStateChangeListener { group, checkedIds ->
-            val isYearView = checkedIds.contains(R.id.chip_year)
-            viewModel.setViewMode(isYearView)
+        binding.chipMonth.setOnClickListener {
+            viewModel.setViewMode(false)
+        }
+        
+        binding.chipYear.setOnClickListener {
+            viewModel.setViewMode(true)
         }
     }
 
