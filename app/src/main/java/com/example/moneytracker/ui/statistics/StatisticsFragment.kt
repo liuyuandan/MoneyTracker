@@ -61,15 +61,16 @@ class StatisticsFragment : Fragment() {
     }
 
     private fun setupPeriodToggle() {
-        // 使用 ChipGroup 的选中状态监听器
-        binding.chipGroupPeriod.setOnCheckedStateChangeListener { group, checkedIds ->
-            // 避免从 ViewModel 更新时重复触发
-            if (!isUpdatingFromViewModel) {
-                if (checkedIds.contains(R.id.chip_year)) {
-                    viewModel.setViewMode(true)
-                } else if (checkedIds.contains(R.id.chip_month)) {
-                    viewModel.setViewMode(false)
-                }
+        // 直接为每个 Chip 设置选中状态监听器
+        binding.chipMonth.setOnCheckedChangeListener { chip, isChecked ->
+            if (isChecked && !isUpdatingFromViewModel) {
+                viewModel.setViewMode(false)
+            }
+        }
+
+        binding.chipYear.setOnCheckedChangeListener { chip, isChecked ->
+            if (isChecked && !isUpdatingFromViewModel) {
+                viewModel.setViewMode(true)
             }
         }
     }
