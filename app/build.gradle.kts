@@ -8,6 +8,15 @@ android {
     namespace = "com.example.moneytracker"
     compileSdk = 34
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("../moneytracker.keystore")
+            storePassword = "moneytracker123"
+            keyAlias = "moneytracker"
+            keyPassword = "moneytracker123"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.example.moneytracker"
         minSdk = 24
@@ -19,12 +28,16 @@ android {
     }
 
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("release")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
