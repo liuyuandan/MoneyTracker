@@ -180,7 +180,9 @@ class StatisticsFragment : Fragment() {
         }
 
         val entries = totals.map { total ->
-            PieEntry(total.totalAmount.toFloat(), total.name)
+            // 图例显示：分类名称 + 金额，如 "午餐 ¥1000.00"
+            val labelWithAmount = "${total.name} ${CurrencyUtils.format(total.totalAmount)}"
+            PieEntry(total.totalAmount.toFloat(), labelWithAmount)
         }
 
         val dataSet = PieDataSet(entries, "").apply {
