@@ -14,7 +14,7 @@ import com.example.moneytracker.utils.DateUtils
 import java.util.Calendar
 
 sealed class TransactionListItem {
-    class DateHeader(val date: Long, val displayDate: String) : TransactionListItem()
+    class DateHeader(val date: Long, val displayDate: String, val income: Double = 0.0, val expense: Double = 0.0) : TransactionListItem()
     class TransactionItem(val transaction: Transaction, val category: Category?) : TransactionListItem()
 }
 
@@ -65,6 +65,19 @@ class GroupedTransactionAdapter(
     inner class DateHeaderViewHolder(private val binding: ItemDateHeaderBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: TransactionListItem.DateHeader) {
             binding.tvDateHeader.text = item.displayDate
+            // 显示当天的支出和收入总额
+            if (item.expense > 0) {
+                binding.tvDayExpense.text = "支 ${CurrencyUtils.formatSimple(item.expense)}"
+                binding.tvDayExpense.visibility = android.view.View.VISIBLE
+            } else {
+                binding.tvDayExpense.visibility = android.view.View.GONE
+            }
+            if (item.income > 0) {
+                binding.tvDayIncome.text = "收 ${CurrencyUtils.formatSimple(item.income)}"
+                binding.tvDayIncome.visibility = android.view.View.VISIBLE
+            } else {
+                binding.tvDayIncome.visibility = android.view.View.GONE
+            }
         }
     }
 
@@ -92,14 +105,44 @@ class GroupedTransactionAdapter(
     private fun groupTransactions(transactions: List<TransactionWithCategory>): List<TransactionListItem> {
         val result = mutableListOf<TransactionListItem>()
         var currentDate: Long? = null
+        var currentIncome = 0.0
+        var currentExpense = 0.0
+        
         for (item in transactions) {
             val transactionDate = getDayStart(item.transaction.date)
             if (currentDate == null || currentDate != transactionDate) {
+                // 先保存前一天的总额
+                if (currentDate != null) {
+                    // 更新前一天的收入支出
+                    val lastIndex = result.indexOfLast { it is TransactionListItem.DateHeader && (it as TransactionListItem.DateHeader).date == currentDate }
+                    if (lastIndex >= 0) {
+                        val oldHeader = result[lastIndex] as TransactionListItem.DateHeader
+                        result[lastIndex] = TransactionListItem.DateHeader(oldHeader.date, oldHeader.displayDate, currentIncome, currentExpense)
+                    }
+                }
                 currentDate = transactionDate
+                currentIncome = 0.0
+                currentExpense = 0.0
                 result.add(TransactionListItem.DateHeader(transactionDate, formatDisplayDate(transactionDate)))
+            }
+            // 累加收入和支出
+            if (item.transaction.isIncome()) {
+                currentIncome += item.transaction.amount
+            } else {
+                currentExpense += item.transaction.amount
             }
             result.add(TransactionListItem.TransactionItem(item.transaction, item.category))
         }
+        
+        // 处理最后一天的总额
+        if (currentDate != null) {
+            val lastIndex = result.indexOfLast { it is TransactionListItem.DateHeader && (it as TransactionListItem.DateHeader).date == currentDate }
+            if (lastIndex >= 0) {
+                val oldHeader = result[lastIndex] as TransactionListItem.DateHeader
+                result[lastIndex] = TransactionListItem.DateHeader(oldHeader.date, oldHeader.displayDate, currentIncome, currentExpense)
+            }
+        }
+        
         return result
     }
 
