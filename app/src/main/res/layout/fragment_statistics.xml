@@ -29,8 +29,7 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:padding="4dp"
-                    android:src="@drawable/ic_more"
-                    android:rotation="180"
+                    android:src="@drawable/ic_arrow_left"
                     app:tint="@color/text_primary"
                     android:contentDescription="@string/nav_home" />
 
@@ -49,7 +48,7 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:padding="4dp"
-                    android:src="@drawable/ic_more"
+                    android:src="@drawable/ic_arrow_right"
                     app:tint="@color/text_primary"
                     android:contentDescription="@string/nav_statistics" />
 
