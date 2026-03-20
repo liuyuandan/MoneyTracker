@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moneytracker.R
 import com.example.moneytracker.adapters.CategoryAdapter
@@ -72,6 +73,15 @@ class CategoryManagerActivity : AppCompatActivity() {
                 showDeleteConfirmDialog(category)
             }
             true
+        }
+
+        // 设置拖拽排序
+        val itemTouchHelper = ItemTouchHelper(categoryAdapter.getItemTouchHelperCallback())
+        itemTouchHelper.attachToRecyclerView(binding.rvCategories)
+
+        // 监听拖拽完成事件
+        categoryAdapter.setOnDragCompleteListener { categories ->
+            viewModel.updateSortOrder(categories)
         }
     }
 

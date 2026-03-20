@@ -101,4 +101,12 @@ class CategoryRepository(private val categoryDao: CategoryDao) {
             Log.e(TAG, "getCategoryCount: Error", e)
             0
         }
+
+    suspend fun updateSortOrder(categories: List<Category>) {
+        try {
+            categoryDao.updateSortOrderAll(categories)
+        } catch (e: Exception) {
+            Log.e(TAG, "updateSortOrder: Error", e)
+        }
+    }
 }

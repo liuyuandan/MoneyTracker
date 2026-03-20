@@ -19,13 +19,13 @@ interface CategoryDao {
     @Delete
     suspend fun delete(category: Category)
 
-    @Query("SELECT * FROM categories ORDER BY name ASC")
+    @Query("SELECT * FROM categories ORDER BY sortOrder ASC, name ASC")
     fun getAllCategories(): Flow<List<Category>>
 
     @Query("SELECT * FROM categories WHERE id = :id")
     suspend fun getCategoryById(id: Long): Category?
 
-    @Query("SELECT * FROM categories WHERE type = :type ORDER BY name ASC")
+    @Query("SELECT * FROM categories WHERE type = :type ORDER BY sortOrder ASC, name ASC")
     fun getCategoriesByType(type: Int): Flow<List<Category>>
 
     @Query("SELECT * FROM categories WHERE isDefault = 1")
@@ -42,4 +42,14 @@ interface CategoryDao {
 
     @Query("SELECT * FROM categories WHERE name = :name AND type = :type LIMIT 1")
     suspend fun getCategoryByNameAndType(name: String, type: Int): Category?
+
+    @Query("UPDATE categories SET sortOrder = :sortOrder WHERE id = :id")
+    suspend fun updateSortOrder(id: Long, sortOrder: Int)
+
+    @Transaction
+    suspend fun updateSortOrderAll(categories: List<Category>) {
+        categories.forEachIndexed { index, category ->
+            updateSortOrder(category.id, index)
+        }
+    }
 }

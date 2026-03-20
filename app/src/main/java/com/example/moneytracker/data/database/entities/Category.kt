@@ -11,6 +11,7 @@ import androidx.room.PrimaryKey
  * @param color 颜色值
  * @param type 类型：0=支出，1=收入
  * @param isDefault 是否为预设分类
+ * @param sortOrder 排序顺序
  */
 @Entity(tableName = "categories")
 data class Category(
@@ -20,7 +21,8 @@ data class Category(
     val icon: String,
     val color: Int,
     val type: Int, // 0 = 支出, 1 = 收入
-    val isDefault: Boolean = false
+    val isDefault: Boolean = false,
+    val sortOrder: Int = 0
 ) {
     companion object {
         const val TYPE_EXPENSE = 0
