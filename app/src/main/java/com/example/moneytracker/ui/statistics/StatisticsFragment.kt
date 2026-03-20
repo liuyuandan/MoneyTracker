@@ -20,7 +20,6 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.formatter.PercentFormatter
 
 class StatisticsFragment : Fragment() {
 
@@ -191,7 +190,11 @@ class StatisticsFragment : Fragment() {
         }
 
         val data = PieData(dataSet).apply {
-            setValueFormatter(PercentFormatter())
+            setValueFormatter(object : com.github.mikephil.charting.formatter.ValueFormatter() {
+                override fun getFormattedValue(value: Float): String {
+                    return String.format("%.1f%%", value)
+                }
+            })
             setValueTextSize(11f)
             setValueTextColor(Color.WHITE)
         }
