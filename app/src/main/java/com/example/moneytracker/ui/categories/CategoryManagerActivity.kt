@@ -59,9 +59,12 @@ class CategoryManagerActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        categoryAdapter = CategoryAdapter { category ->
-            // 点击分类可以编辑（暂不实现）
-        }
+        categoryAdapter = CategoryAdapter(
+            onCategoryClick = { category ->
+                // 点击分类可以编辑（暂不实现）
+            },
+            isManageMode = true
+        )
         binding.rvCategories.layoutManager = GridLayoutManager(this, 4)
         binding.rvCategories.adapter = categoryAdapter
 
@@ -78,6 +81,7 @@ class CategoryManagerActivity : AppCompatActivity() {
         // 设置拖拽排序
         val itemTouchHelper = ItemTouchHelper(categoryAdapter.getItemTouchHelperCallback())
         itemTouchHelper.attachToRecyclerView(binding.rvCategories)
+        categoryAdapter.setItemTouchHelper(itemTouchHelper)
 
         // 监听拖拽完成事件
         categoryAdapter.setOnDragCompleteListener { categories ->

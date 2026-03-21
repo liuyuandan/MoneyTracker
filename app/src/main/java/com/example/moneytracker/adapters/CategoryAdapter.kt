@@ -1,7 +1,6 @@
 package com.example.moneytracker.adapters
 
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
@@ -16,15 +15,15 @@ import com.example.moneytracker.databinding.ItemCategoryBinding
  * 分类选择适配器
  */
 class CategoryAdapter(
-    private val onCategoryClick: (Category) -> Unit
+    private val onCategoryClick: (Category) -> Unit,
+    private val isManageMode: Boolean = false
 ) : ListAdapter<Category, CategoryAdapter.CategoryViewHolder>(CategoryDiffCallback()) {
 
     private var selectedCategoryId: Long = -1
     private var onLongClickListener: ((Category) -> Boolean)? = null
-    private var dragListener: OnDragListener? = null
     private var onDragCompleteListener: ((List<Category>) -> Unit)? = null
-    // 保存当前拖拽中的列表，避免 currentList 不同步问题
     private var currentDragList: MutableList<Category>? = null
+    private var itemTouchHelper: ItemTouchHelper? = null
 
     fun setSelectedCategory(categoryId: Long) {
         selectedCategoryId = categoryId
@@ -35,12 +34,12 @@ class CategoryAdapter(
         onLongClickListener = listener
     }
 
-    fun setOnDragListener(listener: OnDragListener) {
-        dragListener = listener
-    }
-
     fun setOnDragCompleteListener(listener: (List<Category>) -> Unit) {
         onDragCompleteListener = listener
+    }
+
+    fun setItemTouchHelper(helper: ItemTouchHelper) {
+        itemTouchHelper = helper
     }
 
     fun getItemTouchHelperCallback(): ItemTouchHelper.Callback {
@@ -71,7 +70,8 @@ class CategoryAdapter(
                 // 不需要滑动删除
             }
 
-            override fun isLongPressDragEnabled(): Boolean = true
+            // 禁用默认的长按拖拽，改为通过拖拽图标触发
+            override fun isLongPressDragEnabled(): Boolean = false
 
             override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
                 super.onSelectedChanged(viewHolder, actionState)
@@ -155,18 +155,30 @@ class CategoryAdapter(
             }
             binding.root.alpha = if (isSelected) 1.0f else 0.6f
 
+            // 管理模式下显示拖拽手柄
+            binding.ivDragHandle.visibility = if (isManageMode) {
+                android.view.View.VISIBLE
+            } else {
+                android.view.View.GONE
+            }
+
             binding.root.setOnClickListener {
                 onCategoryClick(category)
             }
 
-            binding.root.setOnLongClickListener {
-                onLongClickListener?.invoke(category) ?: false
+            // 长按删除（仅在管理模式下）
+            if (isManageMode) {
+                binding.root.setOnLongClickListener {
+                    onLongClickListener?.invoke(category) ?: false
+                }
+            } else {
+                binding.root.setOnLongClickListener(null)
             }
 
-            // 设置拖拽触摸监听
-            binding.root.setOnTouchListener { _, event ->
-                if (event.action == MotionEvent.ACTION_DOWN) {
-                    dragListener?.onDragStart(this)
+            // 拖拽手柄触摸监听
+            binding.ivDragHandle.setOnTouchListener { _, event ->
+                if (event.action == android.view.MotionEvent.ACTION_DOWN) {
+                    itemTouchHelper?.startDrag(this)
                 }
                 false
             }
@@ -181,9 +193,5 @@ class CategoryAdapter(
         override fun areContentsTheSame(oldItem: Category, newItem: Category): Boolean {
             return oldItem == newItem
         }
-    }
-
-    interface OnDragListener {
-        fun onDragStart(viewHolder: RecyclerView.ViewHolder)
     }
 }

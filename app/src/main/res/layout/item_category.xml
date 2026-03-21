@@ -51,4 +51,17 @@
             android:gravity="center" />
     </LinearLayout>
 
+    <!-- 拖拽手柄 -->
+    <ImageView
+        android:id="@+id/iv_drag_handle"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/ic_drag_handle"
+        android:contentDescription="拖拽排序"
+        android:padding="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/text_secondary" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
