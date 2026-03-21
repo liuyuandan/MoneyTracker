@@ -216,9 +216,25 @@ class StatisticsFragment : Fragment() {
             return
         }
 
+        // 合并所有日期并排序，生成X轴标签
+        val allDays = (expenseTotals + incomeTotals).map { it.day }.distinct().sorted()
+        val dayToIndex = allDays.withIndex().associate { it.value to it.index }
+        
+        // 生成X轴标签
+        val xLabels = allDays.map { day ->
+            val calendar = java.util.Calendar.getInstance()
+            calendar.timeInMillis = day
+            if (isYearView) {
+                "${calendar.get(java.util.Calendar.MONTH) + 1}月"
+            } else {
+                "${calendar.get(java.util.Calendar.DAY_OF_MONTH)}日"
+            }
+        }
+
         // 添加支出数据
         val expenseEntries = mutableListOf<Entry>()
-        expenseTotals.forEachIndexed { index, total ->
+        expenseTotals.forEach { total ->
+            val index = dayToIndex[total.day] ?: 0
             expenseEntries.add(Entry(index.toFloat(), total.totalAmount.toFloat()))
         }
 
@@ -233,7 +249,8 @@ class StatisticsFragment : Fragment() {
 
         // 添加收入数据
         val incomeEntries = mutableListOf<Entry>()
-        incomeTotals.forEachIndexed { index, total ->
+        incomeTotals.forEach { total ->
+            val index = dayToIndex[total.day] ?: 0
             incomeEntries.add(Entry(index.toFloat(), total.totalAmount.toFloat()))
         }
 
@@ -250,13 +267,8 @@ class StatisticsFragment : Fragment() {
         binding.lineChart.data = lineData
         
         // 设置X轴标签
-        binding.lineChart.xAxis.valueFormatter = com.github.mikephil.charting.formatter.IndexAxisValueFormatter(
-            if (isYearView) {
-                listOf("1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月")
-            } else {
-                (1..31).map { "${it}日" }
-            }
-        )
+        binding.lineChart.xAxis.valueFormatter = com.github.mikephil.charting.formatter.IndexAxisValueFormatter(xLabels)
+        binding.lineChart.xAxis.labelCount = xLabels.size
         
         binding.lineChart.invalidate()
     }
