@@ -60,8 +60,11 @@ class CategoryAdapter(
                 viewHolder: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder
             ): Boolean {
-                val fromPosition = viewHolder.bindingAdapterPosition
-                val toPosition = target.bindingAdapterPosition
+                val fromPosition = viewHolder.adapterPosition
+                val toPosition = target.adapterPosition
+                if (fromPosition == RecyclerView.NO_POSITION || toPosition == RecyclerView.NO_POSITION) {
+                    return false
+                }
                 return onItemMove(fromPosition, toPosition)
             }
 
