@@ -76,13 +76,13 @@
     <TextView
         android:id="@+id/tv_amount_display"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="0.2"
         android:background="@color/primary"
         android:gravity="center"
-        android:padding="24dp"
         android:text="0.00"
         android:textColor="@color/text_white"
-        android:textSize="48sp"
+        android:textSize="36sp"
         android:textStyle="bold" />
 
     <!-- 内容区域 -->
