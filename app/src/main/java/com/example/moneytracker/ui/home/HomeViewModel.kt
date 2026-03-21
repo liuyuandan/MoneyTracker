@@ -3,8 +3,8 @@ package com.example.moneytracker.ui.home
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.moneytracker.data.database.AppDatabase
 import com.example.moneytracker.data.database.entities.Category
@@ -25,15 +25,15 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private var currentMonthEnd: Long = DateUtils.getMonthEnd()
 
     // 本月收入
-    private val _monthlyIncome = MutableLiveData<Double>()
+    private val _monthlyIncome = MutableLiveData(0.0)
     val monthlyIncome: LiveData<Double> = _monthlyIncome
 
     // 本月支出
-    private val _monthlyExpense = MutableLiveData<Double>()
+    private val _monthlyExpense = MutableLiveData(0.0)
     val monthlyExpense: LiveData<Double> = _monthlyExpense
 
-    // 本月结余
-    private val _monthlyBalance = MutableLiveData<Double>()
+    // 本月结余 - 使用 MediatorLiveData 自动计算
+    private val _monthlyBalance = MediatorLiveData<Double>()
     val monthlyBalance: LiveData<Double> = _monthlyBalance
 
     // 当前月份显示
@@ -52,6 +52,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val database = AppDatabase.getDatabase(application)
         transactionRepository = TransactionRepository(database.transactionDao())
         categoryRepository = CategoryRepository(database.categoryDao())
+
+        // 设置结余自动计算
+        _monthlyBalance.addSource(_monthlyIncome) { updateBalance() }
+        _monthlyBalance.addSource(_monthlyExpense) { updateBalance() }
 
         loadCurrentMonth()
         loadCategories()

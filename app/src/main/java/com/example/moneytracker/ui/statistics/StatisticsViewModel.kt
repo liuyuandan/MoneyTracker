@@ -3,6 +3,7 @@ package com.example.moneytracker.ui.statistics
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.moneytracker.data.database.AppDatabase
@@ -30,15 +31,15 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
     val currentPeriod: LiveData<String> = _currentPeriod
 
     // 本期收入
-    private val _periodIncome = MutableLiveData<Double>()
+    private val _periodIncome = MutableLiveData(0.0)
     val periodIncome: LiveData<Double> = _periodIncome
 
     // 本期支出
-    private val _periodExpense = MutableLiveData<Double>()
+    private val _periodExpense = MutableLiveData(0.0)
     val periodExpense: LiveData<Double> = _periodExpense
 
-    // 本期结余
-    private val _periodBalance = MutableLiveData<Double>()
+    // 本期结余 - 使用 MediatorLiveData 自动计算
+    private val _periodBalance = MediatorLiveData<Double>()
     val periodBalance: LiveData<Double> = _periodBalance
 
     // 支出分类统计
