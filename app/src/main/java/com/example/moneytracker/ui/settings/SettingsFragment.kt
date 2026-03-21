@@ -178,9 +178,11 @@ class SettingsFragment : Fragment() {
                     .setPositiveButton("确定") { _, _ ->
                         // 重启应用
                         val intent = requireActivity().packageManager.getLaunchIntentForPackage(requireActivity().packageName)
-                        intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        startActivity(intent)
-                        requireActivity().finish()
+                        if (intent != null) {
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            startActivity(intent)
+                            requireActivity().finish()
+                        }
                     }
                     .show()
             } catch (e: Exception) {
