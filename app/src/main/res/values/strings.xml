@@ -55,6 +55,9 @@
     <string name="data_management">数据管理</string>
     <string name="backup">备份数据</string>
     <string name="restore">恢复数据</string>
+    <string name="backup_data">备份数据</string>
+    <string name="restore_data">恢复数据</string>
+    <string name="confirm">确定</string>
     <string name="about">关于</string>
     <string name="version">版本</string>
     <string name="feedback">反馈建议</string>
