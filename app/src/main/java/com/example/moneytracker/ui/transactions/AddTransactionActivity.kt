@@ -124,9 +124,12 @@ class AddTransactionActivity : AppCompatActivity() {
 
     private fun setupCategoryRecyclerView() {
         FileLogger.log(TAG, "setupCategoryRecyclerView: Setting up category adapter")
-        categoryAdapter = CategoryAdapter { category ->
-            viewModel.setSelectedCategory(category)
-        }
+        categoryAdapter = CategoryAdapter(
+            onCategoryClick = { category ->
+                viewModel.setSelectedCategory(category)
+            },
+            isManageMode = false
+        )
         binding.rvCategories.layoutManager = GridLayoutManager(this, 4)
         binding.rvCategories.adapter = categoryAdapter
     }
