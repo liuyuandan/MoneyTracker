@@ -201,3 +201,8 @@ class GroupedTransactionAdapter(
         return if (calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR) && calendar.get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH) && calendar.get(Calendar.MONTH) == today.get(Calendar.MONTH)) "今天" else "${month}月${day}日"
     }
 }
+
+data class TransactionWithCategory(
+    val transaction: Transaction,
+    val category: Category?
+)
