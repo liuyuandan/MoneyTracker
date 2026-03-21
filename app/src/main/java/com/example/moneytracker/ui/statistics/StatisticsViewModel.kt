@@ -70,6 +70,10 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
         val database = AppDatabase.getDatabase(application)
         transactionRepository = TransactionRepository(database.transactionDao())
 
+        // 设置结余自动计算
+        _periodBalance.addSource(_periodIncome) { updateBalance() }
+        _periodBalance.addSource(_periodExpense) { updateBalance() }
+
         loadData()
     }
 
@@ -213,7 +217,7 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
     private fun updateBalance() {
         val income = _periodIncome.value ?: 0.0
         val expense = _periodExpense.value ?: 0.0
-        _periodBalance.postValue(income - expense)
+        _periodBalance.value = income - expense
     }
 
     fun toggleViewMode() {
