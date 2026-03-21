@@ -1,6 +1,5 @@
 package com.example.moneytracker.adapters
 
-import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
