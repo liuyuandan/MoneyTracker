@@ -1,7 +1,9 @@
 package com.example.moneytracker.adapters
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -12,26 +14,71 @@ import com.example.moneytracker.data.database.entities.Transaction
 import com.example.moneytracker.databinding.ItemTransactionBinding
 import com.example.moneytracker.utils.CurrencyUtils
 import com.example.moneytracker.utils.DateUtils
+import java.util.Calendar
 
 /**
- * 交易记录适配器
+ * 列表项类型
+ */
+sealed class TransactionListItem {
+    data class YearHeader(val year: Int) : TransactionListItem()
+    data class TransactionItem(val data: TransactionWithCategory) : TransactionListItem()
+}
+
+/**
+ * 交易记录适配器（支持年份分隔）
  */
 class TransactionAdapter(
     private val onTransactionClick: (Transaction) -> Unit,
     private val onTransactionLongClick: (Transaction) -> Boolean
-) : ListAdapter<TransactionWithCategory, TransactionAdapter.TransactionViewHolder>(TransactionDiffCallback()) {
+) : ListAdapter<TransactionListItem, RecyclerView.ViewHolder>(TransactionDiffCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
-        val binding = ItemTransactionBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
-        return TransactionViewHolder(binding)
+    companion object {
+        private const val TYPE_YEAR_HEADER = 0
+        private const val TYPE_TRANSACTION = 1
     }
 
-    override fun onBindViewHolder(holder: TransactionViewHolder, position: Int) {
-        holder.bind(getItem(position))
+    override fun getItemViewType(position: Int): Int {
+        return when (getItem(position)) {
+            is TransactionListItem.YearHeader -> TYPE_YEAR_HEADER
+            is TransactionListItem.TransactionItem -> TYPE_TRANSACTION
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            TYPE_YEAR_HEADER -> {
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_year_header, parent, false)
+                YearHeaderViewHolder(view)
+            }
+            else -> {
+                val binding = ItemTransactionBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+                TransactionViewHolder(binding)
+            }
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (val item = getItem(position)) {
+            is TransactionListItem.YearHeader -> {
+                (holder as YearHeaderViewHolder).bind(item.year)
+            }
+            is TransactionListItem.TransactionItem -> {
+                (holder as TransactionViewHolder).bind(item.data)
+            }
+        }
+    }
+
+    inner class YearHeaderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val tvYear: TextView = view.findViewById(R.id.tvYear)
+        
+        fun bind(year: Int) {
+            tvYear.text = "${year}年"
+        }
     }
 
     inner class TransactionViewHolder(
@@ -42,17 +89,14 @@ class TransactionAdapter(
             val transaction = item.transaction
             val category = item.category
 
-            // 设置分类名称
             binding.tvCategory.text = category?.name ?: "未知分类"
 
-            // 设置备注
             binding.tvDescription.text = if (transaction.description.isNotEmpty()) {
                 transaction.description
             } else {
                 category?.name ?: ""
             }
 
-            // 设置金额
             val amountText = if (transaction.isIncome()) {
                 "+${CurrencyUtils.formatSimple(transaction.amount)}"
             } else {
@@ -66,10 +110,8 @@ class TransactionAdapter(
                 )
             )
 
-            // 设置日期（年月日时分秒）
             binding.tvDate.text = DateUtils.formatFullDateTime(transaction.date)
 
-            // 设置图标
             val context = binding.root.context
             category?.let { cat ->
                 val resourceId = context.resources.getIdentifier(
@@ -80,7 +122,6 @@ class TransactionAdapter(
                 if (resourceId != 0) {
                     val drawable = ContextCompat.getDrawable(context, resourceId)
                     binding.ivCategoryIcon.setImageDrawable(drawable)
-                    // 根据交易类型设置图标颜色：收入显示绿色，支出显示红色
                     val iconColor = if (transaction.isIncome()) {
                         ContextCompat.getColor(context, R.color.income)
                     } else {
@@ -90,7 +131,6 @@ class TransactionAdapter(
                 }
             }
 
-            // 设置点击事件
             binding.root.setOnClickListener {
                 onTransactionClick(transaction)
             }
@@ -100,20 +140,54 @@ class TransactionAdapter(
         }
     }
 
-    class TransactionDiffCallback : DiffUtil.ItemCallback<TransactionWithCategory>() {
+    class TransactionDiffCallback : DiffUtil.ItemCallback<TransactionListItem>() {
         override fun areItemsTheSame(
-            oldItem: TransactionWithCategory,
-            newItem: TransactionWithCategory
+            oldItem: TransactionListItem,
+            newItem: TransactionListItem
         ): Boolean {
-            return oldItem.transaction.id == newItem.transaction.id
+            return when {
+                oldItem is TransactionListItem.YearHeader && newItem is TransactionListItem.YearHeader -> 
+                    oldItem.year == newItem.year
+                oldItem is TransactionListItem.TransactionItem && newItem is TransactionListItem.TransactionItem -> 
+                    oldItem.data.transaction.id == newItem.data.transaction.id
+                else -> false
+            }
         }
 
         override fun areContentsTheSame(
-            oldItem: TransactionWithCategory,
-            newItem: TransactionWithCategory
+            oldItem: TransactionListItem,
+            newItem: TransactionListItem
         ): Boolean {
             return oldItem == newItem
         }
+    }
+    
+    /**
+     * 将交易列表转换为带年份分隔的列表
+     */
+    fun submitListWithYearHeaders(list: List<TransactionWithCategory>?) {
+        if (list.isNullOrEmpty()) {
+            submitList(emptyList())
+            return
+        }
+        
+        val items = mutableListOf<TransactionListItem>()
+        var currentYear = -1
+        
+        list.forEach { item ->
+            val calendar = Calendar.getInstance()
+            calendar.time = item.transaction.date
+            val year = calendar.get(Calendar.YEAR)
+            
+            if (year != currentYear) {
+                items.add(TransactionListItem.YearHeader(year))
+                currentYear = year
+            }
+            
+            items.add(TransactionListItem.TransactionItem(item))
+        }
+        
+        submitList(items)
     }
 }
 
