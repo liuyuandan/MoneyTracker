@@ -52,16 +52,20 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions ORDER BY date DESC LIMIT :limit")
     fun getRecentTransactions(limit: Int = 10): Flow<List<Transaction>>
 
+    // 获取某一天的所有交易（用于调试）
+    @Query("SELECT * FROM transactions WHERE (date/86400000) * 86400000 = :dayStart ORDER BY date DESC")
+    fun getTransactionsByDay(dayStart: Long): Flow<List<Transaction>>
+
     @Query("DELETE FROM transactions")
     suspend fun deleteAll()
 
     // 获取指定月份的每日收支统计
-    // 使用 strftime 获取本地时区的日期，避免时区偏移问题
+    // 返回原始时间戳，在应用层处理日期归一化（避免时区问题）
     @Query("""
-        SELECT strftime('%s', datetime(date/1000, 'unixepoch', 'start of day')) * 1000 as day, SUM(amount) as totalAmount
+        SELECT date as day, SUM(amount) as totalAmount
         FROM transactions
         WHERE type = :type AND date BETWEEN :startTime AND :endTime
-        GROUP BY day
+        GROUP BY (date/86400000)
         ORDER BY day
     """)
     fun getDailyTotalsByType(type: Int, startTime: Long, endTime: Long): Flow<List<DailyTotal>>
