@@ -41,6 +41,10 @@
             android:name=".ui.transactions.AllTransactionsActivity"
             android:exported="false"
             android:theme="@style/Theme.MoneyTracker" />
+        <activity
+            android:name=".ui.settings.ThemeSettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MoneyTracker" />
     </application>
 
 </manifest>
