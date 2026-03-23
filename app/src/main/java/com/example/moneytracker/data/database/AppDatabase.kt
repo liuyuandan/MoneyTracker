@@ -58,5 +58,13 @@ abstract class AppDatabase : RoomDatabase() {
                 categoryDao.insertAll(DefaultCategories.getAllDefaultCategories())
             }
         }
+
+        /**
+         * 关闭数据库连接（用于恢复数据前）
+         */
+        fun closeDatabase() {
+            INSTANCE?.close()
+            INSTANCE = null
+        }
     }
 }

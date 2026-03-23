@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.moneytracker.R
+import com.example.moneytracker.data.database.AppDatabase
 import com.example.moneytracker.databinding.FragmentSettingsBinding
 import com.example.moneytracker.ui.categories.CategoryManagerActivity
 import com.example.moneytracker.utils.FileLogger
@@ -239,25 +240,46 @@ class SettingsFragment : Fragment() {
     private fun performRestore(backupFile: File) {
         lifecycleScope.launch {
             try {
-                withContext(Dispatchers.IO) {
+                val result = withContext(Dispatchers.IO) {
                     // Room 数据库文件名是 "money_tracker_database"
                     val dbFile = requireContext().getDatabasePath("money_tracker_database")
+                    val walFile = requireContext().getDatabasePath("money_tracker_database-wal")
+                    val shmFile = requireContext().getDatabasePath("money_tracker_database-shm")
+
                     FileLogger.log(TAG, "恢复数据库从: ${backupFile.absolutePath} 到: ${dbFile.absolutePath}")
 
-                    // 复制备份文件到数据库位置
+                    // 1. 先关闭数据库连接，确保所有数据已写入
+                    try {
+                        AppDatabase.closeDatabase()
+                        FileLogger.log(TAG, "已关闭数据库连接")
+                    } catch (e: Exception) {
+                        FileLogger.logError(TAG, "关闭数据库连接失败", e)
+                    }
+
+                    // 2. 删除现有的 WAL 和 SHM 文件（避免数据不一致）
+                    if (walFile.exists()) {
+                        val deleted = walFile.delete()
+                        FileLogger.log(TAG, "删除现有 WAL 文件: $deleted")
+                    }
+                    if (shmFile.exists()) {
+                        val deleted = shmFile.delete()
+                        FileLogger.log(TAG, "删除现有 SHM 文件: $deleted")
+                    }
+
+                    // 3. 复制备份的主数据库文件
                     FileInputStream(backupFile).use { input ->
                         FileOutputStream(dbFile).use { output ->
                             input.copyTo(output)
                         }
                     }
+                    FileLogger.log(TAG, "已恢复主数据库文件")
 
-                    // 同时恢复 wal 和 shm 文件（如果存在）
-                    val backupDir = backupFile.parentFile
+                    // 4. 恢复 WAL 和 SHM 文件（如果存在）
+                    val backupDir = backupFile.parentFile!!
                     val walBackup = File(backupDir, backupFile.name + "-wal")
                     val shmBackup = File(backupDir, backupFile.name + "-shm")
 
                     if (walBackup.exists()) {
-                        val walFile = requireContext().getDatabasePath("money_tracker_database-wal")
                         FileInputStream(walBackup).use { input ->
                             FileOutputStream(walFile).use { output ->
                                 input.copyTo(output)
@@ -267,7 +289,6 @@ class SettingsFragment : Fragment() {
                     }
 
                     if (shmBackup.exists()) {
-                        val shmFile = requireContext().getDatabasePath("money_tracker_database-shm")
                         FileInputStream(shmBackup).use { input ->
                             FileOutputStream(shmFile).use { output ->
                                 input.copyTo(output)
@@ -275,24 +296,32 @@ class SettingsFragment : Fragment() {
                         }
                         FileLogger.log(TAG, "已恢复 SHM 文件")
                     }
+
+                    FileLogger.log(TAG, "恢复成功")
+                    "success"
                 }
 
-                Toast.makeText(requireContext(), R.string.restore_success, Toast.LENGTH_SHORT).show()
+                if (result == "success") {
+                    Toast.makeText(requireContext(), R.string.restore_success, Toast.LENGTH_SHORT).show()
 
-                // 提示重启应用
-                AlertDialog.Builder(requireContext())
-                    .setTitle("恢复成功")
-                    .setMessage("数据已恢复，请重启应用以生效")
-                    .setPositiveButton("确定") { _, _ ->
-                        // 重启应用
-                        val intent = requireActivity().packageManager.getLaunchIntentForPackage(requireActivity().packageName)
-                        if (intent != null) {
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                            startActivity(intent)
-                            requireActivity().finish()
+                    // 提示重启应用
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("恢复成功")
+                        .setMessage("数据已恢复，需要重启应用以生效。\n\n是否立即重启？")
+                        .setPositiveButton("立即重启") { _, _ ->
+                            // 重启应用
+                            val intent = requireActivity().packageManager.getLaunchIntentForPackage(requireActivity().packageName)
+                            if (intent != null) {
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                                startActivity(intent)
+                                requireActivity().finish()
+                                // 杀掉进程，确保完全重启
+                                android.os.Process.killProcess(android.os.Process.myPid())
+                            }
                         }
-                    }
-                    .show()
+                        .setNegativeButton("稍后重启", null)
+                        .show()
+                }
             } catch (e: Exception) {
                 FileLogger.logError(TAG, "恢复失败", e)
                 e.printStackTrace()
