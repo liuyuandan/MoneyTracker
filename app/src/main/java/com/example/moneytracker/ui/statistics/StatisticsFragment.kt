@@ -266,6 +266,11 @@ class StatisticsFragment : Fragment() {
             // 月度视图：按日生成
             val lastDayCalendar = java.util.Calendar.getInstance()
             lastDayCalendar.timeInMillis = lastDay
+            // 确保最后一天也归一化
+            lastDayCalendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            lastDayCalendar.set(java.util.Calendar.MINUTE, 0)
+            lastDayCalendar.set(java.util.Calendar.SECOND, 0)
+            lastDayCalendar.set(java.util.Calendar.MILLISECOND, 0)
             
             while (calendar.before(lastDayCalendar) || calendar.timeInMillis == lastDayCalendar.timeInMillis) {
                 allDays.add(calendar.timeInMillis)
