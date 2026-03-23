@@ -57,7 +57,7 @@ interface TransactionDao {
 
     // 获取指定月份的每日收支统计
     @Query("""
-        SELECT date/86400000 as day, SUM(amount) as totalAmount
+        SELECT (date/86400000) * 86400000 as day, SUM(amount) as totalAmount
         FROM transactions
         WHERE type = :type AND date BETWEEN :startTime AND :endTime
         GROUP BY day
@@ -67,7 +67,7 @@ interface TransactionDao {
 
     // 获取指定年份的每月收支统计
     @Query("""
-        SELECT (date/2592000000) as day, SUM(amount) as totalAmount
+        SELECT strftime('%s', datetime(date/1000, 'unixepoch', 'start of month')) * 1000 as day, SUM(amount) as totalAmount
         FROM transactions
         WHERE type = :type AND date BETWEEN :startTime AND :endTime
         GROUP BY day
