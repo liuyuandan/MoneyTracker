@@ -292,13 +292,21 @@ class StatisticsFragment : Fragment() {
             }
         }
 
-        // 添加支出数据
-        val expenseEntries = mutableListOf<Entry>()
+        // 添加支出数据 - 先按日期合并金额
+        val expenseByDay = mutableMapOf<Long, Double>()
         expenseTotals.forEach { total ->
             val normalizedDay = if (isYearView) normalizeToMonth(total.day) else normalizeToDay(total.day)
-            val index = dayToIndex[normalizedDay] ?: 0
-            expenseEntries.add(Entry(index.toFloat(), total.totalAmount.toFloat()))
+            expenseByDay[normalizedDay] = (expenseByDay[normalizedDay] ?: 0.0) + total.totalAmount
         }
+        
+        val expenseEntries = mutableListOf<Entry>()
+        expenseByDay.forEach { (day, amount) ->
+            val index = dayToIndex[day] ?: 0
+            expenseEntries.add(Entry(index.toFloat(), amount.toFloat()))
+        }
+        
+        // 按索引排序，确保数据点按日期顺序显示
+        expenseEntries.sortBy { it.x }
 
         val expenseDataSet = LineDataSet(expenseEntries, getString(R.string.expense)).apply {
             color = ContextCompat.getColor(requireContext(), R.color.expense)
@@ -309,13 +317,21 @@ class StatisticsFragment : Fragment() {
             valueTextSize = 10f
         }
 
-        // 添加收入数据
-        val incomeEntries = mutableListOf<Entry>()
+        // 添加收入数据 - 先按日期合并金额
+        val incomeByDay = mutableMapOf<Long, Double>()
         incomeTotals.forEach { total ->
             val normalizedDay = if (isYearView) normalizeToMonth(total.day) else normalizeToDay(total.day)
-            val index = dayToIndex[normalizedDay] ?: 0
-            incomeEntries.add(Entry(index.toFloat(), total.totalAmount.toFloat()))
+            incomeByDay[normalizedDay] = (incomeByDay[normalizedDay] ?: 0.0) + total.totalAmount
         }
+        
+        val incomeEntries = mutableListOf<Entry>()
+        incomeByDay.forEach { (day, amount) ->
+            val index = dayToIndex[day] ?: 0
+            incomeEntries.add(Entry(index.toFloat(), amount.toFloat()))
+        }
+        
+        // 按索引排序，确保数据点按日期顺序显示
+        incomeEntries.sortBy { it.x }
 
         val incomeDataSet = LineDataSet(incomeEntries, getString(R.string.income)).apply {
             color = ContextCompat.getColor(requireContext(), R.color.income)
