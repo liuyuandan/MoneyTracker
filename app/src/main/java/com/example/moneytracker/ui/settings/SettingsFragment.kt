@@ -99,12 +99,9 @@ class SettingsFragment : Fragment() {
         }
 
         // 检查是否有备份文件
-        val backupDir = File(requireContext().getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS), "MoneyTracker")
-        val backupFiles = backupDir.listFiles()
-            ?.filter { it.name.endsWith(".db") && !it.name.endsWith("-wal") && !it.name.endsWith("-shm") }
-            ?.sortedByDescending { it.lastModified() }
+        val backupFiles = getBackupFiles()
 
-        if (backupFiles.isNullOrEmpty()) {
+        if (backupFiles.isEmpty()) {
             // 没有备份，直接创建备份
             performBackup()
         } else {
@@ -248,24 +245,35 @@ class SettingsFragment : Fragment() {
 
     /**
      * 获取备份文件列表
+     * 只返回主数据库备份文件（不包含 -wal 和 -shm 文件）
      */
     private fun getBackupFiles(): List<File> {
         val backupDir = File(requireContext().getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS), "MoneyTracker")
-        FileLogger.log(TAG, "查找备份目录: ${backupDir.absolutePath}, exists: ${backupDir.exists()}")
+        FileLogger.log(TAG, "查找备份目录: ${backupDir.absolutePath}")
 
         if (!backupDir.exists()) {
+            FileLogger.log(TAG, "备份目录不存在")
             return emptyList()
         }
 
-        val files = backupDir.listFiles()
-            ?.filter { it.name.endsWith(".db") && !it.name.endsWith("-wal") && !it.name.endsWith("-shm") }
-            ?.sortedByDescending { it.lastModified() }
-            ?: emptyList()
+        // 列出目录下所有文件
+        val allFiles = backupDir.listFiles()?.toList() ?: emptyList()
+        FileLogger.log(TAG, "目录下所有文件: ${allFiles.map { it.name }}")
 
-        FileLogger.log(TAG, "找到 ${files.size} 个备份文件")
-        files.forEach { FileLogger.log(TAG, "备份文件: ${it.name}") }
+        // 过滤出主备份文件（.db 结尾，但不是 .db-wal 或 .db-shm）
+        val backupFiles = allFiles
+            .filter { file ->
+                val name = file.name
+                name.startsWith("money_tracker_") &&
+                name.endsWith(".db") &&
+                !name.endsWith(".db-wal") &&
+                !name.endsWith(".db-shm")
+            }
+            .sortedByDescending { it.lastModified() }
 
-        return files
+        FileLogger.log(TAG, "找到 ${backupFiles.size} 个备份文件: ${backupFiles.map { it.name }}")
+
+        return backupFiles
     }
 
     private fun showRestoreDialog() {
