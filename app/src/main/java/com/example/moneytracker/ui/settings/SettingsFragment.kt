@@ -69,24 +69,27 @@ class SettingsFragment : Fragment() {
             startActivity(Intent(requireContext(), CategoryManagerActivity::class.java))
         }
 
-        // 备份数据
+        // 备份数据（点击）- 新增备份
         binding.layoutBackup.setOnClickListener {
-            showBackupDialog()
+            showBackupOptionsDialog()
+        }
+
+        // 备份数据（长按）- 管理备份
+        binding.layoutBackup.setOnLongClickListener {
+            showManageBackupDialog()
+            true
         }
 
         // 恢复数据
         binding.layoutRestore.setOnClickListener {
             showRestoreDialog()
         }
-        
-        // 查看日志
-        binding.layoutBackup.setOnLongClickListener {
-            showLogDialog()
-            true
-        }
     }
-    
-    private fun showBackupDialog() {
+
+    /**
+     * 显示备份选项对话框（新增备份）
+     */
+    private fun showBackupOptionsDialog() {
         // 检查是否需要请求存储权限（Android 9及以下需要）
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -100,15 +103,131 @@ class SettingsFragment : Fragment() {
         }
 
         AlertDialog.Builder(requireContext())
-            .setTitle(R.string.backup_data)
-            .setMessage("确定要备份数据吗？\n\n备份文件将保存到应用专属目录，可通过文件管理器查看。")
-            .setPositiveButton("备份") { dialog, _ ->
+            .setTitle("备份数据")
+            .setMessage("确定要创建新的数据备份吗？\n\n备份文件将保存到应用专属目录。")
+            .setPositiveButton("创建备份") { dialog, _ ->
                 dialog.dismiss()
                 performBackup()
             }
             .setNegativeButton("取消", null)
             .create()
             .show()
+    }
+
+    /**
+     * 显示管理备份对话框（删除备份）
+     */
+    private fun showManageBackupDialog() {
+        val backupDir = File(requireContext().getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS), "MoneyTracker")
+
+        if (!backupDir.exists()) {
+            Toast.makeText(requireContext(), "没有找到备份目录", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val backupFiles = backupDir.listFiles()
+            ?.filter { it.name.endsWith(".db") && !it.name.endsWith("-wal") && !it.name.endsWith("-shm") }
+            ?.sortedByDescending { it.lastModified() }
+
+        if (backupFiles.isNullOrEmpty()) {
+            Toast.makeText(requireContext(), "没有找到备份文件", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val displayNames = backupFiles.map { formatBackupFileName(it.name) }.toTypedArray()
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("管理备份")
+            .setMessage("请选择要删除的备份文件：")
+            .setItems(displayNames) { dialog, which ->
+                dialog.dismiss()
+                showDeleteBackupConfirmDialog(backupFiles[which])
+            }
+            .setNegativeButton("取消", null)
+            .create()
+            .show()
+    }
+
+    /**
+     * 显示删除备份确认对话框
+     */
+    private fun showDeleteBackupConfirmDialog(backupFile: File) {
+        val displayName = formatBackupFileName(backupFile.name)
+        AlertDialog.Builder(requireContext())
+            .setTitle("删除备份")
+            .setMessage("确定要删除以下备份吗？\n\n$displayName\n\n此操作不可恢复！")
+            .setPositiveButton("删除") { dialog, _ ->
+                dialog.dismiss()
+                deleteBackup(backupFile)
+            }
+            .setNegativeButton("取消", null)
+            .create()
+            .show()
+    }
+
+    /**
+     * 删除备份文件
+     */
+    private fun deleteBackup(backupFile: File) {
+        lifecycleScope.launch {
+            try {
+                val result = withContext(Dispatchers.IO) {
+                    // 删除主备份文件
+                    val mainDeleted = backupFile.delete()
+
+                    // 删除关联的 WAL 和 SHM 文件
+                    val walFile = File(backupFile.parentFile, backupFile.name + "-wal")
+                    val shmFile = File(backupFile.parentFile, backupFile.name + "-shm")
+
+                    if (walFile.exists()) walFile.delete()
+                    if (shmFile.exists()) shmFile.delete()
+
+                    mainDeleted
+                }
+
+                if (result) {
+                    Toast.makeText(requireContext(), "备份已删除", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), "删除失败", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                FileLogger.logError(TAG, "删除备份失败", e)
+                Toast.makeText(requireContext(), "删除失败：${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    /**
+     * 格式化备份文件名显示
+     * 从 money_tracker_20260323_225137.db 转换为 2026年03月23日 22时51分
+     */
+    private fun formatBackupFileName(fileName: String): String {
+        return try {
+            // 提取时间戳部分: money_tracker_20260323_225137.db -> 20260323_225137
+            val timestamp = fileName
+                .removePrefix("money_tracker_")
+                .removeSuffix(".db")
+
+            // 解析: 20260323_225137
+            val parts = timestamp.split("_")
+            if (parts.size == 2) {
+                val datePart = parts[0] // 20260323
+                val timePart = parts[1] // 225137
+
+                val year = datePart.substring(0, 4)
+                val month = datePart.substring(4, 6)
+                val day = datePart.substring(6, 8)
+
+                val hour = timePart.substring(0, 2)
+                val minute = timePart.substring(2, 4)
+
+                "${year}年${month}月${day}日 ${hour}时${minute}分"
+            } else {
+                fileName
+            }
+        } catch (e: Exception) {
+            fileName
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -132,31 +251,38 @@ class SettingsFragment : Fragment() {
             return
         }
 
-        val backupFiles = backupDir.listFiles()?.filter { it.name.endsWith(".db") && !it.name.endsWith("-wal") && !it.name.endsWith("-shm") }?.sortedByDescending { it.lastModified() }
+        val backupFiles = backupDir.listFiles()
+            ?.filter { it.name.endsWith(".db") && !it.name.endsWith("-wal") && !it.name.endsWith("-shm") }
+            ?.sortedByDescending { it.lastModified() }
 
         if (backupFiles.isNullOrEmpty()) {
             Toast.makeText(requireContext(), "没有找到备份文件", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val fileNames = backupFiles.map { it.name }.toTypedArray()
+        // 格式化显示文件名
+        val displayNames = backupFiles.map { formatBackupFileName(it.name) }.toTypedArray()
 
         AlertDialog.Builder(requireContext())
-            .setTitle(R.string.restore_data)
-            .setItems(fileNames) { dialog, which ->
+            .setTitle("恢复数据")
+            .setMessage("请选择要恢复的备份记录：")
+            .setItems(displayNames) { dialog, which ->
                 dialog.dismiss()
                 // 延迟显示确认对话框，确保前一个对话框已关闭
                 binding.root.post {
                     showRestoreConfirmDialog(backupFiles[which])
                 }
             }
+            .setNegativeButton("取消", null)
+            .create()
             .show()
     }
 
     private fun showRestoreConfirmDialog(backupFile: File) {
+        val displayName = formatBackupFileName(backupFile.name)
         AlertDialog.Builder(requireContext())
             .setTitle("确认恢复")
-            .setMessage("确定要从 ${backupFile.name} 恢复数据吗？\n\n警告：当前数据将被覆盖！")
+            .setMessage("确定要从以下备份恢复数据吗？\n\n$displayName\n\n警告：当前数据将被覆盖！")
             .setPositiveButton("恢复") { dialog, _ ->
                 dialog.dismiss()
                 performRestore(backupFile)
@@ -335,27 +461,6 @@ class SettingsFragment : Fragment() {
                 Toast.makeText(requireContext(), "恢复失败：${e.message}", Toast.LENGTH_LONG).show()
             }
         }
-    }
-    
-    private fun showLogDialog() {
-        val logContent = FileLogger.getLogContent()
-        val logPath = FileLogger.getLogFilePath()
-        
-        AlertDialog.Builder(requireContext())
-            .setTitle("应用日志")
-            .setMessage("日志文件路径:\n$logPath\n\n日志内容:\n\n${logContent.take(2000)}${if (logContent.length > 2000) "\n...(已截断)" else ""}")
-            .setPositiveButton("复制日志路径") { _, _ ->
-                val clipboard = requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                val clip = android.content.ClipData.newPlainText("日志路径", logPath)
-                clipboard.setPrimaryClip(clip)
-                Toast.makeText(requireContext(), "日志路径已复制", Toast.LENGTH_SHORT).show()
-            }
-            .setNegativeButton("关闭", null)
-            .setNeutralButton("清空日志") { _, _ ->
-                FileLogger.clearLog()
-                Toast.makeText(requireContext(), "日志已清空", Toast.LENGTH_SHORT).show()
-            }
-            .show()
     }
 
     override fun onDestroyView() {
