@@ -216,8 +216,33 @@ class StatisticsFragment : Fragment() {
             return
         }
 
-        // 获取有交易数据的日期列表
-        val transactionDays = (expenseTotals + incomeTotals).map { it.day }.distinct().sorted()
+        // 辅助函数：将时间戳归一化到当天开始（去掉时分秒）
+        fun normalizeToDay(timestamp: Long): Long {
+            val cal = java.util.Calendar.getInstance()
+            cal.timeInMillis = timestamp
+            cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            cal.set(java.util.Calendar.MINUTE, 0)
+            cal.set(java.util.Calendar.SECOND, 0)
+            cal.set(java.util.Calendar.MILLISECOND, 0)
+            return cal.timeInMillis
+        }
+
+        // 辅助函数：将时间戳归一化到月初
+        fun normalizeToMonth(timestamp: Long): Long {
+            val cal = java.util.Calendar.getInstance()
+            cal.timeInMillis = timestamp
+            cal.set(java.util.Calendar.DAY_OF_MONTH, 1)
+            cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            cal.set(java.util.Calendar.MINUTE, 0)
+            cal.set(java.util.Calendar.SECOND, 0)
+            cal.set(java.util.Calendar.MILLISECOND, 0)
+            return cal.timeInMillis
+        }
+
+        // 获取有交易数据的日期列表（归一化后）
+        val transactionDays = (expenseTotals + incomeTotals).map { 
+            if (isYearView) normalizeToMonth(it.day) else normalizeToDay(it.day)
+        }.distinct().sorted()
         
         // 找出第一笔交易和最后一笔交易的日期
         val firstDay = transactionDays.first()
@@ -230,12 +255,6 @@ class StatisticsFragment : Fragment() {
         
         if (isYearView) {
             // 年度视图：按月生成
-            // 对齐到月初
-            calendar.set(java.util.Calendar.DAY_OF_MONTH, 1)
-            calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
-            calendar.set(java.util.Calendar.MINUTE, 0)
-            calendar.set(java.util.Calendar.SECOND, 0)
-            calendar.set(java.util.Calendar.MILLISECOND, 0)
             val lastMonthCalendar = java.util.Calendar.getInstance()
             lastMonthCalendar.timeInMillis = lastDay
             
@@ -245,11 +264,6 @@ class StatisticsFragment : Fragment() {
             }
         } else {
             // 月度视图：按日生成
-            // 对齐到当天开始
-            calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
-            calendar.set(java.util.Calendar.MINUTE, 0)
-            calendar.set(java.util.Calendar.SECOND, 0)
-            calendar.set(java.util.Calendar.MILLISECOND, 0)
             val lastDayCalendar = java.util.Calendar.getInstance()
             lastDayCalendar.timeInMillis = lastDay
             
@@ -259,7 +273,7 @@ class StatisticsFragment : Fragment() {
             }
         }
         
-        // 创建日期到索引的映射
+        // 创建日期到索引的映射（使用归一化后的时间戳）
         val dayToIndex = allDays.withIndex().associate { it.value to it.index }
         
         // 生成X轴标签
@@ -276,7 +290,8 @@ class StatisticsFragment : Fragment() {
         // 添加支出数据
         val expenseEntries = mutableListOf<Entry>()
         expenseTotals.forEach { total ->
-            val index = dayToIndex[total.day] ?: 0
+            val normalizedDay = if (isYearView) normalizeToMonth(total.day) else normalizeToDay(total.day)
+            val index = dayToIndex[normalizedDay] ?: 0
             expenseEntries.add(Entry(index.toFloat(), total.totalAmount.toFloat()))
         }
 
@@ -292,7 +307,8 @@ class StatisticsFragment : Fragment() {
         // 添加收入数据
         val incomeEntries = mutableListOf<Entry>()
         incomeTotals.forEach { total ->
-            val index = dayToIndex[total.day] ?: 0
+            val normalizedDay = if (isYearView) normalizeToMonth(total.day) else normalizeToDay(total.day)
+            val index = dayToIndex[normalizedDay] ?: 0
             incomeEntries.add(Entry(index.toFloat(), total.totalAmount.toFloat()))
         }
 
