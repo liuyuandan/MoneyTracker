@@ -244,6 +244,22 @@ class StatisticsFragment : Fragment() {
             if (isYearView) normalizeToMonth(it.day) else normalizeToDay(it.day)
         }.distinct().sorted()
         
+        android.util.Log.d("StatisticsFragment", "=== updateLineChart Debug ===")
+        android.util.Log.d("StatisticsFragment", "isYearView: $isYearView")
+        android.util.Log.d("StatisticsFragment", "expenseTotals count: ${expenseTotals.size}")
+        expenseTotals.forEach { 
+            android.util.Log.d("StatisticsFragment", "expense - day: ${it.day}, amount: ${it.totalAmount}")
+        }
+        android.util.Log.d("StatisticsFragment", "incomeTotals count: ${incomeTotals.size}")
+        incomeTotals.forEach { 
+            android.util.Log.d("StatisticsFragment", "income - day: ${it.day}, amount: ${it.totalAmount}")
+        }
+        android.util.Log.d("StatisticsFragment", "transactionDays (normalized): ${transactionDays.map { 
+            val cal = java.util.Calendar.getInstance()
+            cal.timeInMillis = it
+            if (isYearView) "${cal.get(java.util.Calendar.MONTH) + 1}月" else "${cal.get(java.util.Calendar.DAY_OF_MONTH)}日"
+        }}")
+        
         // 找出第一笔交易和最后一笔交易的日期
         val firstDay = transactionDays.first()
         val lastDay = transactionDays.last()
@@ -291,6 +307,13 @@ class StatisticsFragment : Fragment() {
                 "${cal.get(java.util.Calendar.DAY_OF_MONTH)}日"
             }
         }
+        
+        android.util.Log.d("StatisticsFragment", "allDays count: ${allDays.size}, labels: $xLabels")
+        android.util.Log.d("StatisticsFragment", "dayToIndex mapping: ${dayToIndex.map { (day, index) ->
+            val cal = java.util.Calendar.getInstance()
+            cal.timeInMillis = day
+            "${cal.get(java.util.Calendar.DAY_OF_MONTH)}日 -> $index"
+        }}")
 
         // 添加支出数据 - 先按日期合并金额
         val expenseByDay = mutableMapOf<Long, Double>()
@@ -302,11 +325,13 @@ class StatisticsFragment : Fragment() {
         val expenseEntries = mutableListOf<Entry>()
         expenseByDay.forEach { (day, amount) ->
             val index = dayToIndex[day] ?: 0
+            android.util.Log.d("StatisticsFragment", "expense entry - day: ${java.util.Calendar.getInstance().apply { timeInMillis = day }.get(java.util.Calendar.DAY_OF_MONTH)}日, index: $index, amount: $amount")
             expenseEntries.add(Entry(index.toFloat(), amount.toFloat()))
         }
         
         // 按索引排序，确保数据点按日期顺序显示
         expenseEntries.sortBy { it.x }
+        android.util.Log.d("StatisticsFragment", "expenseEntries after sort: ${expenseEntries.map { "x=${it.x}, y=${it.y}" }}")
 
         val expenseDataSet = LineDataSet(expenseEntries, getString(R.string.expense)).apply {
             color = ContextCompat.getColor(requireContext(), R.color.expense)
