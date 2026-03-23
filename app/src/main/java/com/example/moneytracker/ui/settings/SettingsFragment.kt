@@ -351,6 +351,8 @@ class SettingsFragment : Fragment() {
         return backupFiles
     }
 
+    private var currentRestoreListDialog: AlertDialog? = null
+
     private fun showRestoreDialog() {
         val backupFiles = getBackupFiles()
 
@@ -359,21 +361,94 @@ class SettingsFragment : Fragment() {
             return
         }
 
-        // 格式化显示文件名
-        val displayNames = backupFiles.map { formatBackupFileName(it.name) }.toTypedArray()
+        // 创建自定义布局
+        val container = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 24, 48, 16)
+        }
 
-        AlertDialog.Builder(requireContext())
-            .setTitle("恢复数据\n请选择要恢复的备份记录：")
-            .setItems(displayNames) { dialog, which ->
-                dialog.dismiss()
-                // 延迟显示确认对话框，确保前一个对话框已关闭
-                binding.root.post {
-                    showRestoreConfirmDialog(backupFiles[which])
-                }
+        // 添加提示文字
+        val tipView = TextView(requireContext()).apply {
+            text = "请选择要恢复的备份记录："
+            textSize = 14f
+            setTextColor(resources.getColor(R.color.text_secondary, null))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, 0, 0, 16)
             }
+        }
+        container.addView(tipView)
+
+        // 添加每条备份记录
+        backupFiles.forEach { file ->
+            val itemView = createRestoreItemView(file)
+            container.addView(itemView)
+        }
+
+        // 创建滚动视图
+        val scrollView = ScrollView(requireContext()).apply {
+            addView(container)
+        }
+
+        // 创建对话框
+        currentRestoreListDialog = AlertDialog.Builder(requireContext())
+            .setTitle("恢复数据")
+            .setView(scrollView)
             .setNegativeButton("取消", null)
             .create()
-            .show()
+
+        currentRestoreListDialog?.show()
+    }
+
+    /**
+     * 创建恢复项视图
+     */
+    private fun createRestoreItemView(backupFile: File): View {
+        val context = requireContext()
+        return LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, 8, 0, 8)
+            }
+
+            // 备份名称
+            val nameView = TextView(context).apply {
+                text = formatBackupFileName(backupFile.name)
+                textSize = 16f
+                setTextColor(resources.getColor(R.color.text_primary, null))
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
+                )
+                gravity = Gravity.CENTER_VERTICAL
+            }
+
+            // 恢复按钮
+            val restoreBtn = Button(context).apply {
+                text = "恢复"
+                setTextColor(resources.getColor(R.color.primary, null))
+                background = null
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                setOnClickListener {
+                    // 先关闭恢复列表对话框
+                    currentRestoreListDialog?.dismiss()
+                    // 显示恢复确认对话框
+                    showRestoreConfirmDialog(backupFile)
+                }
+            }
+
+            addView(nameView)
+            addView(restoreBtn)
+        }
     }
 
     private fun showRestoreConfirmDialog(backupFile: File) {
