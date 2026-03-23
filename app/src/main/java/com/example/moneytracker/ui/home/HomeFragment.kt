@@ -16,6 +16,7 @@ import com.example.moneytracker.adapters.GroupedTransactionAdapter
 import com.example.moneytracker.adapters.TransactionWithCategory
 import com.example.moneytracker.databinding.FragmentHomeBinding
 import com.example.moneytracker.ui.transactions.AddTransactionActivity
+import com.example.moneytracker.ui.transactions.AllTransactionsActivity
 import com.example.moneytracker.utils.CurrencyUtils
 import com.example.moneytracker.utils.FileLogger
 
@@ -48,9 +49,21 @@ class HomeFragment : Fragment() {
         try {
             setupRecyclerView()
             setupFab()
+            setupAllTransactionsButton()
             observeData()
         } catch (e: Exception) {
             FileLogger.logError(TAG, "onViewCreated: Error setting up view", e)
+        }
+    }
+
+    private fun setupAllTransactionsButton() {
+        binding.tvAllTransactions.setOnClickListener {
+            try {
+                val intent = Intent(requireContext(), AllTransactionsActivity::class.java)
+                startActivity(intent)
+            } catch (e: Exception) {
+                FileLogger.logError(TAG, "setupAllTransactionsButton: Error", e)
+            }
         }
     }
 

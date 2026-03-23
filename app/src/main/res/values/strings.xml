@@ -13,6 +13,7 @@
     <string name="expense">支出</string>
     <string name="balance">结余</string>
     <string name="recent_transactions">最近记录</string>
+    <string name="all_transactions">全部记录</string>
     <string name="no_transactions">暂无记录</string>
     <string name="add_first_transaction">点击右下角按钮添加第一条记录</string>
 
