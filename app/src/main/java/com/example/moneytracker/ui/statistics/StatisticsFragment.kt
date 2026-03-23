@@ -216,18 +216,60 @@ class StatisticsFragment : Fragment() {
             return
         }
 
-        // 合并所有日期并排序，生成X轴标签
-        val allDays = (expenseTotals + incomeTotals).map { it.day }.distinct().sorted()
+        // 获取有交易数据的日期列表
+        val transactionDays = (expenseTotals + incomeTotals).map { it.day }.distinct().sorted()
+        
+        // 找出第一笔交易和最后一笔交易的日期
+        val firstDay = transactionDays.first()
+        val lastDay = transactionDays.last()
+        
+        // 生成从第一笔交易到最后一笔交易之间的连续日期
+        val allDays = mutableListOf<Long>()
+        val calendar = java.util.Calendar.getInstance()
+        calendar.timeInMillis = firstDay
+        
+        if (isYearView) {
+            // 年度视图：按月生成
+            // 对齐到月初
+            calendar.set(java.util.Calendar.DAY_OF_MONTH, 1)
+            calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            calendar.set(java.util.Calendar.MINUTE, 0)
+            calendar.set(java.util.Calendar.SECOND, 0)
+            calendar.set(java.util.Calendar.MILLISECOND, 0)
+            val lastMonthCalendar = java.util.Calendar.getInstance()
+            lastMonthCalendar.timeInMillis = lastDay
+            
+            while (calendar.before(lastMonthCalendar) || calendar.timeInMillis == lastMonthCalendar.timeInMillis) {
+                allDays.add(calendar.timeInMillis)
+                calendar.add(java.util.Calendar.MONTH, 1)
+            }
+        } else {
+            // 月度视图：按日生成
+            // 对齐到当天开始
+            calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            calendar.set(java.util.Calendar.MINUTE, 0)
+            calendar.set(java.util.Calendar.SECOND, 0)
+            calendar.set(java.util.Calendar.MILLISECOND, 0)
+            val lastDayCalendar = java.util.Calendar.getInstance()
+            lastDayCalendar.timeInMillis = lastDay
+            
+            while (calendar.before(lastDayCalendar) || calendar.timeInMillis == lastDayCalendar.timeInMillis) {
+                allDays.add(calendar.timeInMillis)
+                calendar.add(java.util.Calendar.DAY_OF_MONTH, 1)
+            }
+        }
+        
+        // 创建日期到索引的映射
         val dayToIndex = allDays.withIndex().associate { it.value to it.index }
         
         // 生成X轴标签
         val xLabels = allDays.map { day ->
-            val calendar = java.util.Calendar.getInstance()
-            calendar.timeInMillis = day
+            val cal = java.util.Calendar.getInstance()
+            cal.timeInMillis = day
             if (isYearView) {
-                "${calendar.get(java.util.Calendar.MONTH) + 1}月"
+                "${cal.get(java.util.Calendar.MONTH) + 1}月"
             } else {
-                "${calendar.get(java.util.Calendar.DAY_OF_MONTH)}日"
+                "${cal.get(java.util.Calendar.DAY_OF_MONTH)}日"
             }
         }
 
