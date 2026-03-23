@@ -3,12 +3,15 @@ package com.example.moneytracker.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
 import android.net.Uri
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.view.children
 import com.example.moneytracker.R
@@ -29,13 +32,22 @@ object ThemeManager {
     private const val KEY_THEME_COLOR_INDEX = "theme_color_index"
     private const val KEY_BACKGROUND_URI = "background_uri"
     
-    // 主题色选项
+    // 主题色选项 - 使用浅色渐变，确保文字可读
     val THEME_COLORS = listOf(
-        intArrayOf(0xFF4A90D9.toInt(), 0xFF7EB3F0.toInt()),  // 蓝色渐变
-        intArrayOf(0xFF9C27B0.toInt(), 0xFFCE93D8.toInt()),  // 紫色渐变
-        intArrayOf(0xFF4CAF50.toInt(), 0xFF81C784.toInt()),  // 绿色渐变
-        intArrayOf(0xFFFF9800.toInt(), 0xFFFFB74D.toInt()),  // 橙色渐变
-        intArrayOf(0xFFF44336.toInt(), 0xFFEF5350.toInt())   // 红色渐变
+        intArrayOf(0xFFE3F2FD.toInt(), 0xFFBBDEFB.toInt()),  // 蓝色浅渐变
+        intArrayOf(0xFFF3E5F5.toInt(), 0xFFE1BEE7.toInt()),  // 紫色浅渐变
+        intArrayOf(0xFFE8F5E9.toInt(), 0xFFC8E6C9.toInt()),  // 绿色浅渐变
+        intArrayOf(0xFFFFF3E0.toInt(), 0xFFFFE0B2.toInt()),  // 橙色浅渐变
+        intArrayOf(0xFFFFEBEE.toInt(), 0xFFFFCDD2.toInt())   // 红色浅渐变
+    )
+    
+    // 深色主题色（用于状态栏等）
+    val THEME_COLOR_DARK = listOf(
+        0xFF4A90D9.toInt(),  // 蓝色
+        0xFF9C27B0.toInt(),  // 紫色
+        0xFF4CAF50.toInt(),  // 绿色
+        0xFFFF9800.toInt(),  // 橙色
+        0xFFF44336.toInt()   // 红色
     )
     
     val THEME_COLOR_SINGLE = listOf(
@@ -92,6 +104,14 @@ object ThemeManager {
     fun getThemeGradientColors(context: Context): IntArray {
         val index = getThemeColorIndex(context)
         return THEME_COLORS.getOrElse(index) { THEME_COLORS[0] }
+    }
+    
+    /**
+     * 获取深色主题色（用于状态栏）
+     */
+    fun getThemeColorDark(context: Context): Int {
+        val index = getThemeColorIndex(context)
+        return THEME_COLOR_DARK.getOrElse(index) { THEME_COLOR_DARK[0] }
     }
     
     /**
@@ -157,12 +177,12 @@ object ThemeManager {
     }
     
     /**
-     * 应用主题色（渐变背景）
+     * 应用主题色（浅色渐变背景，保持文字可读性）
      */
     private fun applyThemeColor(context: Context, rootView: View) {
         val colors = getThemeGradientColors(context)
         
-        // 创建渐变背景
+        // 创建浅色渐变背景
         val gradient = GradientDrawable(
             GradientDrawable.Orientation.TOP_BOTTOM,
             colors
@@ -170,14 +190,14 @@ object ThemeManager {
         
         rootView.background = gradient
         
-        // 设置状态栏颜色为主题色
+        // 设置状态栏颜色为深色主题色
         if (context is android.app.Activity) {
-            context.window?.statusBarColor = colors[0]
+            context.window?.statusBarColor = getThemeColorDark(context)
         }
     }
     
     /**
-     * 应用背景图片
+     * 应用背景图片（添加遮罩层确保文字可读）
      */
     private fun applyBackgroundImage(context: Context, rootView: View) {
         val file = getBackgroundFile(context)
@@ -185,9 +205,20 @@ object ThemeManager {
             try {
                 val bitmap = BitmapFactory.decodeFile(file.absolutePath)
                 if (bitmap != null) {
-                    // 创建背景
-                    val drawable = BitmapDrawable(context.resources, bitmap)
-                    rootView.background = drawable
+                    // 创建背景图片
+                    val bitmapDrawable = BitmapDrawable(context.resources, bitmap)
+                    
+                    // 创建半透明白色遮罩层（确保文字可读）
+                    val overlay = GradientDrawable(
+                        GradientDrawable.Orientation.TOP_BOTTOM,
+                        intArrayOf(0xE0FFFFFF.toInt(), 0xE0FFFFFF.toInt())
+                    )
+                    
+                    // 组合背景和遮罩
+                    val layers = arrayOf(bitmapDrawable, overlay)
+                    val layerDrawable = LayerDrawable(layers)
+                    
+                    rootView.background = layerDrawable
                     
                     // 设置状态栏为半透明深色
                     if (context is android.app.Activity) {
