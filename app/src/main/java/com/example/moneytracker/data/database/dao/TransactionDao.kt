@@ -56,8 +56,9 @@ interface TransactionDao {
     suspend fun deleteAll()
 
     // 获取指定月份的每日收支统计
+    // 使用 strftime 获取本地时区的日期，避免时区偏移问题
     @Query("""
-        SELECT (date/86400000) * 86400000 as day, SUM(amount) as totalAmount
+        SELECT strftime('%s', datetime(date/1000, 'unixepoch', 'start of day')) * 1000 as day, SUM(amount) as totalAmount
         FROM transactions
         WHERE type = :type AND date BETWEEN :startTime AND :endTime
         GROUP BY day
