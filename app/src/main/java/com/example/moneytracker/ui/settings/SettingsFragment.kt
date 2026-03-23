@@ -102,10 +102,12 @@ class SettingsFragment : Fragment() {
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.backup_data)
             .setMessage("确定要备份数据吗？\n\n备份文件将保存到应用专属目录，可通过文件管理器查看。")
-            .setPositiveButton(R.string.confirm) { _, _ ->
+            .setPositiveButton("备份") { dialog, _ ->
+                dialog.dismiss()
                 performBackup()
             }
-            .setNegativeButton(R.string.cancel, null)
+            .setNegativeButton("取消", null)
+            .create()
             .show()
     }
 
@@ -130,7 +132,7 @@ class SettingsFragment : Fragment() {
             return
         }
 
-        val backupFiles = backupDir.listFiles()?.filter { it.name.endsWith(".db") }?.sortedByDescending { it.lastModified() }
+        val backupFiles = backupDir.listFiles()?.filter { it.name.endsWith(".db") && !it.name.endsWith("-wal") && !it.name.endsWith("-shm") }?.sortedByDescending { it.lastModified() }
 
         if (backupFiles.isNullOrEmpty()) {
             Toast.makeText(requireContext(), "没有找到备份文件", Toast.LENGTH_SHORT).show()
@@ -141,21 +143,26 @@ class SettingsFragment : Fragment() {
 
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.restore_data)
-            .setItems(fileNames) { _, which ->
-                showRestoreConfirmDialog(backupFiles[which])
+            .setItems(fileNames) { dialog, which ->
+                dialog.dismiss()
+                // 延迟显示确认对话框，确保前一个对话框已关闭
+                binding.root.post {
+                    showRestoreConfirmDialog(backupFiles[which])
+                }
             }
-            .setNegativeButton(R.string.cancel, null)
             .show()
     }
-    
+
     private fun showRestoreConfirmDialog(backupFile: File) {
         AlertDialog.Builder(requireContext())
             .setTitle("确认恢复")
             .setMessage("确定要从 ${backupFile.name} 恢复数据吗？\n\n警告：当前数据将被覆盖！")
-            .setPositiveButton(R.string.confirm) { _, _ ->
+            .setPositiveButton("恢复") { dialog, _ ->
+                dialog.dismiss()
                 performRestore(backupFile)
             }
-            .setNegativeButton(R.string.cancel, null)
+            .setNegativeButton("取消", null)
+            .create()
             .show()
     }
     
