@@ -14,6 +14,7 @@ import com.example.moneytracker.data.repository.TransactionRepository
 import com.example.moneytracker.utils.DateUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -118,8 +119,34 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private fun loadRecentTransactions() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                transactionRepository.getRecentTransactions(20).collect { transactions ->
-                    _recentTransactions.postValue(transactions)
+                // 获取所有交易，然后筛选最近有记录的3天
+                transactionRepository.getAllTransactions().collect { allTransactions ->
+                    // 按日期（天）分组，获取最近3天的日期
+                    val calendar = Calendar.getInstance()
+                    val dayToTransactions = allTransactions.groupBy { transaction ->
+                        calendar.timeInMillis = transaction.date
+                        calendar.set(Calendar.HOUR_OF_DAY, 0)
+                        calendar.set(Calendar.MINUTE, 0)
+                        calendar.set(Calendar.SECOND, 0)
+                        calendar.set(Calendar.MILLISECOND, 0)
+                        calendar.timeInMillis
+                    }
+                    
+                    // 按日期降序排序，取最近3天
+                    val recent3Days = dayToTransactions.keys.sortedDescending().take(3)
+                    
+                    // 筛选这3天的所有交易
+                    val recentTransactions = allTransactions.filter { transaction ->
+                        calendar.timeInMillis = transaction.date
+                        calendar.set(Calendar.HOUR_OF_DAY, 0)
+                        calendar.set(Calendar.MINUTE, 0)
+                        calendar.set(Calendar.SECOND, 0)
+                        calendar.set(Calendar.MILLISECOND, 0)
+                        val dayStart = calendar.timeInMillis
+                        recent3Days.contains(dayStart)
+                    }
+                    
+                    _recentTransactions.postValue(recentTransactions)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
