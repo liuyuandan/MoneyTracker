@@ -401,6 +401,19 @@ class StatisticsFragment : Fragment() {
         // 设置X轴标签
         binding.lineChart.xAxis.valueFormatter = com.github.mikephil.charting.formatter.IndexAxisValueFormatter(xLabels)
         binding.lineChart.xAxis.labelCount = xLabels.size
+        binding.lineChart.xAxis.setLabelCount(xLabels.size, true)  // 强制显示所有标签
+        binding.lineChart.xAxis.granularity = 1f  // 设置最小间隔为1，确保每个标签都能显示
+        binding.lineChart.xAxis.position = com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM
+        binding.lineChart.xAxis.setDrawGridLines(false)
+        
+        // 设置Y轴
+        binding.lineChart.axisLeft.setDrawGridLines(true)
+        binding.lineChart.axisRight.isEnabled = false
+        
+        // 设置图表其他属性
+        binding.lineChart.description.isEnabled = false
+        binding.lineChart.setDrawGridBackground(false)
+        binding.lineChart.legend.isEnabled = true
         
         binding.lineChart.invalidate()
         
