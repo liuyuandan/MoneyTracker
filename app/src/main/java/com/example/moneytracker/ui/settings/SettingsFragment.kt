@@ -115,6 +115,8 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    private var currentBackupListDialog: AlertDialog? = null
+
     /**
      * 显示备份列表对话框（可新增/删除）
      */
@@ -137,7 +139,7 @@ class SettingsFragment : Fragment() {
         }
 
         // 创建对话框
-        val dialog = AlertDialog.Builder(requireContext())
+        currentBackupListDialog = AlertDialog.Builder(requireContext())
             .setTitle("备份列表")
             .setView(scrollView)
             .setPositiveButton("新增备份") { dialog, _ ->
@@ -147,7 +149,7 @@ class SettingsFragment : Fragment() {
             .setNegativeButton("取消", null)
             .create()
 
-        dialog.show()
+        currentBackupListDialog?.show()
     }
 
     /**
@@ -187,6 +189,8 @@ class SettingsFragment : Fragment() {
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 )
                 setOnClickListener {
+                    // 先关闭备份列表对话框
+                    currentBackupListDialog?.dismiss()
                     // 显示删除确认对话框
                     showDeleteBackupConfirmDialog(backupFile)
                 }
@@ -221,23 +225,47 @@ class SettingsFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val result = withContext(Dispatchers.IO) {
+                    FileLogger.log(TAG, "准备删除备份文件: ${backupFile.absolutePath}")
+                    FileLogger.log(TAG, "文件存在: ${backupFile.exists()}, 可写: ${backupFile.canWrite()}")
+
                     // 删除主备份文件
-                    val mainDeleted = backupFile.delete()
+                    val mainDeleted = if (backupFile.exists()) {
+                        val deleted = backupFile.delete()
+                        FileLogger.log(TAG, "删除主备份文件: $deleted")
+                        deleted
+                    } else {
+                        FileLogger.log(TAG, "主备份文件不存在")
+                        true // 文件不存在视为成功
+                    }
 
                     // 删除关联的 WAL 和 SHM 文件
                     val walFile = File(backupFile.parentFile, backupFile.name + "-wal")
                     val shmFile = File(backupFile.parentFile, backupFile.name + "-shm")
 
-                    if (walFile.exists()) walFile.delete()
-                    if (shmFile.exists()) shmFile.delete()
+                    FileLogger.log(TAG, "WAL文件: ${walFile.absolutePath}, 存在: ${walFile.exists()}")
+                    FileLogger.log(TAG, "SHM文件: ${shmFile.absolutePath}, 存在: ${shmFile.exists()}")
+
+                    if (walFile.exists()) {
+                        val deleted = walFile.delete()
+                        FileLogger.log(TAG, "删除WAL文件: $deleted")
+                    }
+                    if (shmFile.exists()) {
+                        val deleted = shmFile.delete()
+                        FileLogger.log(TAG, "删除SHM文件: $deleted")
+                    }
 
                     mainDeleted
                 }
 
                 if (result) {
                     Toast.makeText(requireContext(), "备份已删除", Toast.LENGTH_SHORT).show()
+                    // 删除成功后重新显示备份列表
+                    val remainingFiles = getBackupFiles()
+                    if (remainingFiles.isNotEmpty()) {
+                        showBackupListDialog(remainingFiles)
+                    }
                 } else {
-                    Toast.makeText(requireContext(), "删除失败", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "删除失败，请查看日志", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 FileLogger.logError(TAG, "删除备份失败", e)
