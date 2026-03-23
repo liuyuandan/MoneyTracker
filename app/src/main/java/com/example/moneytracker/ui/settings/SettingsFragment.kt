@@ -69,15 +69,9 @@ class SettingsFragment : Fragment() {
             startActivity(Intent(requireContext(), CategoryManagerActivity::class.java))
         }
 
-        // 备份数据（点击）- 新增备份
+        // 备份数据（点击）- 智能处理
         binding.layoutBackup.setOnClickListener {
-            showBackupOptionsDialog()
-        }
-
-        // 备份数据（长按）- 管理备份
-        binding.layoutBackup.setOnLongClickListener {
-            showManageBackupDialog()
-            true
+            handleBackupClick()
         }
 
         // 恢复数据
@@ -87,9 +81,11 @@ class SettingsFragment : Fragment() {
     }
 
     /**
-     * 显示备份选项对话框（新增备份）
+     * 处理备份点击事件
+     * 如果没有备份 -> 直接备份
+     * 如果有备份 -> 显示备份列表（可新增/删除）
      */
-    private fun showBackupOptionsDialog() {
+    private fun handleBackupClick() {
         // 检查是否需要请求存储权限（Android 9及以下需要）
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -102,10 +98,35 @@ class SettingsFragment : Fragment() {
             }
         }
 
+        // 检查是否有备份文件
+        val backupDir = File(requireContext().getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS), "MoneyTracker")
+        val backupFiles = backupDir.listFiles()
+            ?.filter { it.name.endsWith(".db") && !it.name.endsWith("-wal") && !it.name.endsWith("-shm") }
+            ?.sortedByDescending { it.lastModified() }
+
+        if (backupFiles.isNullOrEmpty()) {
+            // 没有备份，直接创建备份
+            performBackup()
+        } else {
+            // 有备份，显示备份列表
+            showBackupListDialog(backupFiles)
+        }
+    }
+
+    /**
+     * 显示备份列表对话框（可新增/删除）
+     */
+    private fun showBackupListDialog(backupFiles: List<File>) {
+        val displayNames = backupFiles.map { formatBackupFileName(it.name) }.toTypedArray()
+
         AlertDialog.Builder(requireContext())
-            .setTitle("备份数据")
-            .setMessage("确定要创建新的数据备份吗？\n\n备份文件将保存到应用专属目录。")
-            .setPositiveButton("创建备份") { dialog, _ ->
+            .setTitle("备份列表")
+            .setItems(displayNames) { dialog, which ->
+                dialog.dismiss()
+                // 选择备份文件后，提供删除选项
+                showBackupItemOptionsDialog(backupFiles[which])
+            }
+            .setPositiveButton("新增备份") { dialog, _ ->
                 dialog.dismiss()
                 performBackup()
             }
@@ -115,35 +136,19 @@ class SettingsFragment : Fragment() {
     }
 
     /**
-     * 显示管理备份对话框（删除备份）
+     * 显示备份项操作选项（删除）
      */
-    private fun showManageBackupDialog() {
-        val backupDir = File(requireContext().getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS), "MoneyTracker")
-
-        if (!backupDir.exists()) {
-            Toast.makeText(requireContext(), "没有找到备份目录", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val backupFiles = backupDir.listFiles()
-            ?.filter { it.name.endsWith(".db") && !it.name.endsWith("-wal") && !it.name.endsWith("-shm") }
-            ?.sortedByDescending { it.lastModified() }
-
-        if (backupFiles.isNullOrEmpty()) {
-            Toast.makeText(requireContext(), "没有找到备份文件", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val displayNames = backupFiles.map { formatBackupFileName(it.name) }.toTypedArray()
+    private fun showBackupItemOptionsDialog(backupFile: File) {
+        val displayName = formatBackupFileName(backupFile.name)
+        val options = arrayOf("删除此备份")
 
         AlertDialog.Builder(requireContext())
-            .setTitle("管理备份")
-            .setMessage("请选择要删除的备份文件：")
-            .setItems(displayNames) { dialog, which ->
+            .setTitle(displayName)
+            .setItems(options) { dialog, _ ->
                 dialog.dismiss()
-                showDeleteBackupConfirmDialog(backupFiles[which])
+                showDeleteBackupConfirmDialog(backupFile)
             }
-            .setNegativeButton("取消", null)
+            .setNegativeButton("返回", null)
             .create()
             .show()
     }
@@ -234,29 +239,40 @@ class SettingsFragment : Fragment() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_STORAGE_PERMISSION) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showBackupOptionsDialog()
+                handleBackupClick()
             } else {
                 Toast.makeText(requireContext(), "需要存储权限才能备份数据", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun showRestoreDialog() {
-        // 使用应用专属外部存储目录
+    /**
+     * 获取备份文件列表
+     */
+    private fun getBackupFiles(): List<File> {
         val backupDir = File(requireContext().getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS), "MoneyTracker")
-        FileLogger.log(TAG, "查找备份目录: ${backupDir.absolutePath}")
+        FileLogger.log(TAG, "查找备份目录: ${backupDir.absolutePath}, exists: ${backupDir.exists()}")
 
         if (!backupDir.exists()) {
-            Toast.makeText(requireContext(), "没有找到备份目录", Toast.LENGTH_SHORT).show()
-            return
+            return emptyList()
         }
 
-        val backupFiles = backupDir.listFiles()
+        val files = backupDir.listFiles()
             ?.filter { it.name.endsWith(".db") && !it.name.endsWith("-wal") && !it.name.endsWith("-shm") }
             ?.sortedByDescending { it.lastModified() }
+            ?: emptyList()
 
-        if (backupFiles.isNullOrEmpty()) {
-            Toast.makeText(requireContext(), "没有找到备份文件", Toast.LENGTH_SHORT).show()
+        FileLogger.log(TAG, "找到 ${files.size} 个备份文件")
+        files.forEach { FileLogger.log(TAG, "备份文件: ${it.name}") }
+
+        return files
+    }
+
+    private fun showRestoreDialog() {
+        val backupFiles = getBackupFiles()
+
+        if (backupFiles.isEmpty()) {
+            Toast.makeText(requireContext(), "没有找到备份文件，请先备份数据", Toast.LENGTH_SHORT).show()
             return
         }
 
