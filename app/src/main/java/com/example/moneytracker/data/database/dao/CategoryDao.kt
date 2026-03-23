@@ -52,4 +52,11 @@ interface CategoryDao {
             updateSortOrder(category.id, index)
         }
     }
+
+    @Transaction
+    suspend fun updateAll(categories: List<Category>) {
+        categories.forEach { category ->
+            update(category)
+        }
+    }
 }
