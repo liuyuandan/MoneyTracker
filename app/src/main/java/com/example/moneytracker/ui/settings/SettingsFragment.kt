@@ -335,8 +335,7 @@ class SettingsFragment : Fragment() {
         val displayNames = backupFiles.map { formatBackupFileName(it.name) }.toTypedArray()
 
         AlertDialog.Builder(requireContext())
-            .setTitle("恢复数据")
-            .setMessage("请选择要恢复的备份记录：")
+            .setTitle("恢复数据\n请选择要恢复的备份记录：")
             .setItems(displayNames) { dialog, which ->
                 dialog.dismiss()
                 // 延迟显示确认对话框，确保前一个对话框已关闭
