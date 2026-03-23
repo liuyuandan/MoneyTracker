@@ -6,9 +6,14 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -114,40 +119,82 @@ class SettingsFragment : Fragment() {
      * 显示备份列表对话框（可新增/删除）
      */
     private fun showBackupListDialog(backupFiles: List<File>) {
-        val displayNames = backupFiles.map { formatBackupFileName(it.name) }.toTypedArray()
+        // 创建自定义布局
+        val container = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 24, 48, 16)
+        }
 
-        AlertDialog.Builder(requireContext())
+        // 添加每条备份记录
+        backupFiles.forEach { file ->
+            val itemView = createBackupItemView(file)
+            container.addView(itemView)
+        }
+
+        // 创建滚动视图
+        val scrollView = ScrollView(requireContext()).apply {
+            addView(container)
+        }
+
+        // 创建对话框
+        val dialog = AlertDialog.Builder(requireContext())
             .setTitle("备份列表")
-            .setItems(displayNames) { dialog, which ->
-                dialog.dismiss()
-                // 选择备份文件后，提供删除选项
-                showBackupItemOptionsDialog(backupFiles[which])
-            }
+            .setView(scrollView)
             .setPositiveButton("新增备份") { dialog, _ ->
                 dialog.dismiss()
                 performBackup()
             }
             .setNegativeButton("取消", null)
             .create()
-            .show()
+
+        dialog.show()
     }
 
     /**
-     * 显示备份项操作选项（删除）
+     * 创建备份项视图
      */
-    private fun showBackupItemOptionsDialog(backupFile: File) {
-        val displayName = formatBackupFileName(backupFile.name)
-        val options = arrayOf("删除此备份")
-
-        AlertDialog.Builder(requireContext())
-            .setTitle(displayName)
-            .setItems(options) { dialog, _ ->
-                dialog.dismiss()
-                showDeleteBackupConfirmDialog(backupFile)
+    private fun createBackupItemView(backupFile: File): View {
+        val context = requireContext()
+        return LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, 8, 0, 8)
             }
-            .setNegativeButton("返回", null)
-            .create()
-            .show()
+
+            // 备份名称
+            val nameView = TextView(context).apply {
+                text = formatBackupFileName(backupFile.name)
+                textSize = 16f
+                setTextColor(resources.getColor(R.color.text_primary, null))
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
+                )
+                gravity = Gravity.CENTER_VERTICAL
+            }
+
+            // 删除按钮
+            val deleteBtn = Button(context).apply {
+                text = "删除"
+                setTextColor(resources.getColor(R.color.expense, null))
+                background = null
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                setOnClickListener {
+                    // 显示删除确认对话框
+                    showDeleteBackupConfirmDialog(backupFile)
+                }
+            }
+
+            addView(nameView)
+            addView(deleteBtn)
+        }
     }
 
     /**
