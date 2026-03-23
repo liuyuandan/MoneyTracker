@@ -234,7 +234,7 @@ class SettingsFragment : Fragment() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_STORAGE_PERMISSION) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showBackupDialog()
+                showBackupOptionsDialog()
             } else {
                 Toast.makeText(requireContext(), "需要存储权限才能备份数据", Toast.LENGTH_SHORT).show()
             }
