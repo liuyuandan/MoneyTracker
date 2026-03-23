@@ -20,6 +20,10 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class StatisticsFragment : Fragment() {
 
@@ -27,6 +31,24 @@ class StatisticsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: StatisticsViewModel by viewModels()
+    
+    private val logBuilder = StringBuilder()
+    
+    private fun log(message: String) {
+        android.util.Log.d("StatisticsFragment", message)
+        logBuilder.append(message).append("\n")
+    }
+    
+    private fun saveLogToFile() {
+        try {
+            val logFile = File(requireContext().getExternalFilesDir(null), "statistics_debug.log")
+            val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+            logFile.appendText("=== $timestamp ===\n${logBuilder.toString()}\n\n")
+            logBuilder.clear()
+        } catch (e: Exception) {
+            android.util.Log.e("StatisticsFragment", "Failed to save log", e)
+        }
+    }
 
     // 用于避免循环触发的标志位
     private var isUpdatingFromViewModel = false
@@ -244,17 +266,21 @@ class StatisticsFragment : Fragment() {
             if (isYearView) normalizeToMonth(it.day) else normalizeToDay(it.day)
         }.distinct().sorted()
         
-        android.util.Log.d("StatisticsFragment", "=== updateLineChart Debug ===")
-        android.util.Log.d("StatisticsFragment", "isYearView: $isYearView")
-        android.util.Log.d("StatisticsFragment", "expenseTotals count: ${expenseTotals.size}")
+        log("=== updateLineChart Debug ===")
+        log("isYearView: $isYearView")
+        log("expenseTotals count: ${expenseTotals.size}")
         expenseTotals.forEach { 
-            android.util.Log.d("StatisticsFragment", "expense - day: ${it.day}, amount: ${it.totalAmount}")
+            val cal = java.util.Calendar.getInstance()
+            cal.timeInMillis = it.day
+            log("expense - day: ${cal.get(java.util.Calendar.DAY_OF_MONTH)}日, raw: ${it.day}, amount: ${it.totalAmount}")
         }
-        android.util.Log.d("StatisticsFragment", "incomeTotals count: ${incomeTotals.size}")
+        log("incomeTotals count: ${incomeTotals.size}")
         incomeTotals.forEach { 
-            android.util.Log.d("StatisticsFragment", "income - day: ${it.day}, amount: ${it.totalAmount}")
+            val cal = java.util.Calendar.getInstance()
+            cal.timeInMillis = it.day
+            log("income - day: ${cal.get(java.util.Calendar.DAY_OF_MONTH)}日, raw: ${it.day}, amount: ${it.totalAmount}")
         }
-        android.util.Log.d("StatisticsFragment", "transactionDays (normalized): ${transactionDays.map { 
+        log("transactionDays (normalized): ${transactionDays.map { 
             val cal = java.util.Calendar.getInstance()
             cal.timeInMillis = it
             if (isYearView) "${cal.get(java.util.Calendar.MONTH) + 1}月" else "${cal.get(java.util.Calendar.DAY_OF_MONTH)}日"
@@ -308,8 +334,8 @@ class StatisticsFragment : Fragment() {
             }
         }
         
-        android.util.Log.d("StatisticsFragment", "allDays count: ${allDays.size}, labels: $xLabels")
-        android.util.Log.d("StatisticsFragment", "dayToIndex mapping: ${dayToIndex.map { (day, index) ->
+        log("allDays count: ${allDays.size}, labels: $xLabels")
+        log("dayToIndex mapping: ${dayToIndex.map { (day, index) ->
             val cal = java.util.Calendar.getInstance()
             cal.timeInMillis = day
             "${cal.get(java.util.Calendar.DAY_OF_MONTH)}日 -> $index"
@@ -325,13 +351,13 @@ class StatisticsFragment : Fragment() {
         val expenseEntries = mutableListOf<Entry>()
         expenseByDay.forEach { (day, amount) ->
             val index = dayToIndex[day] ?: 0
-            android.util.Log.d("StatisticsFragment", "expense entry - day: ${java.util.Calendar.getInstance().apply { timeInMillis = day }.get(java.util.Calendar.DAY_OF_MONTH)}日, index: $index, amount: $amount")
+            log("expense entry - day: ${java.util.Calendar.getInstance().apply { timeInMillis = day }.get(java.util.Calendar.DAY_OF_MONTH)}日, index: $index, amount: $amount")
             expenseEntries.add(Entry(index.toFloat(), amount.toFloat()))
         }
         
         // 按索引排序，确保数据点按日期顺序显示
         expenseEntries.sortBy { it.x }
-        android.util.Log.d("StatisticsFragment", "expenseEntries after sort: ${expenseEntries.map { "x=${it.x}, y=${it.y}" }}")
+        log("expenseEntries after sort: ${expenseEntries.map { "x=${it.x}, y=${it.y}" }}")
 
         val expenseDataSet = LineDataSet(expenseEntries, getString(R.string.expense)).apply {
             color = ContextCompat.getColor(requireContext(), R.color.expense)
@@ -352,11 +378,13 @@ class StatisticsFragment : Fragment() {
         val incomeEntries = mutableListOf<Entry>()
         incomeByDay.forEach { (day, amount) ->
             val index = dayToIndex[day] ?: 0
+            log("income entry - day: ${java.util.Calendar.getInstance().apply { timeInMillis = day }.get(java.util.Calendar.DAY_OF_MONTH)}日, index: $index, amount: $amount")
             incomeEntries.add(Entry(index.toFloat(), amount.toFloat()))
         }
         
         // 按索引排序，确保数据点按日期顺序显示
         incomeEntries.sortBy { it.x }
+        log("incomeEntries after sort: ${incomeEntries.map { "x=${it.x}, y=${it.y}" }}")
 
         val incomeDataSet = LineDataSet(incomeEntries, getString(R.string.income)).apply {
             color = ContextCompat.getColor(requireContext(), R.color.income)
@@ -375,6 +403,9 @@ class StatisticsFragment : Fragment() {
         binding.lineChart.xAxis.labelCount = xLabels.size
         
         binding.lineChart.invalidate()
+        
+        // 保存日志到文件
+        saveLogToFile()
     }
 
     override fun onDestroyView() {
