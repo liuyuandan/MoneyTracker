@@ -162,16 +162,20 @@ class SettingsFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val result = withContext(Dispatchers.IO) {
-                    // 获取数据库路径
-                    val dbPath = requireContext().getDatabasePath("money_tracker.db")
-                    FileLogger.log(TAG, "数据库路径: ${dbPath.absolutePath}")
+                    // Room 数据库文件名是 "money_tracker_database"
+                    // Room 会创建以下文件：
+                    // 1. money_tracker_database (主数据库文件)
+                    // 2. money_tracker_database-wal (Write-Ahead Log)
+                    // 3. money_tracker_database-shm (Shared Memory)
+                    val dbFile = requireContext().getDatabasePath("money_tracker_database")
+                    FileLogger.log(TAG, "数据库路径: ${dbFile.absolutePath}, exists: ${dbFile.exists()}")
 
-                    if (!dbPath.exists()) {
-                        FileLogger.logError(TAG, "数据库文件不存在", null)
+                    if (!dbFile.exists()) {
+                        FileLogger.logError(TAG, "数据库文件不存在: ${dbFile.absolutePath}", null)
                         return@withContext "数据库文件不存在"
                     }
 
-                    // 创建备份目录 - 使用应用专属外部存储目录，不需要权限
+                    // 创建备份目录
                     val backupDir = File(requireContext().getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS), "MoneyTracker")
                     FileLogger.log(TAG, "备份目录: ${backupDir.absolutePath}")
 
@@ -182,15 +186,41 @@ class SettingsFragment : Fragment() {
 
                     // 生成备份文件名
                     val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
-                    val backupFileName = "money_tracker_${dateFormat.format(Date())}.db"
+                    val timestamp = dateFormat.format(Date())
+
+                    // 备份主数据库文件
+                    val backupFileName = "money_tracker_$timestamp.db"
                     val backupFile = File(backupDir, backupFileName)
                     FileLogger.log(TAG, "备份文件: ${backupFile.absolutePath}")
 
-                    // 复制数据库文件
-                    FileInputStream(dbPath).use { input ->
+                    FileInputStream(dbFile).use { input ->
                         FileOutputStream(backupFile).use { output ->
                             input.copyTo(output)
                         }
+                    }
+
+                    // 同时备份 wal 和 shm 文件（如果存在）
+                    val walFile = requireContext().getDatabasePath("money_tracker_database-wal")
+                    val shmFile = requireContext().getDatabasePath("money_tracker_database-shm")
+
+                    if (walFile.exists()) {
+                        val walBackup = File(backupDir, "money_tracker_$timestamp.db-wal")
+                        FileInputStream(walFile).use { input ->
+                            FileOutputStream(walBackup).use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                        FileLogger.log(TAG, "已备份 WAL 文件")
+                    }
+
+                    if (shmFile.exists()) {
+                        val shmBackup = File(backupDir, "money_tracker_$timestamp.db-shm")
+                        FileInputStream(shmFile).use { input ->
+                            FileOutputStream(shmBackup).use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                        FileLogger.log(TAG, "已备份 SHM 文件")
                     }
 
                     FileLogger.log(TAG, "备份成功")
@@ -210,15 +240,40 @@ class SettingsFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 withContext(Dispatchers.IO) {
-                    // 获取数据库路径
-                    val dbPath = requireContext().getDatabasePath("money_tracker.db")
-                    FileLogger.log(TAG, "恢复数据库从: ${backupFile.absolutePath} 到: ${dbPath.absolutePath}")
+                    // Room 数据库文件名是 "money_tracker_database"
+                    val dbFile = requireContext().getDatabasePath("money_tracker_database")
+                    FileLogger.log(TAG, "恢复数据库从: ${backupFile.absolutePath} 到: ${dbFile.absolutePath}")
 
                     // 复制备份文件到数据库位置
                     FileInputStream(backupFile).use { input ->
-                        FileOutputStream(dbPath).use { output ->
+                        FileOutputStream(dbFile).use { output ->
                             input.copyTo(output)
                         }
+                    }
+
+                    // 同时恢复 wal 和 shm 文件（如果存在）
+                    val backupDir = backupFile.parentFile
+                    val walBackup = File(backupDir, backupFile.name + "-wal")
+                    val shmBackup = File(backupDir, backupFile.name + "-shm")
+
+                    if (walBackup.exists()) {
+                        val walFile = requireContext().getDatabasePath("money_tracker_database-wal")
+                        FileInputStream(walBackup).use { input ->
+                            FileOutputStream(walFile).use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                        FileLogger.log(TAG, "已恢复 WAL 文件")
+                    }
+
+                    if (shmBackup.exists()) {
+                        val shmFile = requireContext().getDatabasePath("money_tracker_database-shm")
+                        FileInputStream(shmBackup).use { input ->
+                            FileOutputStream(shmFile).use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                        FileLogger.log(TAG, "已恢复 SHM 文件")
                     }
                 }
 
