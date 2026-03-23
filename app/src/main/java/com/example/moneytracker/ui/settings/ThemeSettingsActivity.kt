@@ -2,10 +2,15 @@ package com.example.moneytracker.ui.settings
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
+import android.graphics.Paint
 import android.net.Uri
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -160,12 +165,10 @@ class ThemeSettingsActivity : AppCompatActivity() {
                 ThemeManager.selectBackgroundImage(this@ThemeSettingsActivity)
                 ThemeManager.setBackgroundUri(this@ThemeSettingsActivity, uri)
 
-                // 更新预览
+                // 更新预览（增强亮度）
                 val savedFile = File(filesDir, "background_image.jpg")
                 if (savedFile.exists()) {
-                    findViewById<ImageView>(R.id.iv_background_preview).setImageURI(Uri.fromFile(savedFile))
-                    findViewById<TextView>(R.id.tv_no_background).visibility = TextView.GONE
-                    findViewById<Button>(R.id.btn_remove_background).isEnabled = true
+                    loadEnhancedPreview(savedFile)
                     
                     // 更新模式指示器
                     updateModeIndicator(ThemeManager.MODE_BACKGROUND)
@@ -180,6 +183,89 @@ class ThemeSettingsActivity : AppCompatActivity() {
                 Toast.makeText(this@ThemeSettingsActivity, "加载图片失败", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    /**
+     * 加载增强后的预览图片（提高亮度和对比度）
+     */
+    private fun loadEnhancedPreview(imageFile: File) {
+        lifecycleScope.launch {
+            try {
+                val enhancedBitmap = withContext(Dispatchers.IO) {
+                    // 加载原始图片
+                    val originalBitmap = BitmapFactory.decodeFile(imageFile.absolutePath) ?: return@withContext null
+                    
+                    // 调整图片大小以适应预览
+                    val targetWidth = 800
+                    val scaledBitmap = if (originalBitmap.width > targetWidth) {
+                        val ratio = originalBitmap.width.toFloat() / targetWidth
+                        val targetHeight = (originalBitmap.height / ratio).toInt()
+                        Bitmap.createScaledBitmap(originalBitmap, targetWidth, targetHeight, true).also {
+                            if (it != originalBitmap) originalBitmap.recycle()
+                        }
+                    } else {
+                        originalBitmap
+                    }
+                    
+                    // 增强图片（提高亮度和对比度）
+                    enhanceBitmap(scaledBitmap, brightness = 1.2f, contrast = 1.1f)
+                }
+                
+                if (enhancedBitmap != null) {
+                    findViewById<ImageView>(R.id.iv_background_preview).setImageBitmap(enhancedBitmap)
+                    findViewById<TextView>(R.id.tv_no_background).visibility = TextView.GONE
+                    findViewById<Button>(R.id.btn_remove_background).isEnabled = true
+                } else {
+                    // 如果增强失败，使用原始图片
+                    findViewById<ImageView>(R.id.iv_background_preview).setImageURI(Uri.fromFile(imageFile))
+                    findViewById<TextView>(R.id.tv_no_background).visibility = TextView.GONE
+                    findViewById<Button>(R.id.btn_remove_background).isEnabled = true
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // 出错时使用原始图片
+                findViewById<ImageView>(R.id.iv_background_preview).setImageURI(Uri.fromFile(imageFile))
+                findViewById<TextView>(R.id.tv_no_background).visibility = TextView.GONE
+                findViewById<Button>(R.id.btn_remove_background).isEnabled = true
+            }
+        }
+    }
+
+    /**
+     * 增强图片的亮度和对比度
+     */
+    private fun enhanceBitmap(bitmap: Bitmap, brightness: Float, contrast: Float): Bitmap {
+        val result = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(result)
+        val paint = Paint()
+        
+        // 创建颜色矩阵（亮度 + 对比度）
+        val colorMatrix = ColorMatrix()
+        
+        // 设置对比度（对比度 > 1 增加对比度）
+        colorMatrix.setConcat(
+            ColorMatrix(floatArrayOf(
+                contrast, 0f, 0f, 0f, 0f,
+                0f, contrast, 0f, 0f, 0f,
+                0f, 0f, contrast, 0f, 0f,
+                0f, 0f, 0f, 1f, 0f
+            )),
+            colorMatrix
+        )
+        
+        // 设置亮度（亮度 > 1 增加亮度）
+        val brightnessMatrix = ColorMatrix(floatArrayOf(
+            1f, 0f, 0f, 0f, (brightness - 1f) * 255,
+            0f, 1f, 0f, 0f, (brightness - 1f) * 255,
+            0f, 0f, 1f, 0f, (brightness - 1f) * 255,
+            0f, 0f, 0f, 1f, 0f
+        ))
+        colorMatrix.postConcat(brightnessMatrix)
+        
+        paint.colorFilter = ColorMatrixColorFilter(colorMatrix)
+        canvas.drawBitmap(bitmap, 0f, 0f, paint)
+        
+        return result
     }
 
     private fun removeBackgroundImage() {
@@ -269,12 +355,10 @@ class ThemeSettingsActivity : AppCompatActivity() {
             }
         }
 
-        // 加载背景图片预览
+        // 加载背景图片预览（增强亮度）
         val savedFile = File(filesDir, "background_image.jpg")
         if (savedFile.exists()) {
-            findViewById<ImageView>(R.id.iv_background_preview).setImageURI(Uri.fromFile(savedFile))
-            findViewById<TextView>(R.id.tv_no_background).visibility = TextView.GONE
-            findViewById<Button>(R.id.btn_remove_background).isEnabled = true
+            loadEnhancedPreview(savedFile)
         } else {
             clearBackgroundPreview()
         }
