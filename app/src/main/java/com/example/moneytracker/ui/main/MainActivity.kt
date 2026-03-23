@@ -6,6 +6,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.moneytracker.R
 import com.example.moneytracker.databinding.ActivityMainBinding
+import com.example.moneytracker.utils.ThemeManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,6 +18,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupNavigation()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 应用主题到根布局
+        ThemeManager.applyTheme(this, binding.mainRootLayout)
     }
 
     private fun setupNavigation() {

@@ -19,6 +19,7 @@ import com.example.moneytracker.ui.transactions.AddTransactionActivity
 import com.example.moneytracker.ui.transactions.AllTransactionsActivity
 import com.example.moneytracker.utils.CurrencyUtils
 import com.example.moneytracker.utils.FileLogger
+import com.example.moneytracker.utils.ThemeManager
 
 class HomeFragment : Fragment() {
 
@@ -51,6 +52,7 @@ class HomeFragment : Fragment() {
             setupFab()
             setupAllTransactionsButton()
             observeData()
+            applyTheme()
         } catch (e: Exception) {
             FileLogger.logError(TAG, "onViewCreated: Error setting up view", e)
         }
@@ -163,6 +165,15 @@ class HomeFragment : Fragment() {
             }
             transactionAdapter.submitList(items)
         }
+    }
+
+    private fun applyTheme() {
+        ThemeManager.applyTheme(requireContext(), binding.rootLayout)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        applyTheme()
     }
 
     override fun onDestroyView() {

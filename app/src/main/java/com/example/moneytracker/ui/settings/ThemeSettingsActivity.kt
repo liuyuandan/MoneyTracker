@@ -2,8 +2,10 @@ package com.example.moneytracker.ui.settings
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -13,22 +15,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.moneytracker.R
 import com.example.moneytracker.databinding.ActivityThemeSettingsBinding
+import com.example.moneytracker.utils.ThemeManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 
 class ThemeSettingsActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_CODE_PICK_IMAGE = 1001
-        private const val PREFS_NAME = "theme_prefs"
-        private const val KEY_THEME_COLOR = "theme_color"
-        private const val KEY_BACKGROUND_URI = "background_uri"
-
-        // 主题色选项
+        
+        // 主题色选项（用于显示）
         val THEME_COLORS = listOf(
             "#4A90D9" to "default",      // 默认蓝色
             "#9C27B0" to "purple",       // 紫色
@@ -70,12 +69,12 @@ class ThemeSettingsActivity : AppCompatActivity() {
         themeIds.forEachIndexed { index, (themeId, checkId) ->
             val themeLayout = findViewById<FrameLayout>(themeId)
             themeLayout.setOnClickListener {
-                selectTheme(index)
+                selectThemeColor(index)
             }
         }
     }
 
-    private fun selectTheme(index: Int) {
+    private fun selectThemeColor(index: Int) {
         selectedThemeIndex = index
 
         // 更新选中状态
@@ -92,13 +91,16 @@ class ThemeSettingsActivity : AppCompatActivity() {
             checkView?.visibility = if (i == index) ImageView.VISIBLE else ImageView.GONE
         }
 
-        // 保存主题色
-        saveThemeColor(index)
+        // 使用 ThemeManager 选择主题色（会自动清除背景图片）
+        ThemeManager.selectThemeColor(this, index)
+        
+        // 更新 UI 显示当前模式
+        updateModeIndicator(ThemeManager.MODE_COLOR)
+        
+        // 清除背景图片预览
+        clearBackgroundPreview()
 
-        // 更新主题色
-        applyThemeColor(index)
-
-        Toast.makeText(this, "主题色已更新", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "主题色已设置", Toast.LENGTH_SHORT).show()
     }
 
     private fun setupBackgroundImage() {
@@ -131,26 +133,14 @@ class ThemeSettingsActivity : AppCompatActivity() {
                     uri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
-                saveBackgroundUri(uri.toString())
-                updateBackgroundPreview(uri)
-                findViewById<Button>(R.id.btn_remove_background).isEnabled = true
-                Toast.makeText(this, "背景图片已设置", Toast.LENGTH_SHORT).show()
+                
+                // 保存并设置背景图片模式
+                saveAndApplyBackground(uri)
             }
         }
     }
 
-    private fun removeBackgroundImage() {
-        saveBackgroundUri("")
-        findViewById<ImageView>(R.id.iv_background_preview).setImageDrawable(null)
-        findViewById<TextView>(R.id.tv_no_background).visibility = TextView.VISIBLE
-        findViewById<Button>(R.id.btn_remove_background).isEnabled = false
-        Toast.makeText(this, "背景图片已移除", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun updateBackgroundPreview(uri: Uri) {
-        val imageView = findViewById<ImageView>(R.id.iv_background_preview)
-        val noBackgroundText = findViewById<TextView>(R.id.tv_no_background)
-
+    private fun saveAndApplyBackground(uri: Uri) {
         lifecycleScope.launch {
             try {
                 withContext(Dispatchers.IO) {
@@ -166,11 +156,24 @@ class ThemeSettingsActivity : AppCompatActivity() {
                     }
                 }
 
-                // 显示图片
+                // 使用 ThemeManager 选择背景图片模式（会自动清除主题色模式）
+                ThemeManager.selectBackgroundImage(this@ThemeSettingsActivity)
+                ThemeManager.setBackgroundUri(this@ThemeSettingsActivity, uri)
+
+                // 更新预览
                 val savedFile = File(filesDir, "background_image.jpg")
                 if (savedFile.exists()) {
-                    imageView.setImageURI(Uri.fromFile(savedFile))
-                    noBackgroundText.visibility = TextView.GONE
+                    findViewById<ImageView>(R.id.iv_background_preview).setImageURI(Uri.fromFile(savedFile))
+                    findViewById<TextView>(R.id.tv_no_background).visibility = TextView.GONE
+                    findViewById<Button>(R.id.btn_remove_background).isEnabled = true
+                    
+                    // 更新模式指示器
+                    updateModeIndicator(ThemeManager.MODE_BACKGROUND)
+                    
+                    // 清除主题色选中状态
+                    clearThemeColorSelection()
+                    
+                    Toast.makeText(this@ThemeSettingsActivity, "背景图片已设置", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -179,12 +182,28 @@ class ThemeSettingsActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadCurrentTheme() {
-        // 加载主题色
-        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        selectedThemeIndex = prefs.getInt(KEY_THEME_COLOR, 0)
+    private fun removeBackgroundImage() {
+        // 使用 ThemeManager 清除背景图片
+        ThemeManager.clearBackground(this)
+        
+        // 如果当前是背景图片模式，则切换到无模式
+        if (ThemeManager.getThemeMode(this) == ThemeManager.MODE_BACKGROUND) {
+            ThemeManager.setThemeMode(this, ThemeManager.MODE_NONE)
+        }
+        
+        clearBackgroundPreview()
+        updateModeIndicator(ThemeManager.MODE_NONE)
+        
+        Toast.makeText(this, "背景图片已移除", Toast.LENGTH_SHORT).show()
+    }
 
-        // 更新选中状态
+    private fun clearBackgroundPreview() {
+        findViewById<ImageView>(R.id.iv_background_preview).setImageDrawable(null)
+        findViewById<TextView>(R.id.tv_no_background).visibility = TextView.VISIBLE
+        findViewById<Button>(R.id.btn_remove_background).isEnabled = false
+    }
+
+    private fun clearThemeColorSelection() {
         val checkIds = listOf(
             R.id.check_default,
             R.id.check_purple,
@@ -193,51 +212,74 @@ class ThemeSettingsActivity : AppCompatActivity() {
             R.id.check_red
         )
 
-        checkIds.forEachIndexed { index, checkId ->
+        checkIds.forEach { checkId ->
             val checkView = findViewById<ImageView>(checkId)
-            checkView?.visibility = if (index == selectedThemeIndex) ImageView.VISIBLE else ImageView.GONE
+            checkView?.visibility = ImageView.GONE
         }
+    }
 
-        // 加载背景图片
-        val backgroundUri = prefs.getString(KEY_BACKGROUND_URI, "")
-        if (!backgroundUri.isNullOrEmpty()) {
-            try {
-                val savedFile = File(filesDir, "background_image.jpg")
-                if (savedFile.exists()) {
-                    findViewById<ImageView>(R.id.iv_background_preview).setImageURI(Uri.fromFile(savedFile))
-                    findViewById<TextView>(R.id.tv_no_background).visibility = TextView.GONE
-                    findViewById<Button>(R.id.btn_remove_background).isEnabled = true
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+    private fun updateModeIndicator(mode: Int) {
+        val tvColorMode = findViewById<TextView>(R.id.tv_color_mode_status)
+        val tvBackgroundMode = findViewById<TextView>(R.id.tv_background_mode_status)
+        
+        when (mode) {
+            ThemeManager.MODE_COLOR -> {
+                tvColorMode?.text = "当前使用"
+                tvColorMode?.setTextColor(Color.parseColor("#4CAF50"))
+                tvBackgroundMode?.text = "未使用"
+                tvBackgroundMode?.setTextColor(Color.GRAY)
+            }
+            ThemeManager.MODE_BACKGROUND -> {
+                tvColorMode?.text = "未使用"
+                tvColorMode?.setTextColor(Color.GRAY)
+                tvBackgroundMode?.text = "当前使用"
+                tvBackgroundMode?.setTextColor(Color.parseColor("#4CAF50"))
+            }
+            else -> {
+                tvColorMode?.text = "未使用"
+                tvColorMode?.setTextColor(Color.GRAY)
+                tvBackgroundMode?.text = "未使用"
+                tvBackgroundMode?.setTextColor(Color.GRAY)
             }
         }
     }
 
-    private fun saveThemeColor(index: Int) {
-        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        prefs.edit().putInt(KEY_THEME_COLOR, index).apply()
-    }
+    private fun loadCurrentTheme() {
+        // 获取当前主题模式
+        val currentMode = ThemeManager.getThemeMode(this)
+        
+        // 加载主题色选中状态
+        selectedThemeIndex = ThemeManager.getThemeColorIndex(this)
+        
+        val checkIds = listOf(
+            R.id.check_default,
+            R.id.check_purple,
+            R.id.check_green,
+            R.id.check_orange,
+            R.id.check_red
+        )
 
-    private fun saveBackgroundUri(uri: String) {
-        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        prefs.edit().putString(KEY_BACKGROUND_URI, uri).apply()
-    }
+        // 只有在颜色模式下才显示选中状态
+        checkIds.forEachIndexed { index, checkId ->
+            val checkView = findViewById<ImageView>(checkId)
+            checkView?.visibility = if (currentMode == ThemeManager.MODE_COLOR && index == selectedThemeIndex) {
+                ImageView.VISIBLE
+            } else {
+                ImageView.GONE
+            }
+        }
 
-    private fun applyThemeColor(index: Int) {
-        // 这里可以添加应用主题色的逻辑
-        // 例如：更新全局主题、发送广播通知其他页面等
-    }
-
-    // 静态方法供其他地方使用
-    fun getThemeColor(context: android.content.Context): Int {
-        val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
-        val index = prefs.getInt(KEY_THEME_COLOR, 0)
-        return android.graphics.Color.parseColor(THEME_COLORS[index].first)
-    }
-
-    fun getBackgroundUri(context: android.content.Context): String? {
-        val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
-        return prefs.getString(KEY_BACKGROUND_URI, null)
+        // 加载背景图片预览
+        val savedFile = File(filesDir, "background_image.jpg")
+        if (savedFile.exists()) {
+            findViewById<ImageView>(R.id.iv_background_preview).setImageURI(Uri.fromFile(savedFile))
+            findViewById<TextView>(R.id.tv_no_background).visibility = TextView.GONE
+            findViewById<Button>(R.id.btn_remove_background).isEnabled = true
+        } else {
+            clearBackgroundPreview()
+        }
+        
+        // 更新模式指示器
+        updateModeIndicator(currentMode)
     }
 }

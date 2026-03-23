@@ -23,6 +23,7 @@ import com.example.moneytracker.data.database.AppDatabase
 import com.example.moneytracker.databinding.FragmentSettingsBinding
 import com.example.moneytracker.ui.categories.CategoryManagerActivity
 import com.example.moneytracker.utils.FileLogger
+import com.example.moneytracker.utils.ThemeManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -56,6 +57,7 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupClickListeners()
         setupVersionDisplay()
+        applyTheme()
     }
 
     private fun setupVersionDisplay() {
@@ -639,6 +641,15 @@ class SettingsFragment : Fragment() {
                 Toast.makeText(requireContext(), "恢复失败：${e.message}", Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        applyTheme()
+    }
+
+    private fun applyTheme() {
+        ThemeManager.applyTheme(requireContext(), binding.rootLayout)
     }
 
     override fun onDestroyView() {

@@ -13,6 +13,7 @@ import com.example.moneytracker.databinding.FragmentStatisticsBinding
 import com.example.moneytracker.data.database.entities.CategoryTotal
 import com.example.moneytracker.data.database.entities.DailyTotal
 import com.example.moneytracker.utils.CurrencyUtils
+import com.example.moneytracker.utils.ThemeManager
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -69,6 +70,7 @@ class StatisticsFragment : Fragment() {
         setupPeriodToggle()
         setupCharts()
         observeData()
+        applyTheme()
     }
 
     private fun setupPeriodNavigation() {
@@ -419,6 +421,15 @@ class StatisticsFragment : Fragment() {
         
         // 保存日志到文件
         saveLogToFile()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        applyTheme()
+    }
+
+    private fun applyTheme() {
+        ThemeManager.applyTheme(requireContext(), binding.rootLayout)
     }
 
     override fun onDestroyView() {
