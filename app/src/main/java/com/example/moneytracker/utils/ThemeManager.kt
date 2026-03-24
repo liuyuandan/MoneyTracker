@@ -208,10 +208,10 @@ object ThemeManager {
                     // 创建背景图片
                     val bitmapDrawable = BitmapDrawable(context.resources, bitmap)
                     
-                    // 创建半透明白色遮罩层（60%不透明度，让背景图片更清晰）
+                    // 创建半透明白色遮罩层（30%不透明度，让背景图片更清晰明亮）
                     val overlay = GradientDrawable(
                         GradientDrawable.Orientation.TOP_BOTTOM,
-                        intArrayOf(0x99FFFFFF.toInt(), 0x99FFFFFF.toInt())
+                        intArrayOf(0x4DFFFFFF.toInt(), 0x4DFFFFFF.toInt())
                     )
                     
                     // 组合背景和遮罩
