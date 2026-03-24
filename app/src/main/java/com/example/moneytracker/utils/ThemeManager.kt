@@ -20,6 +20,7 @@ import java.io.File
 /**
  * 主题管理工具类
  * 管理主题色和背景图片的二选一逻辑
+ * 以及强调色（首页概览、添加记录页面顶部区域）
  */
 object ThemeManager {
     
@@ -31,6 +32,9 @@ object ThemeManager {
     private const val KEY_THEME_MODE = "theme_mode"
     private const val KEY_THEME_COLOR_INDEX = "theme_color_index"
     private const val KEY_BACKGROUND_URI = "background_uri"
+    
+    // 强调色相关
+    private const val KEY_ACCENT_COLOR_INDEX = "accent_color_index"
     
     // 主题色选项 - 使用浅色渐变，确保文字可读
     val THEME_COLORS = listOf(
@@ -56,6 +60,15 @@ object ThemeManager {
         0xFF4CAF50.toInt(),  // 绿色
         0xFFFF9800.toInt(),  // 橙色
         0xFFF44336.toInt()   // 红色
+    )
+    
+    // 强调色选项名称
+    val ACCENT_COLOR_NAMES = listOf(
+        "默认蓝色",
+        "紫色",
+        "绿色",
+        "橙色",
+        "红色"
     )
     
     /**
@@ -112,6 +125,40 @@ object ThemeManager {
     fun getThemeColorDark(context: Context): Int {
         val index = getThemeColorIndex(context)
         return THEME_COLOR_DARK.getOrElse(index) { THEME_COLOR_DARK[0] }
+    }
+    
+    // ==================== 强调色相关方法 ====================
+    
+    /**
+     * 获取强调色索引
+     */
+    fun getAccentColorIndex(context: Context): Int {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getInt(KEY_ACCENT_COLOR_INDEX, 0)
+    }
+    
+    /**
+     * 设置强调色索引
+     */
+    fun setAccentColorIndex(context: Context, index: Int) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putInt(KEY_ACCENT_COLOR_INDEX, index).apply()
+    }
+    
+    /**
+     * 获取强调色
+     */
+    fun getAccentColor(context: Context): Int {
+        val index = getAccentColorIndex(context)
+        return THEME_COLOR_DARK.getOrElse(index) { THEME_COLOR_DARK[0] }
+    }
+    
+    /**
+     * 获取强调色名称
+     */
+    fun getAccentColorName(context: Context): String {
+        val index = getAccentColorIndex(context)
+        return ACCENT_COLOR_NAMES.getOrElse(index) { ACCENT_COLOR_NAMES[0] }
     }
     
     /**

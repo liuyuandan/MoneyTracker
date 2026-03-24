@@ -44,6 +44,7 @@ class ThemeSettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityThemeSettingsBinding
     private var selectedThemeIndex = 0
+    private var selectedAccentIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +54,7 @@ class ThemeSettingsActivity : AppCompatActivity() {
         setupToolbar()
         setupThemeColors()
         setupBackgroundImage()
+        setupAccentColors()
         loadCurrentTheme()
     }
 
@@ -330,6 +332,75 @@ class ThemeSettingsActivity : AppCompatActivity() {
         }
     }
 
+    // ==================== 强调色相关方法 ====================
+
+    private fun setupAccentColors() {
+        val accentIds = listOf(
+            R.id.accent_default to R.id.accent_check_default,
+            R.id.accent_purple to R.id.accent_check_purple,
+            R.id.accent_green to R.id.accent_check_green,
+            R.id.accent_orange to R.id.accent_check_orange,
+            R.id.accent_red to R.id.accent_check_red
+        )
+
+        accentIds.forEachIndexed { index, (accentId, checkId) ->
+            val accentLayout = findViewById<FrameLayout>(accentId)
+            accentLayout.setOnClickListener {
+                selectAccentColor(index)
+            }
+        }
+    }
+
+    private fun selectAccentColor(index: Int) {
+        selectedAccentIndex = index
+
+        // 更新选中状态
+        val checkIds = listOf(
+            R.id.accent_check_default,
+            R.id.accent_check_purple,
+            R.id.accent_check_green,
+            R.id.accent_check_orange,
+            R.id.accent_check_red
+        )
+
+        checkIds.forEachIndexed { i, checkId ->
+            val checkView = findViewById<ImageView>(checkId)
+            checkView?.visibility = if (i == index) ImageView.VISIBLE else ImageView.GONE
+        }
+
+        // 保存强调色设置
+        ThemeManager.setAccentColorIndex(this, index)
+        
+        // 更新状态显示
+        updateAccentColorStatus(index)
+
+        Toast.makeText(this, "强调色已设置", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun updateAccentColorStatus(index: Int) {
+        val tvAccentStatus = findViewById<TextView>(R.id.tv_accent_color_status)
+        tvAccentStatus?.text = ThemeManager.ACCENT_COLOR_NAMES.getOrElse(index) { "默认蓝色" }
+    }
+
+    private fun loadAccentColorSetting() {
+        selectedAccentIndex = ThemeManager.getAccentColorIndex(this)
+        
+        val checkIds = listOf(
+            R.id.accent_check_default,
+            R.id.accent_check_purple,
+            R.id.accent_check_green,
+            R.id.accent_check_orange,
+            R.id.accent_check_red
+        )
+
+        checkIds.forEachIndexed { index, checkId ->
+            val checkView = findViewById<ImageView>(checkId)
+            checkView?.visibility = if (index == selectedAccentIndex) ImageView.VISIBLE else ImageView.GONE
+        }
+
+        updateAccentColorStatus(selectedAccentIndex)
+    }
+
     private fun loadCurrentTheme() {
         // 获取当前主题模式
         val currentMode = ThemeManager.getThemeMode(this)
@@ -365,5 +436,8 @@ class ThemeSettingsActivity : AppCompatActivity() {
         
         // 更新模式指示器
         updateModeIndicator(currentMode)
+        
+        // 加载强调色设置
+        loadAccentColorSetting()
     }
 }

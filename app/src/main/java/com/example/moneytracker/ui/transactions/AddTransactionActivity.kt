@@ -15,6 +15,7 @@ import com.example.moneytracker.data.database.entities.Transaction
 import com.example.moneytracker.databinding.ActivityAddTransactionBinding
 import com.example.moneytracker.utils.DateUtils
 import com.example.moneytracker.utils.FileLogger
+import com.example.moneytracker.utils.ThemeManager
 import com.google.android.material.tabs.TabLayout
 import java.util.Calendar
 
@@ -109,6 +110,9 @@ class AddTransactionActivity : AppCompatActivity() {
         } else {
             binding.tvTitle.text = getString(R.string.add_transaction)
         }
+        
+        // 应用强调色
+        applyAccentColor()
             
         FileLogger.log(TAG, "onCreate: All setup completed successfully")
     }
@@ -311,5 +315,20 @@ class AddTransactionActivity : AppCompatActivity() {
                 FileLogger.log(TAG, "observeData: Loaded transaction amount = ${it.amount}")
             }
         }
+    }
+    
+    private fun applyAccentColor() {
+        val accentColor = ThemeManager.getAccentColor(this)
+        binding.layoutHeader.setBackgroundColor(accentColor)
+        binding.tvAmountDisplay.setBackgroundColor(accentColor)
+        binding.btnSave.backgroundTintList = android.content.res.ColorStateList.valueOf(accentColor)
+        
+        // 更新状态栏颜色
+        window.statusBarColor = accentColor
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        applyAccentColor()
     }
 }
