@@ -33,6 +33,15 @@ class AccentColorSettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAccentColorSettingsBinding
     private var selectedColorRes: Int = R.color.accent_blue
+    
+    // 颜色资源到实际颜色值的映射
+    private val colorResToValue = mapOf(
+        R.color.accent_blue to 0xFF4A90D9.toInt(),
+        R.color.accent_green to 0xFF4CAF50.toInt(),
+        R.color.accent_orange to 0xFFFF9800.toInt(),
+        R.color.accent_purple to 0xFF9C27B0.toInt(),
+        R.color.accent_red to 0xFFF44336.toInt()
+    )
     private var accentImageUri: Uri? = null
 
     private val accentColorButtons = mutableMapOf<Int, Pair<MaterialButton, ImageView>>()
@@ -80,8 +89,8 @@ class AccentColorSettingsActivity : AppCompatActivity() {
     }
 
     private fun loadSavedSettings() {
-        // 加载保存的强调色
-        selectedColorRes = ThemeManager.getAccentColor(this)
+        // 加载保存的强调色资源ID
+        selectedColorRes = ThemeManager.getAccentColorRes(this)
         updateAccentColorSelection(selectedColorRes)
 
         // 加载保存的背景图片
@@ -220,8 +229,9 @@ class AccentColorSettingsActivity : AppCompatActivity() {
             binding.currentModeText.setTextColor(ContextCompat.getColor(this, R.color.accent_green))
         } else {
             binding.currentModeText.text = "使用主题色"
-            val color = ContextCompat.getColor(this, selectedColorRes)
-            binding.currentModeText.setTextColor(color)
+            // 使用颜色值而不是资源ID
+            val colorValue = colorResToValue[selectedColorRes] ?: 0xFF4A90D9.toInt()
+            binding.currentModeText.setTextColor(colorValue)
         }
     }
 
