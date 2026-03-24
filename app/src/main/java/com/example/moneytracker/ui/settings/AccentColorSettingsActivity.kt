@@ -4,8 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.LayerDrawable
 import android.net.Uri
@@ -93,11 +95,14 @@ class AccentColorSettingsActivity : AppCompatActivity() {
         selectedColorRes = ThemeManager.getAccentColorRes(this)
         updateAccentColorSelection(selectedColorRes)
 
-        // 加载保存的背景图片
-        val savedUri = ThemeManager.getAccentImageUri(this)
-        if (savedUri != null) {
-            accentImageUri = savedUri
-            displayAccentImage(savedUri)
+        // 加载背景图片（直接从文件加载，参考主题设置的实现方式）
+        val isImageMode = ThemeManager.isAccentImageEnabled(this)
+        val savedFile = File(filesDir, "accent_background.jpg")
+        if (isImageMode && savedFile.exists()) {
+            accentImageUri = Uri.fromFile(savedFile)
+            loadEnhancedPreview(savedFile)
+        } else {
+            clearAccentImageDisplay()
         }
 
         // 更新当前模式显示
@@ -160,20 +165,32 @@ class AccentColorSettingsActivity : AppCompatActivity() {
     private fun handleAccentImageSelected(uri: Uri) {
         lifecycleScope.launch {
             try {
+                // 持久化 URI 权限（参考主题设置）
+                contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+
                 // 复制图片到应用私有目录
                 val localUri = copyImageToLocal(uri)
 
                 accentImageUri = localUri
 
-                // 清除主题色选择（二选一逻辑）
+                // 保存 URI 并启用背景图片模式（二选一逻辑）
+                ThemeManager.setAccentImageUri(this@AccentColorSettingsActivity, localUri)
                 ThemeManager.setAccentImageEnabled(this@AccentColorSettingsActivity, true)
 
                 withContext(Dispatchers.Main) {
-                    displayAccentImage(localUri)
-                    updateCurrentModeDisplay()
-                    Toast.makeText(this@AccentColorSettingsActivity, "已设置背景图片", Toast.LENGTH_SHORT).show()
+                    // 使用增强预览加载图片
+                    val savedFile = File(filesDir, "accent_background.jpg")
+                    if (savedFile.exists()) {
+                        loadEnhancedPreview(savedFile)
+                        updateCurrentModeDisplay()
+                        Toast.makeText(this@AccentColorSettingsActivity, "已设置背景图片", Toast.LENGTH_SHORT).show()
+                    }
                 }
             } catch (e: Exception) {
+                e.printStackTrace()
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@AccentColorSettingsActivity, "设置图片失败", Toast.LENGTH_SHORT).show()
                 }
@@ -203,6 +220,93 @@ class AccentColorSettingsActivity : AppCompatActivity() {
         binding.clearAccentImageButton.visibility = View.VISIBLE
     }
 
+    /**
+     * 加载增强后的预览图片（提高亮度和对比度）
+     * 参考 ThemeSettingsActivity 的实现
+     */
+    private fun loadEnhancedPreview(imageFile: File) {
+        lifecycleScope.launch {
+            try {
+                val enhancedBitmap = withContext(Dispatchers.IO) {
+                    // 加载原始图片
+                    val originalBitmap = BitmapFactory.decodeFile(imageFile.absolutePath) ?: return@withContext null
+
+                    // 调整图片大小以适应预览
+                    val targetWidth = 800
+                    val scaledBitmap = if (originalBitmap.width > targetWidth) {
+                        val ratio = originalBitmap.width.toFloat() / targetWidth
+                        val targetHeight = (originalBitmap.height / ratio).toInt()
+                        Bitmap.createScaledBitmap(originalBitmap, targetWidth, targetHeight, true).also {
+                            if (it != originalBitmap) originalBitmap.recycle()
+                        }
+                    } else {
+                        originalBitmap
+                    }
+
+                    // 增强图片（提高亮度和对比度）
+                    enhanceBitmap(scaledBitmap, brightness = 1.2f, contrast = 1.1f)
+                }
+
+                if (enhancedBitmap != null) {
+                    binding.accentImagePreview.setImageBitmap(enhancedBitmap)
+                    binding.accentImagePreview.visibility = View.VISIBLE
+                    binding.accentImagePlaceholder.visibility = View.GONE
+                    binding.clearAccentImageButton.visibility = View.VISIBLE
+                } else {
+                    // 如果增强失败，使用原始图片
+                    binding.accentImagePreview.setImageURI(Uri.fromFile(imageFile))
+                    binding.accentImagePreview.visibility = View.VISIBLE
+                    binding.accentImagePlaceholder.visibility = View.GONE
+                    binding.clearAccentImageButton.visibility = View.VISIBLE
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // 出错时使用原始图片
+                binding.accentImagePreview.setImageURI(Uri.fromFile(imageFile))
+                binding.accentImagePreview.visibility = View.VISIBLE
+                binding.accentImagePlaceholder.visibility = View.GONE
+                binding.clearAccentImageButton.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    /**
+     * 增强图片的亮度和对比度
+     */
+    private fun enhanceBitmap(bitmap: Bitmap, brightness: Float, contrast: Float): Bitmap {
+        val result = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(result)
+        val paint = Paint()
+
+        // 创建颜色矩阵（亮度 + 对比度）
+        val colorMatrix = ColorMatrix()
+
+        // 设置对比度（对比度 > 1 增加对比度）
+        colorMatrix.setConcat(
+            ColorMatrix(floatArrayOf(
+                contrast, 0f, 0f, 0f, 0f,
+                0f, contrast, 0f, 0f, 0f,
+                0f, 0f, contrast, 0f, 0f,
+                0f, 0f, 0f, 1f, 0f
+            )),
+            colorMatrix
+        )
+
+        // 设置亮度（亮度 > 1 增加亮度）
+        val brightnessMatrix = ColorMatrix(floatArrayOf(
+            1f, 0f, 0f, 0f, (brightness - 1f) * 255,
+            0f, 1f, 0f, 0f, (brightness - 1f) * 255,
+            0f, 0f, 1f, 0f, (brightness - 1f) * 255,
+            0f, 0f, 0f, 1f, 0f
+        ))
+        colorMatrix.postConcat(brightnessMatrix)
+
+        paint.colorFilter = ColorMatrixColorFilter(colorMatrix)
+        canvas.drawBitmap(bitmap, 0f, 0f, paint)
+
+        return result
+    }
+
     private fun clearAccentImageDisplay() {
         binding.accentImagePreview.setImageDrawable(null)
         binding.accentImagePreview.visibility = View.GONE
@@ -214,6 +318,13 @@ class AccentColorSettingsActivity : AppCompatActivity() {
         accentImageUri = null
         clearAccentImageDisplay()
         ThemeManager.setAccentImageEnabled(this, false)
+        ThemeManager.setAccentImageUri(this, null)
+
+        // 删除图片文件
+        val file = File(filesDir, "accent_background.jpg")
+        if (file.exists()) {
+            file.delete()
+        }
 
         // 恢复默认颜色选择
         updateAccentColorSelection(selectedColorRes)
