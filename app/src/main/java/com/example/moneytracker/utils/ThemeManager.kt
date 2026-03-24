@@ -35,6 +35,8 @@ object ThemeManager {
     
     // 强调色相关
     private const val KEY_ACCENT_COLOR_INDEX = "accent_color_index"
+    private const val KEY_ACCENT_IMAGE_ENABLED = "accent_image_enabled"
+    private const val KEY_ACCENT_IMAGE_URI = "accent_image_uri"
     
     // 主题色选项 - 使用浅色渐变，确保文字可读
     val THEME_COLORS = listOf(
@@ -159,6 +161,69 @@ object ThemeManager {
     fun getAccentColorName(context: Context): String {
         val index = getAccentColorIndex(context)
         return ACCENT_COLOR_NAMES.getOrElse(index) { ACCENT_COLOR_NAMES[0] }
+    }
+
+    /**
+     * 设置强调色（通过颜色资源ID）
+     */
+    fun setAccentColor(context: Context, colorRes: Int) {
+        val index = when (colorRes) {
+            R.color.accent_blue -> 0
+            R.color.accent_purple -> 1
+            R.color.accent_green -> 2
+            R.color.accent_orange -> 3
+            R.color.accent_red -> 4
+            else -> 0
+        }
+        setAccentColorIndex(context, index)
+    }
+
+    /**
+     * 获取强调色资源ID
+     */
+    fun getAccentColorRes(context: Context): Int {
+        val index = getAccentColorIndex(context)
+        return when (index) {
+            0 -> R.color.accent_blue
+            1 -> R.color.accent_purple
+            2 -> R.color.accent_green
+            3 -> R.color.accent_orange
+            4 -> R.color.accent_red
+            else -> R.color.accent_blue
+        }
+    }
+
+    /**
+     * 检查是否使用强调色背景图片
+     */
+    fun isAccentImageEnabled(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_ACCENT_IMAGE_ENABLED, false)
+    }
+
+    /**
+     * 设置是否使用强调色背景图片
+     */
+    fun setAccentImageEnabled(context: Context, enabled: Boolean) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putBoolean(KEY_ACCENT_IMAGE_ENABLED, enabled).apply()
+    }
+
+    /**
+     * 获取强调色背景图片 URI
+     */
+    fun getAccentImageUri(context: Context): Uri? {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val uriString = prefs.getString(KEY_ACCENT_IMAGE_URI, null)
+        return uriString?.let { Uri.parse(it) }
+    }
+
+    /**
+     * 设置强调色背景图片 URI
+     */
+    fun setAccentImageUri(context: Context, uri: Uri?) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putString(KEY_ACCENT_IMAGE_URI, uri?.toString()).apply()
     }
     
     /**
@@ -319,5 +384,50 @@ object ThemeManager {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit().clear().apply()
         clearBackground(context)
+    }
+
+    // ==================== 应用强调色到视图 ====================
+
+    /**
+     * 应用强调色到视图
+     * 根据当前设置（主题色或背景图片）应用到指定视图
+     */
+    fun applyAccentColor(context: Context, view: View) {
+        when {
+            isAccentImageEnabled(context) -> {
+                // 使用背景图片
+                applyAccentBackgroundImage(context, view)
+            }
+            else -> {
+                // 使用主题色
+                val color = getAccentColor(context)
+                view.setBackgroundColor(color)
+            }
+        }
+    }
+
+    /**
+     * 应用强调色背景图片到视图
+     */
+    private fun applyAccentBackgroundImage(context: Context, view: View) {
+        val file = File(context.filesDir, "accent_background.jpg")
+        if (file.exists()) {
+            try {
+                val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                if (bitmap != null) {
+                    val drawable = BitmapDrawable(context.resources, bitmap)
+                    view.background = drawable
+                } else {
+                    // 如果加载失败，使用默认颜色
+                    view.setBackgroundColor(getAccentColor(context))
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                view.setBackgroundColor(getAccentColor(context))
+            }
+        } else {
+            // 如果没有背景图片，使用默认颜色
+            view.setBackgroundColor(getAccentColor(context))
+        }
     }
 }

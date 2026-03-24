@@ -169,10 +169,9 @@ class HomeFragment : Fragment() {
 
     private fun applyTheme() {
         ThemeManager.applyTheme(requireContext(), binding.rootLayout)
-        
+
         // 应用强调色到月度概览卡片
-        val accentColor = ThemeManager.getAccentColor(requireContext())
-        binding.layoutMonthlyOverview.setBackgroundColor(accentColor)
+        ThemeManager.applyAccentColor(requireContext(), binding.layoutMonthlyOverview)
     }
 
     override fun onResume() {

@@ -81,6 +81,11 @@ class SettingsFragment : Fragment() {
             startActivity(Intent(requireContext(), ThemeSettingsActivity::class.java))
         }
 
+        // 强调色设置
+        binding.layoutAccent.setOnClickListener {
+            startActivity(Intent(requireContext(), AccentColorSettingsActivity::class.java))
+        }
+
         // 备份数据（点击）- 智能处理
         binding.layoutBackup.setOnClickListener {
             handleBackupClick()

@@ -318,11 +318,14 @@ class AddTransactionActivity : AppCompatActivity() {
     }
     
     private fun applyAccentColor() {
+        // 应用强调色到顶部区域
+        ThemeManager.applyAccentColor(this, binding.layoutHeader)
+
+        // 获取当前强调色用于其他 UI 元素
         val accentColor = ThemeManager.getAccentColor(this)
-        binding.layoutHeader.setBackgroundColor(accentColor)
         binding.tvAmountDisplay.setBackgroundColor(accentColor)
         binding.btnSave.backgroundTintList = android.content.res.ColorStateList.valueOf(accentColor)
-        
+
         // 更新状态栏颜色
         window.statusBarColor = accentColor
     }
