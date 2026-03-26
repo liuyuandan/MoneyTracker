@@ -154,7 +154,17 @@ object DateUtils {
         calendar.firstDayOfWeek = Calendar.MONDAY
         val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
         // 计算到周日的偏移量
-        val offset = if (dayOfWeek == Calendar.SUNDAY) 0 else Calendar.SUNDAY - dayOfWeek
+        // Calendar.SUNDAY = 1, MONDAY = 2, ..., SATURDAY = 7
+        // 如果是周日(1)，偏移量为0
+        // 如果是周一(2)，偏移量为6
+        // 如果是周二(3)，偏移量为5
+        // 以此类推
+        val offset = if (dayOfWeek == Calendar.SUNDAY) {
+            0
+        } else {
+            // 从当前日期到周日需要加的天数
+            8 - dayOfWeek
+        }
         calendar.add(Calendar.DAY_OF_MONTH, offset)
         calendar.set(Calendar.HOUR_OF_DAY, 23)
         calendar.set(Calendar.MINUTE, 59)
