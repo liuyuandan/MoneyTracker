@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="#F5F5F5"
-        app:title="强调色设置"
+        app:title="@string/theme_settings"
         app:titleTextColor="@color/text_primary"
         app:navigationIcon="@drawable/ic_back"
         app:navigationIconTint="@color/text_primary" />

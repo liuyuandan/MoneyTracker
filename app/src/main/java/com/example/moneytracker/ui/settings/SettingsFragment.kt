@@ -76,12 +76,7 @@ class SettingsFragment : Fragment() {
             startActivity(Intent(requireContext(), CategoryManagerActivity::class.java))
         }
 
-        // 主题设置
-        binding.layoutTheme.setOnClickListener {
-            startActivity(Intent(requireContext(), ThemeSettingsActivity::class.java))
-        }
-
-        // 强调色设置
+        // 主题设置（原强调色设置）
         binding.layoutAccent.setOnClickListener {
             startActivity(Intent(requireContext(), AccentColorSettingsActivity::class.java))
         }
