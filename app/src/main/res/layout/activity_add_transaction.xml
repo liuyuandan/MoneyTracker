@@ -12,7 +12,7 @@
         android:id="@+id/layout_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#F5F5F5"
+        android:background="@color/card_background"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -27,7 +27,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_close"
-                app:tint="@color/text_white"
+                app:tint="@color/text_primary"
                 android:contentDescription="@string/cancel" />
 
             <TextView
@@ -37,7 +37,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/add_transaction"
-                android:textColor="@color/text_white"
+                android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -54,9 +54,9 @@
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
             android:background="@android:color/transparent"
-            app:tabIndicatorColor="@color/text_white"
-            app:tabSelectedTextColor="@color/text_white"
-            app:tabTextColor="@color/text_white"
+            app:tabIndicatorColor="@color/primary"
+            app:tabSelectedTextColor="@color/primary"
+            app:tabTextColor="@color/text_secondary"
             app:tabIndicatorHeight="2dp"
             app:tabPaddingStart="20dp"
             app:tabPaddingEnd="20dp">
@@ -79,10 +79,10 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.2"
-        android:background="#F5F5F5"
+        android:background="@color/card_background"
         android:gravity="center"
         android:text="0.00"
-        android:textColor="@color/text_white"
+        android:textColor="@color/text_primary"
         android:textSize="36sp"
         android:textStyle="bold" />
 

@@ -384,16 +384,14 @@ class AddTransactionActivity : AppCompatActivity() {
     }
     
     private fun applyAccentColor() {
-        // 应用强调色到顶部区域
-        ThemeManager.applyAccentColor(this, binding.layoutHeader)
+        // 统一使用白色背景，不再应用主题色
+        // 保存按钮使用灰色背景
+        binding.btnSave.backgroundTintList = android.content.res.ColorStateList.valueOf(
+            ContextCompat.getColor(this, R.color.primary)
+        )
 
-        // 获取当前强调色用于其他 UI 元素
-        val accentColor = ThemeManager.getAccentColor(this)
-        binding.tvAmountDisplay.setBackgroundColor(accentColor)
-        binding.btnSave.backgroundTintList = android.content.res.ColorStateList.valueOf(accentColor)
-
-        // 更新状态栏颜色
-        window.statusBarColor = accentColor
+        // 状态栏使用白色
+        window.statusBarColor = ContextCompat.getColor(this, R.color.card_background)
     }
     
     override fun onResume() {
