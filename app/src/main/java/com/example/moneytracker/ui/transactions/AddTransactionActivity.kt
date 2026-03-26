@@ -32,6 +32,11 @@ class AddTransactionActivity : AppCompatActivity() {
     private var currentAmount = ""
     private var editingTransactionId: Long = -1
 
+    // 计算器相关变量
+    private var storedAmount: Double = 0.0  // 存储的第一个数值
+    private var currentOperator: String? = null  // 当前操作符 (+, -, ×, ÷)
+    private var waitingForSecondNumber = false  // 是否等待输入第二个数
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FileLogger.log(TAG, "onCreate: Starting AddTransactionActivity")
@@ -197,31 +202,66 @@ class AddTransactionActivity : AppCompatActivity() {
             deleteLastDigit()
         }
 
-        // 快捷加减按钮
-        binding.btnAdd1.setOnClickListener { addToAmount(1.0) }
-        binding.btnAdd2.setOnClickListener { addToAmount(2.0) }
-        binding.btnAdd5.setOnClickListener { addToAmount(5.0) }
-        binding.btnAdd10.setOnClickListener { addToAmount(10.0) }
-        binding.btnAdd50.setOnClickListener { addToAmount(50.0) }
-        binding.btnAdd100.setOnClickListener { addToAmount(100.0) }
+        // 计算器操作按钮
+        binding.btnAdd.setOnClickListener { setOperator("+") }
+        binding.btnSubtract.setOnClickListener { setOperator("-") }
+        binding.btnMultiply.setOnClickListener { setOperator("×") }
+        binding.btnDivide.setOnClickListener { setOperator("÷") }
+        binding.btnEquals.setOnClickListener { calculateResult() }
     }
 
-    private fun addToAmount(value: Double) {
+    private fun setOperator(operator: String) {
         val currentAmountValue = currentAmount.toDoubleOrNull() ?: 0.0
-        val newAmount = currentAmountValue + value
-        // 保留两位小数
-        currentAmount = String.format("%.2f", newAmount).removeSuffix(".00").ifEmpty { "0" }
-        // 如果有小数点，确保格式正确
-        if (currentAmount.contains(".")) {
-            val parts = currentAmount.split(".")
-            if (parts.size == 2) {
-                val decimalPart = parts[1]
-                if (decimalPart.length == 1) {
-                    currentAmount += "0"
-                }
+
+        // 如果已经有操作符在等待，先计算结果
+        if (currentOperator != null && waitingForSecondNumber) {
+            // 当前正在等待第二个数，但用户又按了操作符，用当前显示的数作为第二个数计算
+            if (currentAmount.isNotEmpty()) {
+                calculateResult()
             }
         }
+
+        storedAmount = currentAmount.toDoubleOrNull() ?: 0.0
+        currentOperator = operator
+        waitingForSecondNumber = true
+        currentAmount = ""
+        updateOperatorDisplay(operator)
+    }
+
+    private fun calculateResult() {
+        val secondNumber = currentAmount.toDoubleOrNull() ?: 0.0
+        val result = when (currentOperator) {
+            "+" -> storedAmount + secondNumber
+            "-" -> storedAmount - secondNumber
+            "×" -> storedAmount * secondNumber
+            "÷" -> {
+                if (secondNumber != 0.0) {
+                    storedAmount / secondNumber
+                } else {
+                    0.0
+                }
+            }
+            else -> secondNumber
+        }
+
+        // 格式化结果
+        currentAmount = if (result == result.toLong().toDouble()) {
+            result.toLong().toString()
+        } else {
+            String.format("%.2f", result).removeSuffix(".00").ifEmpty { "0" }
+        }
+
+        // 重置操作符状态
+        currentOperator = null
+        waitingForSecondNumber = false
+        storedAmount = 0.0
         updateAmountDisplay()
+        updateOperatorDisplay(null)
+    }
+
+    private fun updateOperatorDisplay(operator: String?) {
+        // 可以在这里更新UI显示当前操作符，例如在金额旁边显示
+        // 暂时不做额外显示，保持界面简洁
     }
 
     private fun appendDigit(digit: String) {

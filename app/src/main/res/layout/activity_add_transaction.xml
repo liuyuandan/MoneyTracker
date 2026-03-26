@@ -173,7 +173,7 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- 快捷加减按钮 -->
+    <!-- 快捷加按钮 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -183,87 +183,68 @@
         android:gravity="center">
 
         <TextView
-            android:id="@+id/btn_add_1"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
+            android:id="@+id/btn_add"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
             android:layout_margin="4dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
             android:background="@drawable/number_button_background"
             android:gravity="center"
-            android:text="+1"
+            android:text="+"
             android:textColor="@color/text_primary"
-            android:textSize="14sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/btn_add_2"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
+            android:id="@+id/btn_subtract"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
             android:layout_margin="4dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
             android:background="@drawable/number_button_background"
             android:gravity="center"
-            android:text="+2"
+            android:text="-"
             android:textColor="@color/text_primary"
-            android:textSize="14sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/btn_add_5"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
+            android:id="@+id/btn_multiply"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
             android:layout_margin="4dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
             android:background="@drawable/number_button_background"
             android:gravity="center"
-            android:text="+5"
+            android:text="×"
             android:textColor="@color/text_primary"
-            android:textSize="14sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/btn_add_10"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
+            android:id="@+id/btn_divide"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
             android:layout_margin="4dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
             android:background="@drawable/number_button_background"
             android:gravity="center"
-            android:text="+10"
+            android:text="÷"
             android:textColor="@color/text_primary"
-            android:textSize="14sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/btn_add_50"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
+            android:id="@+id/btn_equals"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
             android:layout_margin="4dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
             android:background="@drawable/number_button_background"
             android:gravity="center"
-            android:text="+50"
+            android:text="="
             android:textColor="@color/text_primary"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/btn_add_100"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:layout_margin="4dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:background="@drawable/number_button_background"
-            android:gravity="center"
-            android:text="+100"
-            android:textColor="@color/text_primary"
-            android:textSize="14sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
     </LinearLayout>
