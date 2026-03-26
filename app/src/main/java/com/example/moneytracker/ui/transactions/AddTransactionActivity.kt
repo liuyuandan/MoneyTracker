@@ -196,6 +196,32 @@ class AddTransactionActivity : AppCompatActivity() {
         binding.btnDelete.setOnClickListener {
             deleteLastDigit()
         }
+
+        // 快捷加减按钮
+        binding.btnAdd1.setOnClickListener { addToAmount(1.0) }
+        binding.btnAdd2.setOnClickListener { addToAmount(2.0) }
+        binding.btnAdd5.setOnClickListener { addToAmount(5.0) }
+        binding.btnAdd10.setOnClickListener { addToAmount(10.0) }
+        binding.btnAdd50.setOnClickListener { addToAmount(50.0) }
+        binding.btnAdd100.setOnClickListener { addToAmount(100.0) }
+    }
+
+    private fun addToAmount(value: Double) {
+        val currentAmountValue = currentAmount.toDoubleOrNull() ?: 0.0
+        val newAmount = currentAmountValue + value
+        // 保留两位小数
+        currentAmount = String.format("%.2f", newAmount).removeSuffix(".00").ifEmpty { "0" }
+        // 如果有小数点，确保格式正确
+        if (currentAmount.contains(".")) {
+            val parts = currentAmount.split(".")
+            if (parts.size == 2) {
+                val decimalPart = parts[1]
+                if (decimalPart.length == 1) {
+                    currentAmount += "0"
+                }
+            }
+        }
+        updateAmountDisplay()
     }
 
     private fun appendDigit(digit: String) {
