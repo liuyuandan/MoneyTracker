@@ -37,7 +37,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/monthly_overview"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/text_white"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -46,8 +46,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp" />
+                        android:textColor="@color/text_white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -67,8 +68,9 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/income"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="12sp" />
+                                android:textColor="@color/text_white"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tv_income"
@@ -76,7 +78,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
                                 android:text="@string/zero_amount"
-                                android:textColor="@color/expense"
+                                android:textColor="@color/text_white"
                                 android:textSize="20sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -93,8 +95,9 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/expense"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="12sp" />
+                                android:textColor="@color/text_white"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tv_expense"
@@ -102,7 +105,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
                                 android:text="@string/zero_amount"
-                                android:textColor="@color/income"
+                                android:textColor="@color/text_white"
                                 android:textSize="20sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -119,8 +122,9 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/balance"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="12sp" />
+                                android:textColor="@color/text_white"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tv_balance"
@@ -128,7 +132,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
                                 android:text="@string/zero_amount"
-                                android:textColor="@color/text_primary"
+                                android:textColor="@color/text_white"
                                 android:textSize="20sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
