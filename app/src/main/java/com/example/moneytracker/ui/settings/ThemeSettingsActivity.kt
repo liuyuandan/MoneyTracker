@@ -32,13 +32,13 @@ class ThemeSettingsActivity : AppCompatActivity() {
     companion object {
         private const val REQUEST_CODE_PICK_IMAGE = 1001
         
-        // 主题色选项（用于显示）
+        // 主题色选项（用于显示）- 白色主题
         val THEME_COLORS = listOf(
-            "#4A90D9" to "default",      // 默认蓝色
-            "#9C27B0" to "purple",       // 紫色
-            "#4CAF50" to "green",        // 绿色
-            "#FF9800" to "orange",       // 橙色
-            "#F44336" to "red"           // 红色
+            "#F5F5F5" to "default",      // 默认白色
+            "#F0F0F0" to "purple",       // 浅灰色
+            "#FAFAFA" to "green",        // 米白色
+            "#F8F8F8" to "orange",       // 银白色
+            "#F5F5F5" to "red"           // 浅灰色
         )
     }
 

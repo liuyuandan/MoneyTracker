@@ -10,11 +10,11 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorSurface"
+        android:background="#F5F5F5"
         app:title="强调色设置"
-        app:titleTextColor="?attr/colorOnSurface"
+        app:titleTextColor="@color/text_primary"
         app:navigationIcon="@drawable/ic_back"
-        app:navigationIconTint="?attr/colorOnSurface" />
+        app:navigationIconTint="@color/text_primary" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -115,7 +115,7 @@
                                 android:layout_height="48dp"
                                 android:layout_gravity="center"
                                 app:cornerRadius="24dp"
-                                android:backgroundTint="@color/accent_blue" />
+                                android:backgroundTint="#F5F5F5" />
 
                             <ImageView
                                 android:id="@+id/checkBlue"
@@ -124,7 +124,7 @@
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_check"
                                 android:visibility="visible"
-                                app:tint="@android:color/white" />
+                                app:tint="#666666" />
                         </FrameLayout>
 
                         <FrameLayout
@@ -138,7 +138,7 @@
                                 android:layout_height="48dp"
                                 android:layout_gravity="center"
                                 app:cornerRadius="24dp"
-                                android:backgroundTint="@color/accent_green" />
+                                android:backgroundTint="#F0F0F0" />
 
                             <ImageView
                                 android:id="@+id/checkGreen"
@@ -147,7 +147,7 @@
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_check"
                                 android:visibility="gone"
-                                app:tint="@android:color/white" />
+                                app:tint="#666666" />
                         </FrameLayout>
 
                         <FrameLayout
@@ -161,7 +161,7 @@
                                 android:layout_height="48dp"
                                 android:layout_gravity="center"
                                 app:cornerRadius="24dp"
-                                android:backgroundTint="@color/accent_orange" />
+                                android:backgroundTint="#FAFAFA" />
 
                             <ImageView
                                 android:id="@+id/checkOrange"
@@ -170,7 +170,7 @@
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_check"
                                 android:visibility="gone"
-                                app:tint="@android:color/white" />
+                                app:tint="#666666" />
                         </FrameLayout>
 
                         <FrameLayout
@@ -184,7 +184,7 @@
                                 android:layout_height="48dp"
                                 android:layout_gravity="center"
                                 app:cornerRadius="24dp"
-                                android:backgroundTint="@color/accent_purple" />
+                                android:backgroundTint="#F8F8F8" />
 
                             <ImageView
                                 android:id="@+id/checkPurple"
@@ -193,7 +193,7 @@
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_check"
                                 android:visibility="gone"
-                                app:tint="@android:color/white" />
+                                app:tint="#666666" />
                         </FrameLayout>
 
                         <FrameLayout
@@ -207,7 +207,7 @@
                                 android:layout_height="48dp"
                                 android:layout_gravity="center"
                                 app:cornerRadius="24dp"
-                                android:backgroundTint="@color/accent_red" />
+                                android:backgroundTint="#F5F5F5" />
 
                             <ImageView
                                 android:id="@+id/checkRed"
@@ -216,7 +216,7 @@
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_check"
                                 android:visibility="gone"
-                                app:tint="@android:color/white" />
+                                app:tint="#666666" />
                         </FrameLayout>
                     </LinearLayout>
                 </LinearLayout>

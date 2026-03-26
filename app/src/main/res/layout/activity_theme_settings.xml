@@ -16,11 +16,11 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/primary"
+            android:background="#F5F5F5"
             app:navigationIcon="@drawable/ic_back"
-            app:navigationIconTint="@color/text_white"
+            app:navigationIconTint="@color/text_primary"
             app:title="@string/theme_settings"
-            app:titleTextColor="@color/text_white" />
+            app:titleTextColor="@color/text_primary" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -87,7 +87,7 @@
                         android:orientation="horizontal"
                         android:gravity="center">
 
-                        <!-- 默认蓝色 -->
+                        <!-- 默认白色 -->
                         <FrameLayout
                             android:id="@+id/theme_default"
                             android:layout_width="48dp"
@@ -99,7 +99,7 @@
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
                                 android:layout_gravity="center"
-                                android:background="@color/primary" />
+                                android:background="#F5F5F5" />
 
                             <ImageView
                                 android:id="@+id/check_default"
@@ -108,10 +108,10 @@
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_check"
                                 android:visibility="gone"
-                                app:tint="@android:color/white" />
+                                app:tint="#666666" />
                         </FrameLayout>
 
-                        <!-- 紫色 -->
+                        <!-- 浅灰色 -->
                         <FrameLayout
                             android:id="@+id/theme_purple"
                             android:layout_width="48dp"
@@ -123,7 +123,7 @@
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
                                 android:layout_gravity="center"
-                                android:background="#9C27B0" />
+                                android:background="#F0F0F0" />
 
                             <ImageView
                                 android:id="@+id/check_purple"
@@ -132,10 +132,10 @@
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_check"
                                 android:visibility="gone"
-                                app:tint="@android:color/white" />
+                                app:tint="#666666" />
                         </FrameLayout>
 
-                        <!-- 绿色 -->
+                        <!-- 米白色 -->
                         <FrameLayout
                             android:id="@+id/theme_green"
                             android:layout_width="48dp"
@@ -147,7 +147,7 @@
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
                                 android:layout_gravity="center"
-                                android:background="#4CAF50" />
+                                android:background="#FAFAFA" />
 
                             <ImageView
                                 android:id="@+id/check_green"
@@ -156,10 +156,10 @@
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_check"
                                 android:visibility="gone"
-                                app:tint="@android:color/white" />
+                                app:tint="#666666" />
                         </FrameLayout>
 
-                        <!-- 橙色 -->
+                        <!-- 银白色 -->
                         <FrameLayout
                             android:id="@+id/theme_orange"
                             android:layout_width="48dp"
@@ -171,7 +171,7 @@
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
                                 android:layout_gravity="center"
-                                android:background="#FF9800" />
+                                android:background="#F8F8F8" />
 
                             <ImageView
                                 android:id="@+id/check_orange"
@@ -180,10 +180,10 @@
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_check"
                                 android:visibility="gone"
-                                app:tint="@android:color/white" />
+                                app:tint="#666666" />
                         </FrameLayout>
 
-                        <!-- 红色 -->
+                        <!-- 浅灰色 -->
                         <FrameLayout
                             android:id="@+id/theme_red"
                             android:layout_width="48dp"
@@ -195,7 +195,7 @@
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
                                 android:layout_gravity="center"
-                                android:background="#F44336" />
+                                android:background="#F5F5F5" />
 
                             <ImageView
                                 android:id="@+id/check_red"
@@ -204,7 +204,7 @@
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_check"
                                 android:visibility="gone"
-                                app:tint="@android:color/white" />
+                                app:tint="#666666" />
                         </FrameLayout>
 
                     </LinearLayout>

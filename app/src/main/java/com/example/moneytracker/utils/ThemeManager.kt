@@ -38,39 +38,39 @@ object ThemeManager {
     private const val KEY_ACCENT_IMAGE_ENABLED = "accent_image_enabled"
     private const val KEY_ACCENT_IMAGE_URI = "accent_image_uri"
     
-    // 主题色选项 - 使用浅色渐变，确保文字可读
+    // 主题色选项 - 使用白色/浅灰色渐变，简洁白色主题
     val THEME_COLORS = listOf(
-        intArrayOf(0xFFE3F2FD.toInt(), 0xFFBBDEFB.toInt()),  // 蓝色浅渐变
-        intArrayOf(0xFFF3E5F5.toInt(), 0xFFE1BEE7.toInt()),  // 紫色浅渐变
-        intArrayOf(0xFFE8F5E9.toInt(), 0xFFC8E6C9.toInt()),  // 绿色浅渐变
-        intArrayOf(0xFFFFF3E0.toInt(), 0xFFFFE0B2.toInt()),  // 橙色浅渐变
-        intArrayOf(0xFFFFEBEE.toInt(), 0xFFFFCDD2.toInt())   // 红色浅渐变
+        intArrayOf(0xFFFFFFFF.toInt(), 0xFFF5F5F5.toInt()),  // 白色渐变（默认）
+        intArrayOf(0xFFFFFFFF.toInt(), 0xFFF5F5F5.toInt()),  // 白色渐变
+        intArrayOf(0xFFFFFFFF.toInt(), 0xFFF5F5F5.toInt()),  // 白色渐变
+        intArrayOf(0xFFFFFFFF.toInt(), 0xFFF5F5F5.toInt()),  // 白色渐变
+        intArrayOf(0xFFFFFFFF.toInt(), 0xFFF5F5F5.toInt())   // 白色渐变
     )
     
-    // 深色主题色（用于状态栏等）
+    // 深色主题色（用于状态栏等）- 使用灰色系
     val THEME_COLOR_DARK = listOf(
-        0xFF4A90D9.toInt(),  // 蓝色
-        0xFF9C27B0.toInt(),  // 紫色
-        0xFF4CAF50.toInt(),  // 绿色
-        0xFFFF9800.toInt(),  // 橙色
-        0xFFF44336.toInt()   // 红色
+        0xFF9E9E9E.toInt(),  // 灰色
+        0xFF9E9E9E.toInt(),  // 灰色
+        0xFF9E9E9E.toInt(),  // 灰色
+        0xFF9E9E9E.toInt(),  // 灰色
+        0xFF9E9E9E.toInt()   // 灰色
     )
     
     val THEME_COLOR_SINGLE = listOf(
-        0xFF4A90D9.toInt(),  // 蓝色
-        0xFF9C27B0.toInt(),  // 紫色
-        0xFF4CAF50.toInt(),  // 绿色
-        0xFFFF9800.toInt(),  // 橙色
-        0xFFF44336.toInt()   // 红色
+        0xFF9E9E9E.toInt(),  // 灰色
+        0xFF9E9E9E.toInt(),  // 灰色
+        0xFF9E9E9E.toInt(),  // 灰色
+        0xFF9E9E9E.toInt(),  // 灰色
+        0xFF9E9E9E.toInt()   // 灰色
     )
     
-    // 强调色选项名称
+    // 强调色选项名称 - 白色主题
     val ACCENT_COLOR_NAMES = listOf(
-        "默认蓝色",
-        "紫色",
-        "绿色",
-        "橙色",
-        "红色"
+        "默认白色",
+        "浅灰色",
+        "米白色",
+        "淡灰色",
+        "银白色"
     )
     
     /**
@@ -147,12 +147,21 @@ object ThemeManager {
         prefs.edit().putInt(KEY_ACCENT_COLOR_INDEX, index).apply()
     }
     
+    // 白色主题强调色
+    val ACCENT_COLORS_WHITE = listOf(
+        0xFFF5F5F5.toInt(),  // 浅灰色（默认）
+        0xFFF0F0F0.toInt(),  // 淡灰色
+        0xFFFAFAFA.toInt(),  // 米白色
+        0xFFF8F8F8.toInt(),  // 银白色
+        0xFFF5F5F5.toInt()   // 浅灰色
+    )
+    
     /**
      * 获取强调色
      */
     fun getAccentColor(context: Context): Int {
         val index = getAccentColorIndex(context)
-        return THEME_COLOR_DARK.getOrElse(index) { THEME_COLOR_DARK[0] }
+        return ACCENT_COLORS_WHITE.getOrElse(index) { ACCENT_COLORS_WHITE[0] }
     }
     
     /**
@@ -354,9 +363,9 @@ object ThemeManager {
     private fun resetToDefault(context: Context, rootView: View) {
         rootView.setBackgroundColor(0xFFFAFAFA.toInt())
         
-        // 恢复状态栏颜色
+        // 恢复状态栏颜色为灰色（白色主题）
         if (context is android.app.Activity) {
-            context.window?.statusBarColor = context.getColor(R.color.primary)
+            context.window?.statusBarColor = 0xFF9E9E9E.toInt()
         }
     }
     
