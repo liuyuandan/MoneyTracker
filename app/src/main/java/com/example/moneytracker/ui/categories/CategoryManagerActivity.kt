@@ -61,7 +61,8 @@ class CategoryManagerActivity : AppCompatActivity() {
     private fun setupRecyclerView() {
         categoryAdapter = CategoryAdapter(
             onCategoryClick = { category ->
-                // 点击分类可以编辑（暂不实现）
+                // 点击分类进行编辑
+                showEditCategoryDialog(category)
             },
             isManageMode = true
         )
@@ -170,6 +171,63 @@ class CategoryManagerActivity : AppCompatActivity() {
                 Toast.makeText(this, "分类已删除", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("取消", null)
+            .show()
+    }
+
+    private fun showEditCategoryDialog(category: Category) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_category, null)
+        val etCategoryName = dialogView.findViewById<EditText>(R.id.et_category_name)
+        val rvIcons = dialogView.findViewById<RecyclerView>(R.id.rv_icons)
+        val rvColors = dialogView.findViewById<RecyclerView>(R.id.rv_colors)
+
+        // 设置当前分类名称
+        etCategoryName.setText(category.name)
+
+        // 设置图标选择
+        var selectedIcon = category.icon
+        val iconAdapter = IconPickerAdapter(availableIcons) { icon ->
+            selectedIcon = icon
+        }
+        rvIcons.layoutManager = GridLayoutManager(this, 8)
+        rvIcons.adapter = iconAdapter
+        // 设置当前选中的图标
+        val iconIndex = availableIcons.indexOf(category.icon)
+        if (iconIndex >= 0) {
+            iconAdapter.setSelectedPosition(iconIndex)
+        }
+
+        // 设置颜色选择
+        var selectedColor = category.color
+        val colorAdapter = ColorPickerAdapter(availableColors) { color ->
+            selectedColor = color
+        }
+        rvColors.layoutManager = GridLayoutManager(this, 8)
+        rvColors.adapter = colorAdapter
+        // 设置当前选中的颜色
+        val colorIndex = availableColors.indexOf(category.color)
+        if (colorIndex >= 0) {
+            colorAdapter.setSelectedPosition(colorIndex)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("编辑分类")
+            .setView(dialogView)
+            .setPositiveButton(R.string.save) { _, _ ->
+                val newName = etCategoryName.text.toString().trim()
+                if (newName.isNotEmpty()) {
+                    val oldName = category.name
+                    val updatedCategory = category.copy(
+                        name = newName,
+                        icon = selectedIcon,
+                        color = selectedColor
+                    )
+                    viewModel.updateCategoryWithSync(updatedCategory, oldName)
+                    Toast.makeText(this, "分类已更新", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "请输入分类名称", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
             .show()
     }
 

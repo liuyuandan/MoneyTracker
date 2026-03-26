@@ -8,11 +8,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.moneytracker.data.database.AppDatabase
 import com.example.moneytracker.data.database.entities.Category
 import com.example.moneytracker.data.repository.CategoryRepository
+import com.example.moneytracker.data.repository.TransactionRepository
 import kotlinx.coroutines.launch
 
 class CategoryViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: CategoryRepository
+    private val transactionRepository: TransactionRepository
 
     // 分类列表
     private val _categories = MutableLiveData<List<Category>>()
@@ -25,6 +27,7 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
     init {
         val database = AppDatabase.getDatabase(application)
         repository = CategoryRepository(database.categoryDao())
+        transactionRepository = TransactionRepository(database.transactionDao())
 
         _currentType.value = Category.TYPE_EXPENSE
         loadCategories()
@@ -67,6 +70,17 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
     fun updateSortOrder(categories: List<Category>) {
         viewModelScope.launch {
             repository.updateSortOrder(categories)
+        }
+    }
+
+    /**
+     * 更新分类
+     * 交易记录通过categoryId关联分类，查询时会自动获取最新的分类名称
+     * 因此只需更新分类本身，无需同步更新交易记录
+     */
+    fun updateCategoryWithSync(category: Category, oldName: String) {
+        viewModelScope.launch {
+            repository.update(category)
         }
     }
 }
