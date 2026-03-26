@@ -16,6 +16,13 @@ class ColorPickerAdapter(
 
     private var selectedPosition = 0
 
+    fun setSelectedPosition(position: Int) {
+        val oldPosition = selectedPosition
+        selectedPosition = position
+        notifyItemChanged(oldPosition)
+        notifyItemChanged(selectedPosition)
+    }
+
     fun getSelectedColor(): Int = colors[selectedPosition]
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ColorViewHolder {

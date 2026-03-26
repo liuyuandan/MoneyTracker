@@ -18,6 +18,13 @@ class IconPickerAdapter(
 
     private var selectedPosition = 0
 
+    fun setSelectedPosition(position: Int) {
+        val oldPosition = selectedPosition
+        selectedPosition = position
+        notifyItemChanged(oldPosition)
+        notifyItemChanged(selectedPosition)
+    }
+
     fun getSelectedIcon(): String = icons[selectedPosition]
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IconViewHolder {
