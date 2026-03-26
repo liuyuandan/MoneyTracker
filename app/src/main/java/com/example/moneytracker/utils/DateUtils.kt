@@ -115,6 +115,75 @@ object DateUtils {
     }
 
     /**
+     * 格式化周（显示周的开始和结束日期）
+     */
+    fun formatWeek(timestamp: Long): String {
+        val weekStart = getWeekStart(timestamp)
+        val weekEnd = getWeekEnd(timestamp)
+        val startFormat = SimpleDateFormat("MM月dd日", Locale.getDefault())
+        val endFormat = SimpleDateFormat("MM月dd日", Locale.getDefault())
+        return "${startFormat.format(weekStart)}-${endFormat.format(weekEnd)}"
+    }
+
+    /**
+     * 获取本周开始时间戳（周一为一周的开始）
+     */
+    fun getWeekStart(timestamp: Long = System.currentTimeMillis()): Long {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = timestamp
+        // 设置周一为一周的第一天
+        calendar.firstDayOfWeek = Calendar.MONDAY
+        // 获取当前是周几（Calendar.DAY_OF_WEEK 返回 1-7，1是周日）
+        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+        // 计算到周一的偏移量
+        val offset = if (dayOfWeek == Calendar.SUNDAY) -6 else Calendar.MONDAY - dayOfWeek
+        calendar.add(Calendar.DAY_OF_MONTH, offset)
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
+    }
+
+    /**
+     * 获取本周结束时间戳（周日为一周的结束）
+     */
+    fun getWeekEnd(timestamp: Long = System.currentTimeMillis()): Long {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = timestamp
+        calendar.firstDayOfWeek = Calendar.MONDAY
+        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+        // 计算到周日的偏移量
+        val offset = if (dayOfWeek == Calendar.SUNDAY) 0 else Calendar.SUNDAY - dayOfWeek
+        calendar.add(Calendar.DAY_OF_MONTH, offset)
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
+        return calendar.timeInMillis
+    }
+
+    /**
+     * 获取上一周同一时间
+     */
+    fun getPreviousWeek(timestamp: Long): Long {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = timestamp
+        calendar.add(Calendar.WEEK_OF_YEAR, -1)
+        return calendar.timeInMillis
+    }
+
+    /**
+     * 获取下一周同一时间
+     */
+    fun getNextWeek(timestamp: Long): Long {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = timestamp
+        calendar.add(Calendar.WEEK_OF_YEAR, 1)
+        return calendar.timeInMillis
+    }
+
+    /**
      * 获取本年开始时间戳
      */
     fun getYearStart(timestamp: Long = System.currentTimeMillis()): Long {

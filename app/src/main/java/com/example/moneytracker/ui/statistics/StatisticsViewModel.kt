@@ -17,11 +17,21 @@ import kotlinx.coroutines.launch
 
 class StatisticsViewModel(application: Application) : AndroidViewModel(application) {
 
+    companion object {
+        const val VIEW_MODE_WEEK = 0
+        const val VIEW_MODE_MONTH = 1
+        const val VIEW_MODE_YEAR = 2
+    }
+
     private val transactionRepository: TransactionRepository
 
-    // 视图模式：true=年度，false=月度
+    // 视图模式：周/月/年
+    private val _viewMode = MutableLiveData(VIEW_MODE_MONTH)
+    val viewMode: LiveData<Int> = _viewMode
+
+    // 兼容旧代码
+    val isYearView: MediatorLiveData<Boolean> = MediatorLiveData()
     private val _isYearView = MutableLiveData(false)
-    val isYearView: LiveData<Boolean> = _isYearView
 
     // 当前时间戳
     private var currentTimestamp: Long = System.currentTimeMillis()
@@ -78,19 +88,30 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     private fun loadData() {
-        val isYear = _isYearView.value ?: false
+        val viewMode = _viewMode.value ?: VIEW_MODE_MONTH
         val startTime: Long
         val endTime: Long
 
-        if (isYear) {
-            startTime = DateUtils.getYearStart(currentTimestamp)
-            endTime = DateUtils.getYearEnd(currentTimestamp)
-            _currentPeriod.value = DateUtils.formatYear(currentTimestamp)
-        } else {
-            startTime = DateUtils.getMonthStart(currentTimestamp)
-            endTime = DateUtils.getMonthEnd(currentTimestamp)
-            _currentPeriod.value = DateUtils.formatMonth(currentTimestamp)
+        when (viewMode) {
+            VIEW_MODE_WEEK -> {
+                startTime = DateUtils.getWeekStart(currentTimestamp)
+                endTime = DateUtils.getWeekEnd(currentTimestamp)
+                _currentPeriod.value = DateUtils.formatWeek(currentTimestamp)
+            }
+            VIEW_MODE_YEAR -> {
+                startTime = DateUtils.getYearStart(currentTimestamp)
+                endTime = DateUtils.getYearEnd(currentTimestamp)
+                _currentPeriod.value = DateUtils.formatYear(currentTimestamp)
+            }
+            else -> { // VIEW_MODE_MONTH
+                startTime = DateUtils.getMonthStart(currentTimestamp)
+                endTime = DateUtils.getMonthEnd(currentTimestamp)
+                _currentPeriod.value = DateUtils.formatMonth(currentTimestamp)
+            }
         }
+
+        // 更新兼容变量
+        _isYearView.value = viewMode == VIEW_MODE_YEAR
 
         // 加载收支总额
         viewModelScope.launch(Dispatchers.IO) {
@@ -152,63 +173,96 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
             }
         }
 
-        // 加载每日/月统计
-        if (isYear) {
-            // 年度视图：按月统计
-            viewModelScope.launch(Dispatchers.IO) {
-                try {
-                    transactionRepository.getMonthlyTotalsByType(
-                        Transaction.TYPE_EXPENSE,
-                        startTime,
-                        endTime
-                    ).collect { totals ->
-                        _periodExpenseTotals.postValue(totals)
+        // 加载每日/周/月统计
+        when (viewMode) {
+            VIEW_MODE_YEAR -> {
+                // 年度视图：按月统计
+                viewModelScope.launch(Dispatchers.IO) {
+                    try {
+                        transactionRepository.getMonthlyTotalsByType(
+                            Transaction.TYPE_EXPENSE,
+                            startTime,
+                            endTime
+                        ).collect { totals ->
+                            _periodExpenseTotals.postValue(totals)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
-            }
 
-            viewModelScope.launch(Dispatchers.IO) {
-                try {
-                    transactionRepository.getMonthlyTotalsByType(
-                        Transaction.TYPE_INCOME,
-                        startTime,
-                        endTime
-                    ).collect { totals ->
-                        _periodIncomeTotals.postValue(totals)
+                viewModelScope.launch(Dispatchers.IO) {
+                    try {
+                        transactionRepository.getMonthlyTotalsByType(
+                            Transaction.TYPE_INCOME,
+                            startTime,
+                            endTime
+                        ).collect { totals ->
+                            _periodIncomeTotals.postValue(totals)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
             }
-        } else {
-            // 月度视图：按日统计
-            viewModelScope.launch(Dispatchers.IO) {
-                try {
-                    transactionRepository.getDailyTotalsByType(
-                        Transaction.TYPE_EXPENSE,
-                        startTime,
-                        endTime
-                    ).collect { totals ->
-                        _periodExpenseTotals.postValue(totals)
+            VIEW_MODE_WEEK -> {
+                // 周视图：按日统计
+                viewModelScope.launch(Dispatchers.IO) {
+                    try {
+                        transactionRepository.getDailyTotalsByType(
+                            Transaction.TYPE_EXPENSE,
+                            startTime,
+                            endTime
+                        ).collect { totals ->
+                            _periodExpenseTotals.postValue(totals)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
-            }
 
-            viewModelScope.launch(Dispatchers.IO) {
-                try {
-                    transactionRepository.getDailyTotalsByType(
-                        Transaction.TYPE_INCOME,
-                        startTime,
-                        endTime
-                    ).collect { totals ->
-                        _periodIncomeTotals.postValue(totals)
+                viewModelScope.launch(Dispatchers.IO) {
+                    try {
+                        transactionRepository.getDailyTotalsByType(
+                            Transaction.TYPE_INCOME,
+                            startTime,
+                            endTime
+                        ).collect { totals ->
+                            _periodIncomeTotals.postValue(totals)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                }
+            }
+            else -> { // VIEW_MODE_MONTH
+                // 月度视图：按日统计
+                viewModelScope.launch(Dispatchers.IO) {
+                    try {
+                        transactionRepository.getDailyTotalsByType(
+                            Transaction.TYPE_EXPENSE,
+                            startTime,
+                            endTime
+                        ).collect { totals ->
+                            _periodExpenseTotals.postValue(totals)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+
+                viewModelScope.launch(Dispatchers.IO) {
+                    try {
+                        transactionRepository.getDailyTotalsByType(
+                            Transaction.TYPE_INCOME,
+                            startTime,
+                            endTime
+                        ).collect { totals ->
+                            _periodIncomeTotals.postValue(totals)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
         }
@@ -221,33 +275,46 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun toggleViewMode() {
-        _isYearView.value = !(_isYearView.value ?: false)
+        // 循环切换：周 -> 月 -> 年 -> 周
+        val newMode = when (_viewMode.value ?: VIEW_MODE_MONTH) {
+            VIEW_MODE_WEEK -> VIEW_MODE_MONTH
+            VIEW_MODE_MONTH -> VIEW_MODE_YEAR
+            else -> VIEW_MODE_WEEK
+        }
+        _viewMode.value = newMode
+        _isYearView.value = newMode == VIEW_MODE_YEAR
         loadData()
     }
 
-    fun setViewMode(isYear: Boolean) {
-        if (_isYearView.value != isYear) {
-            _isYearView.value = isYear
+    fun setViewMode(mode: Int) {
+        if (_viewMode.value != mode) {
+            _viewMode.value = mode
+            _isYearView.value = mode == VIEW_MODE_YEAR
             loadData()
         }
     }
 
+    // 兼容旧代码
+    fun setViewMode(isYear: Boolean) {
+        setViewMode(if (isYear) VIEW_MODE_YEAR else VIEW_MODE_MONTH)
+    }
+
     fun goToPreviousPeriod() {
-        val isYear = _isYearView.value ?: false
-        currentTimestamp = if (isYear) {
-            DateUtils.getPreviousYear(currentTimestamp)
-        } else {
-            DateUtils.getPreviousMonth(currentTimestamp)
+        val viewMode = _viewMode.value ?: VIEW_MODE_MONTH
+        currentTimestamp = when (viewMode) {
+            VIEW_MODE_WEEK -> DateUtils.getPreviousWeek(currentTimestamp)
+            VIEW_MODE_YEAR -> DateUtils.getPreviousYear(currentTimestamp)
+            else -> DateUtils.getPreviousMonth(currentTimestamp)
         }
         loadData()
     }
 
     fun goToNextPeriod() {
-        val isYear = _isYearView.value ?: false
-        currentTimestamp = if (isYear) {
-            DateUtils.getNextYear(currentTimestamp)
-        } else {
-            DateUtils.getNextMonth(currentTimestamp)
+        val viewMode = _viewMode.value ?: VIEW_MODE_MONTH
+        currentTimestamp = when (viewMode) {
+            VIEW_MODE_WEEK -> DateUtils.getNextWeek(currentTimestamp)
+            VIEW_MODE_YEAR -> DateUtils.getNextYear(currentTimestamp)
+            else -> DateUtils.getNextMonth(currentTimestamp)
         }
         loadData()
     }

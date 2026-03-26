@@ -84,16 +84,24 @@ class StatisticsFragment : Fragment() {
     }
 
     private fun setupPeriodToggle() {
-        // 直接为每个 Chip 设置选中状态监听器
-        binding.chipMonth.setOnCheckedChangeListener { chip, isChecked ->
+        // 周视图
+        binding.chipWeek.setOnCheckedChangeListener { chip, isChecked ->
             if (isChecked && !isUpdatingFromViewModel) {
-                viewModel.setViewMode(false)
+                viewModel.setViewMode(StatisticsViewModel.VIEW_MODE_WEEK)
             }
         }
 
+        // 月视图
+        binding.chipMonth.setOnCheckedChangeListener { chip, isChecked ->
+            if (isChecked && !isUpdatingFromViewModel) {
+                viewModel.setViewMode(StatisticsViewModel.VIEW_MODE_MONTH)
+            }
+        }
+
+        // 年视图
         binding.chipYear.setOnCheckedChangeListener { chip, isChecked ->
             if (isChecked && !isUpdatingFromViewModel) {
-                viewModel.setViewMode(true)
+                viewModel.setViewMode(StatisticsViewModel.VIEW_MODE_YEAR)
             }
         }
     }
@@ -171,23 +179,23 @@ class StatisticsFragment : Fragment() {
         // 监听趋势数据
         viewModel.periodExpenseTotals.observe(viewLifecycleOwner) { expenseTotals ->
             val incomeTotals = viewModel.periodIncomeTotals.value ?: emptyList()
-            val isYearView = viewModel.isYearView.value ?: false
-            updateLineChart(expenseTotals, incomeTotals, isYearView)
+            val viewMode = viewModel.viewMode.value ?: StatisticsViewModel.VIEW_MODE_MONTH
+            updateLineChart(expenseTotals, incomeTotals, viewMode)
         }
 
         viewModel.periodIncomeTotals.observe(viewLifecycleOwner) { incomeTotals ->
             val expenseTotals = viewModel.periodExpenseTotals.value ?: emptyList()
-            val isYearView = viewModel.isYearView.value ?: false
-            updateLineChart(expenseTotals, incomeTotals, isYearView)
+            val viewMode = viewModel.viewMode.value ?: StatisticsViewModel.VIEW_MODE_MONTH
+            updateLineChart(expenseTotals, incomeTotals, viewMode)
         }
 
         // 监听视图模式变化，更新 ChipGroup 选中状态
-        viewModel.isYearView.observe(viewLifecycleOwner) { isYear ->
+        viewModel.viewMode.observe(viewLifecycleOwner) { mode ->
             isUpdatingFromViewModel = true
-            if (isYear) {
-                binding.chipGroupPeriod.check(R.id.chip_year)
-            } else {
-                binding.chipGroupPeriod.check(R.id.chip_month)
+            when (mode) {
+                StatisticsViewModel.VIEW_MODE_WEEK -> binding.chipGroupPeriod.check(R.id.chip_week)
+                StatisticsViewModel.VIEW_MODE_MONTH -> binding.chipGroupPeriod.check(R.id.chip_month)
+                StatisticsViewModel.VIEW_MODE_YEAR -> binding.chipGroupPeriod.check(R.id.chip_year)
             }
             isUpdatingFromViewModel = false
         }
@@ -232,8 +240,10 @@ class StatisticsFragment : Fragment() {
     private fun updateLineChart(
         expenseTotals: List<DailyTotal>,
         incomeTotals: List<DailyTotal>,
-        isYearView: Boolean
+        viewMode: Int
     ) {
+        val isYearView = viewMode == StatisticsViewModel.VIEW_MODE_YEAR
+        val isWeekView = viewMode == StatisticsViewModel.VIEW_MODE_WEEK
         if (expenseTotals.isEmpty() && incomeTotals.isEmpty()) {
             binding.lineChart.clear()
             binding.lineChart.invalidate()
