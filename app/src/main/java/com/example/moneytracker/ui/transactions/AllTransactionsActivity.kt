@@ -3,8 +3,10 @@ package com.example.moneytracker.ui.transactions
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.moneytracker.R
 import com.example.moneytracker.adapters.GroupedTransactionAdapter
@@ -21,6 +23,7 @@ class AllTransactionsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAllTransactionsBinding
     private val viewModel: AllTransactionsViewModel by viewModels()
     private lateinit var transactionAdapter: GroupedTransactionAdapter
+    private var allTransactionsWithCategory: List<TransactionWithCategory> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +34,7 @@ class AllTransactionsActivity : AppCompatActivity() {
             setContentView(binding.root)
 
             setupToolbar()
+            setupSearch()
             setupRecyclerView()
             observeData()
         } catch (e: Exception) {
@@ -42,6 +46,58 @@ class AllTransactionsActivity : AppCompatActivity() {
     private fun setupToolbar() {
         binding.toolbar.setNavigationOnClickListener {
             finish()
+        }
+    }
+
+    private fun setupSearch() {
+        // 搜索框文本变化监听
+        binding.etSearch.doAfterTextChanged { text ->
+            val query = text?.toString()?.trim() ?: ""
+            filterTransactions(query)
+            binding.ivClearSearch.visibility = if (query.isNotEmpty()) View.VISIBLE else View.GONE
+        }
+
+        // 清除搜索按钮
+        binding.ivClearSearch.setOnClickListener {
+            binding.etSearch.text?.clear()
+        }
+
+        // 键盘搜索按钮
+        binding.etSearch.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                val query = binding.etSearch.text?.toString()?.trim() ?: ""
+                filterTransactions(query)
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    private fun filterTransactions(query: String) {
+        if (query.isEmpty()) {
+            // 显示全部记录
+            updateTransactionList(allTransactionsWithCategory)
+        } else {
+            // 过滤记录
+            val filtered = allTransactionsWithCategory.filter { item ->
+                val categoryName = item.category?.name ?: ""
+                val description = item.transaction.description
+                categoryName.contains(query, ignoreCase = true) || 
+                description.contains(query, ignoreCase = true)
+            }
+            updateTransactionList(filtered)
+        }
+    }
+
+    private fun updateTransactionList(items: List<TransactionWithCategory>) {
+        if (items.isEmpty()) {
+            binding.emptyState.visibility = View.VISIBLE
+            binding.rvTransactions.visibility = View.GONE
+        } else {
+            binding.emptyState.visibility = View.GONE
+            binding.rvTransactions.visibility = View.VISIBLE
+            transactionAdapter.submitList(items)
         }
     }
 
@@ -67,34 +123,34 @@ class AllTransactionsActivity : AppCompatActivity() {
 
     private fun observeData() {
         viewModel.transactions.observe(this) { transactions ->
-            if (transactions.isEmpty()) {
-                binding.emptyState.visibility = View.VISIBLE
-                binding.rvTransactions.visibility = View.GONE
+            allTransactionsWithCategory = transactions.map { transaction ->
+                TransactionWithCategory(
+                    transaction = transaction,
+                    category = viewModel.categories.value?.get(transaction.categoryId)
+                )
+            }
+            // 如果有搜索词，应用过滤
+            val query = binding.etSearch.text?.toString()?.trim() ?: ""
+            if (query.isEmpty()) {
+                updateTransactionList(allTransactionsWithCategory)
             } else {
-                binding.emptyState.visibility = View.GONE
-                binding.rvTransactions.visibility = View.VISIBLE
-
-                val items = transactions.map { transaction ->
-                    TransactionWithCategory(
-                        transaction = transaction,
-                        category = viewModel.categories.value?.get(transaction.categoryId)
-                    )
-                }
-                transactionAdapter.submitList(items)
+                filterTransactions(query)
             }
         }
 
         viewModel.categories.observe(this) {
             // 当分类变化时，更新列表显示
-            val transactions = viewModel.transactions.value ?: emptyList()
-            if (transactions.isNotEmpty()) {
-                val items = transactions.map { transaction ->
-                    TransactionWithCategory(
-                        transaction = transaction,
-                        category = viewModel.categories.value?.get(transaction.categoryId)
-                    )
-                }
-                transactionAdapter.submitList(items)
+            allTransactionsWithCategory = (viewModel.transactions.value ?: emptyList()).map { transaction ->
+                TransactionWithCategory(
+                    transaction = transaction,
+                    category = viewModel.categories.value?.get(transaction.categoryId)
+                )
+            }
+            val query = binding.etSearch.text?.toString()?.trim() ?: ""
+            if (query.isEmpty()) {
+                updateTransactionList(allTransactionsWithCategory)
+            } else {
+                filterTransactions(query)
             }
         }
     }
