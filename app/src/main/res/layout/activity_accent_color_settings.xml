@@ -115,7 +115,7 @@
                                 android:layout_height="48dp"
                                 android:layout_gravity="center"
                                 app:cornerRadius="24dp"
-                                android:backgroundTint="#F5F5F5" />
+                                android:backgroundTint="#4A90D9" />
 
                             <ImageView
                                 android:id="@+id/checkBlue"
@@ -124,53 +124,7 @@
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_check"
                                 android:visibility="visible"
-                                app:tint="#666666" />
-                        </FrameLayout>
-
-                        <FrameLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1">
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/colorGreenButton"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:layout_gravity="center"
-                                app:cornerRadius="24dp"
-                                android:backgroundTint="#F0F0F0" />
-
-                            <ImageView
-                                android:id="@+id/checkGreen"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_check"
-                                android:visibility="gone"
-                                app:tint="#666666" />
-                        </FrameLayout>
-
-                        <FrameLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1">
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/colorOrangeButton"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:layout_gravity="center"
-                                app:cornerRadius="24dp"
-                                android:backgroundTint="#FAFAFA" />
-
-                            <ImageView
-                                android:id="@+id/checkOrange"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_check"
-                                android:visibility="gone"
-                                app:tint="#666666" />
+                                app:tint="@android:color/white" />
                         </FrameLayout>
 
                         <FrameLayout
@@ -184,7 +138,7 @@
                                 android:layout_height="48dp"
                                 android:layout_gravity="center"
                                 app:cornerRadius="24dp"
-                                android:backgroundTint="#F8F8F8" />
+                                android:backgroundTint="#9C27B0" />
 
                             <ImageView
                                 android:id="@+id/checkPurple"
@@ -193,7 +147,53 @@
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_check"
                                 android:visibility="gone"
-                                app:tint="#666666" />
+                                app:tint="@android:color/white" />
+                        </FrameLayout>
+
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/colorGreenButton"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="center"
+                                app:cornerRadius="24dp"
+                                android:backgroundTint="#4CAF50" />
+
+                            <ImageView
+                                android:id="@+id/checkGreen"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_check"
+                                android:visibility="gone"
+                                app:tint="@android:color/white" />
+                        </FrameLayout>
+
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/colorOrangeButton"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="center"
+                                app:cornerRadius="24dp"
+                                android:backgroundTint="#FF9800" />
+
+                            <ImageView
+                                android:id="@+id/checkOrange"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_check"
+                                android:visibility="gone"
+                                app:tint="@android:color/white" />
                         </FrameLayout>
 
                         <FrameLayout
@@ -207,7 +207,7 @@
                                 android:layout_height="48dp"
                                 android:layout_gravity="center"
                                 app:cornerRadius="24dp"
-                                android:backgroundTint="#F5F5F5" />
+                                android:backgroundTint="#F44336" />
 
                             <ImageView
                                 android:id="@+id/checkRed"
@@ -216,7 +216,76 @@
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_check"
                                 android:visibility="gone"
-                                app:tint="#666666" />
+                                app:tint="@android:color/white" />
+                        </FrameLayout>
+
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/colorYellowButton"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="center"
+                                app:cornerRadius="24dp"
+                                android:backgroundTint="#FFC107" />
+
+                            <ImageView
+                                android:id="@+id/checkYellow"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_check"
+                                android:visibility="gone"
+                                app:tint="@android:color/white" />
+                        </FrameLayout>
+
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/colorCyanButton"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="center"
+                                app:cornerRadius="24dp"
+                                android:backgroundTint="#00BCD4" />
+
+                            <ImageView
+                                android:id="@+id/checkCyan"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_check"
+                                android:visibility="gone"
+                                app:tint="@android:color/white" />
+                        </FrameLayout>
+
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/colorPinkButton"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="center"
+                                app:cornerRadius="24dp"
+                                android:backgroundTint="#E91E63" />
+
+                            <ImageView
+                                android:id="@+id/checkPink"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_check"
+                                android:visibility="gone"
+                                app:tint="@android:color/white" />
                         </FrameLayout>
                     </LinearLayout>
                 </LinearLayout>

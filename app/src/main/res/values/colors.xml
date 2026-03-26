@@ -46,10 +46,13 @@
     <!-- 应用图标背景色 -->
     <color name="ic_launcher_background">#4A90E2</color>
 
-    <!-- 强调色选项 - 白色主题 -->
-    <color name="accent_blue">#F5F5F5</color>
-    <color name="accent_green">#F0F0F0</color>
-    <color name="accent_orange">#FAFAFA</color>
-    <color name="accent_purple">#F8F8F8</color>
-    <color name="accent_red">#F5F5F5</color>
+    <!-- 强调色选项 -->
+    <color name="accent_blue">#4A90D9</color>
+    <color name="accent_purple">#9C27B0</color>
+    <color name="accent_green">#4CAF50</color>
+    <color name="accent_orange">#FF9800</color>
+    <color name="accent_red">#F44336</color>
+    <color name="accent_yellow">#FFC107</color>
+    <color name="accent_cyan">#00BCD4</color>
+    <color name="accent_pink">#E91E63</color>
 </resources>

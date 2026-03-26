@@ -39,20 +39,26 @@ class AccentColorSettingsActivity : AppCompatActivity() {
     // 颜色资源到实际颜色值的映射
     private val colorResToValue = mapOf(
         R.color.accent_blue to 0xFF4A90D9.toInt(),
+        R.color.accent_purple to 0xFF9C27B0.toInt(),
         R.color.accent_green to 0xFF4CAF50.toInt(),
         R.color.accent_orange to 0xFFFF9800.toInt(),
-        R.color.accent_purple to 0xFF9C27B0.toInt(),
-        R.color.accent_red to 0xFFF44336.toInt()
+        R.color.accent_red to 0xFFF44336.toInt(),
+        R.color.accent_yellow to 0xFFFFC107.toInt(),
+        R.color.accent_cyan to 0xFF00BCD4.toInt(),
+        R.color.accent_pink to 0xFFE91E63.toInt()
     )
     private var accentImageUri: Uri? = null
 
     private val accentColorButtons = mutableMapOf<Int, Pair<MaterialButton, ImageView>>()
     private val accentColors = listOf(
         R.color.accent_blue,
+        R.color.accent_purple,
         R.color.accent_green,
         R.color.accent_orange,
-        R.color.accent_purple,
-        R.color.accent_red
+        R.color.accent_red,
+        R.color.accent_yellow,
+        R.color.accent_cyan,
+        R.color.accent_pink
     )
 
     private val pickImageLauncher = registerForActivityResult(
@@ -84,10 +90,13 @@ class AccentColorSettingsActivity : AppCompatActivity() {
 
     private fun initAccentColorButtons() {
         accentColorButtons[R.color.accent_blue] = Pair(binding.colorBlueButton, binding.checkBlue)
+        accentColorButtons[R.color.accent_purple] = Pair(binding.colorPurpleButton, binding.checkPurple)
         accentColorButtons[R.color.accent_green] = Pair(binding.colorGreenButton, binding.checkGreen)
         accentColorButtons[R.color.accent_orange] = Pair(binding.colorOrangeButton, binding.checkOrange)
-        accentColorButtons[R.color.accent_purple] = Pair(binding.colorPurpleButton, binding.checkPurple)
         accentColorButtons[R.color.accent_red] = Pair(binding.colorRedButton, binding.checkRed)
+        accentColorButtons[R.color.accent_yellow] = Pair(binding.colorYellowButton, binding.checkYellow)
+        accentColorButtons[R.color.accent_cyan] = Pair(binding.colorCyanButton, binding.checkCyan)
+        accentColorButtons[R.color.accent_pink] = Pair(binding.colorPinkButton, binding.checkPink)
     }
 
     private fun loadSavedSettings() {
