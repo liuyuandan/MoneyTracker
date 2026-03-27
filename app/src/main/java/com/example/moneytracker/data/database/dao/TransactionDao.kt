@@ -60,13 +60,12 @@ interface TransactionDao {
     suspend fun deleteAll()
 
     // 获取指定月份的每日收支统计
-    // 使用 strftime 按日期归一化分组，避免时区问题
+    // 返回每条交易记录，在应用层按日期分组（避免时区和精度问题）
     @Query("""
-        SELECT strftime('%s', datetime(date/1000, 'unixepoch', 'start of day')) * 1000 as day, SUM(amount) as totalAmount
+        SELECT date as day, amount as totalAmount
         FROM transactions
         WHERE type = :type AND date BETWEEN :startTime AND :endTime
-        GROUP BY day
-        ORDER BY day
+        ORDER BY date
     """)
     fun getDailyTotalsByType(type: Int, startTime: Long, endTime: Long): Flow<List<DailyTotal>>
 

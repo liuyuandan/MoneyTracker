@@ -214,7 +214,9 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
                             startTime,
                             endTime
                         ).collect { totals ->
-                            _periodExpenseTotals.postValue(totals)
+                            // 按天分组累加金额
+                            val groupedTotals = groupByDay(totals)
+                            _periodExpenseTotals.postValue(groupedTotals)
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -228,7 +230,9 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
                             startTime,
                             endTime
                         ).collect { totals ->
-                            _periodIncomeTotals.postValue(totals)
+                            // 按天分组累加金额
+                            val groupedTotals = groupByDay(totals)
+                            _periodIncomeTotals.postValue(groupedTotals)
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -244,7 +248,9 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
                             startTime,
                             endTime
                         ).collect { totals ->
-                            _periodExpenseTotals.postValue(totals)
+                            // 按天分组累加金额
+                            val groupedTotals = groupByDay(totals)
+                            _periodExpenseTotals.postValue(groupedTotals)
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -258,7 +264,9 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
                             startTime,
                             endTime
                         ).collect { totals ->
-                            _periodIncomeTotals.postValue(totals)
+                            // 按天分组累加金额
+                            val groupedTotals = groupByDay(totals)
+                            _periodIncomeTotals.postValue(groupedTotals)
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -272,6 +280,31 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
         val income = _periodIncome.value ?: 0.0
         val expense = _periodExpense.value ?: 0.0
         _periodBalance.value = income - expense
+    }
+
+    /**
+     * 将交易记录按天分组并累加金额
+     * 使用本地时区进行日期归一化
+     */
+    private fun groupByDay(totals: List<com.example.moneytracker.data.database.entities.DailyTotal>): List<com.example.moneytracker.data.database.entities.DailyTotal> {
+        val calendar = java.util.Calendar.getInstance()
+        val groupedMap = mutableMapOf<Long, Double>()
+
+        for (total in totals) {
+            // 将时间戳归一化到当天开始（本地时区）
+            calendar.timeInMillis = total.day
+            calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            calendar.set(java.util.Calendar.MINUTE, 0)
+            calendar.set(java.util.Calendar.SECOND, 0)
+            calendar.set(java.util.Calendar.MILLISECOND, 0)
+            val dayStart = calendar.timeInMillis
+
+            groupedMap[dayStart] = (groupedMap[dayStart] ?: 0.0) + total.totalAmount
+        }
+
+        return groupedMap.map { (day, amount) ->
+            com.example.moneytracker.data.database.entities.DailyTotal(day, amount)
+        }.sortedBy { it.day }
     }
 
     fun toggleViewMode() {
