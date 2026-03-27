@@ -65,6 +65,18 @@
             android:text="@string/income_category" />
     </com.google.android.material.tabs.TabLayout>
 
+    <!-- 提示文字 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="4dp"
+        android:text="PS：单击可编辑现有分类，可拖拉右上角图标进行自定义排序"
+        android:textColor="@color/text_hint"
+        android:textSize="12sp" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_categories"
         android:layout_width="match_parent"
