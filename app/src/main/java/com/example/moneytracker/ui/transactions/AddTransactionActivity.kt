@@ -260,8 +260,17 @@ class AddTransactionActivity : AppCompatActivity() {
     }
 
     private fun updateOperatorDisplay(operator: String?) {
-        // 可以在这里更新UI显示当前操作符，例如在金额旁边显示
-        // 暂时不做额外显示，保持界面简洁
+        // 更新金额显示区域，显示当前表达式
+        if (operator != null) {
+            // 显示：第一个数 + 运算符
+            val firstNumber = if (storedAmount == storedAmount.toLong().toDouble()) {
+                storedAmount.toLong().toString()
+            } else {
+                String.format("%.2f", storedAmount)
+            }
+            binding.tvAmountDisplay.text = "$firstNumber $operator"
+        }
+        // 如果 operator 为 null，由 updateAmountDisplay 负责更新显示
     }
 
     private fun appendDigit(digit: String) {
@@ -273,13 +282,40 @@ class AddTransactionActivity : AppCompatActivity() {
             return
         }
         currentAmount += digit
-        updateAmountDisplay()
+        
+        // 如果正在等待第二个数，显示完整的表达式
+        if (waitingForSecondNumber && currentOperator != null) {
+            val firstNumber = if (storedAmount == storedAmount.toLong().toDouble()) {
+                storedAmount.toLong().toString()
+            } else {
+                String.format("%.2f", storedAmount)
+            }
+            binding.tvAmountDisplay.text = "$firstNumber $currentOperator $currentAmount"
+        } else {
+            updateAmountDisplay()
+        }
     }
 
     private fun deleteLastDigit() {
         if (currentAmount.isNotEmpty()) {
             currentAmount = currentAmount.dropLast(1)
-            updateAmountDisplay()
+            
+            // 如果正在等待第二个数，显示完整的表达式
+            if (waitingForSecondNumber && currentOperator != null) {
+                val firstNumber = if (storedAmount == storedAmount.toLong().toDouble()) {
+                    storedAmount.toLong().toString()
+                } else {
+                    String.format("%.2f", storedAmount)
+                }
+                val displayText = if (currentAmount.isEmpty()) {
+                    "$firstNumber $currentOperator"
+                } else {
+                    "$firstNumber $currentOperator $currentAmount"
+                }
+                binding.tvAmountDisplay.text = displayText
+            } else {
+                updateAmountDisplay()
+            }
         }
     }
 
