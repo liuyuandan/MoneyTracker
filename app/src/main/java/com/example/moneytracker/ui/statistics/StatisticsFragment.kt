@@ -1,5 +1,6 @@
 package com.example.moneytracker.ui.statistics
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import com.example.moneytracker.R
 import com.example.moneytracker.databinding.FragmentStatisticsBinding
 import com.example.moneytracker.data.database.entities.CategoryTotal
 import com.example.moneytracker.data.database.entities.DailyTotal
+import com.example.moneytracker.data.database.entities.Transaction
 import com.example.moneytracker.utils.CurrencyUtils
 import com.example.moneytracker.utils.ThemeManager
 import com.github.mikephil.charting.components.Legend
@@ -21,6 +23,8 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.github.mikephil.charting.highlight.Highlight
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -108,14 +112,14 @@ class StatisticsFragment : Fragment() {
 
     private fun setupCharts() {
         // 设置饼图
-        setupPieChart(binding.pieChartExpense)
-        setupPieChart(binding.pieChartIncome)
+        setupPieChart(binding.pieChartExpense, Transaction.TYPE_EXPENSE)
+        setupPieChart(binding.pieChartIncome, Transaction.TYPE_INCOME)
 
         // 设置折线图
         setupLineChart()
     }
 
-    private fun setupPieChart(chart: com.github.mikephil.charting.charts.PieChart) {
+    private fun setupPieChart(chart: com.github.mikephil.charting.charts.PieChart, transactionType: Int) {
         chart.apply {
             description.isEnabled = false
             setUsePercentValues(true)
@@ -132,7 +136,64 @@ class StatisticsFragment : Fragment() {
                 textSize = 12f
             }
             setNoDataText(getString(R.string.no_data))
+            
+            // 设置点击监听
+            setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
+                override fun onValueSelected(e: Entry?, h: Highlight?) {
+                    if (e is PieEntry) {
+                        val dataSet = chart.data?.getDataSetByIndex(0) as? PieDataSet
+                        val index = dataSet?.values?.indexOf(e) ?: -1
+                        if (index >= 0) {
+                            val totals = if (transactionType == Transaction.TYPE_EXPENSE) {
+                                viewModel.expenseCategoryTotals.value
+                            } else {
+                                viewModel.incomeCategoryTotals.value
+                            }
+                            totals?.getOrNull(index)?.let { categoryTotal ->
+                                openCategoryTransactions(categoryTotal, transactionType)
+                            }
+                        }
+                    }
+                }
+                
+                override fun onNothingSelected() {}
+            })
         }
+    }
+
+    private fun openCategoryTransactions(categoryTotal: CategoryTotal, transactionType: Int) {
+        val viewMode = viewModel.viewMode.value ?: StatisticsViewModel.VIEW_MODE_MONTH
+        val startTime: Long
+        val endTime: Long
+
+        when (viewMode) {
+            StatisticsViewModel.VIEW_MODE_WEEK -> {
+                startTime = com.example.moneytracker.utils.DateUtils.getWeekStart(viewModel.currentTimestamp)
+                endTime = com.example.moneytracker.utils.DateUtils.getWeekEnd(viewModel.currentTimestamp)
+            }
+            StatisticsViewModel.VIEW_MODE_YEAR -> {
+                startTime = com.example.moneytracker.utils.DateUtils.getYearStart(viewModel.currentTimestamp)
+                endTime = com.example.moneytracker.utils.DateUtils.getYearEnd(viewModel.currentTimestamp)
+            }
+            else -> {
+                startTime = com.example.moneytracker.utils.DateUtils.getMonthStart(viewModel.currentTimestamp)
+                endTime = com.example.moneytracker.utils.DateUtils.getMonthEnd(viewModel.currentTimestamp)
+            }
+        }
+
+        val timeRangeText = viewModel.currentPeriod.value ?: ""
+
+        val intent = Intent(requireContext(), CategoryTransactionsActivity::class.java).apply {
+            putExtra(CategoryTransactionsActivity.EXTRA_CATEGORY_ID, categoryTotal.id)
+            putExtra(CategoryTransactionsActivity.EXTRA_CATEGORY_NAME, categoryTotal.name)
+            putExtra(CategoryTransactionsActivity.EXTRA_CATEGORY_ICON, categoryTotal.icon)
+            putExtra(CategoryTransactionsActivity.EXTRA_CATEGORY_COLOR, categoryTotal.color)
+            putExtra(CategoryTransactionsActivity.EXTRA_TRANSACTION_TYPE, transactionType)
+            putExtra(CategoryTransactionsActivity.EXTRA_START_TIME, startTime)
+            putExtra(CategoryTransactionsActivity.EXTRA_END_TIME, endTime)
+            putExtra(CategoryTransactionsActivity.EXTRA_TIME_RANGE_TEXT, timeRangeText)
+        }
+        startActivity(intent)
     }
 
     private fun setupLineChart() {

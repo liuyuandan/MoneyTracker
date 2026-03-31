@@ -34,7 +34,8 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
     private val _isYearView = MutableLiveData(false)
 
     // 当前时间戳
-    private var currentTimestamp: Long = System.currentTimeMillis()
+    var currentTimestamp: Long = System.currentTimeMillis()
+        private set
 
     // 当前月份/年份显示
     private val _currentPeriod = MutableLiveData<String>()

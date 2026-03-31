@@ -78,4 +78,12 @@ interface TransactionDao {
         ORDER BY day
     """)
     fun getMonthlyTotalsByType(type: Int, startTime: Long, endTime: Long): Flow<List<DailyTotal>>
+
+    // 获取指定分类和时间范围的交易记录
+    @Query("""
+        SELECT * FROM transactions 
+        WHERE categoryId = :categoryId AND type = :type AND date BETWEEN :startTime AND :endTime
+        ORDER BY date DESC
+    """)
+    fun getTransactionsByCategoryAndDateRange(categoryId: Long, type: Int, startTime: Long, endTime: Long): Flow<List<Transaction>>
 }
