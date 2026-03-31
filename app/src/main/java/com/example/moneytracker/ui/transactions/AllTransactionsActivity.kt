@@ -1,5 +1,6 @@
 package com.example.moneytracker.ui.transactions
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -113,12 +114,27 @@ class AllTransactionsActivity : AppCompatActivity() {
                 }
             },
             onTransactionLongClick = { transaction ->
-                viewModel.deleteTransaction(transaction)
+                showDeleteConfirmDialog(transaction)
                 true
             }
         )
         binding.rvTransactions.layoutManager = LinearLayoutManager(this)
         binding.rvTransactions.adapter = transactionAdapter
+    }
+
+    private fun showDeleteConfirmDialog(transaction: com.example.moneytracker.data.database.entities.Transaction) {
+        try {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.delete)
+                .setMessage("确定要删除这条记录吗？")
+                .setPositiveButton(R.string.delete) { _, _ ->
+                    viewModel.deleteTransaction(transaction)
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+        } catch (e: Exception) {
+            FileLogger.logError(TAG, "showDeleteConfirmDialog: Error", e)
+        }
     }
 
     private fun observeData() {
