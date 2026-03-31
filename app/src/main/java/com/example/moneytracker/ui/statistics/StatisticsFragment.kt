@@ -130,12 +130,16 @@ class StatisticsFragment : Fragment() {
             legend.apply {
                 isEnabled = true
                 horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
-                verticalAlignment = Legend.LegendVerticalAlignment.CENTER
+                verticalAlignment = Legend.LegendVerticalAlignment.TOP
                 orientation = Legend.LegendOrientation.VERTICAL
                 setDrawInside(false)
                 textSize = 12f
+                isWordWrapEnabled = true
+                maxSizePercent = 0.8f
             }
             setNoDataText(getString(R.string.no_data))
+            // 允许图表内部滚动以显示更多图例
+            isHighlightPerTapEnabled = true
             
             // 设置点击监听
             setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
@@ -295,6 +299,20 @@ class StatisticsFragment : Fragment() {
         }
 
         chart.data = data
+        
+        // 根据分类数量动态调整图表高度
+        // 基础高度 250dp，每多一个分类增加 20dp（为图例留空间）
+        val density = resources.displayMetrics.density
+        val baseHeight = 250f
+        val extraHeightPerItem = 20f
+        val maxVisibleWithoutScroll = 6 // 超过6个分类时需要更多高度
+        val extraItems = maxOf(0, totals.size - maxVisibleWithoutScroll)
+        val calculatedHeight = baseHeight + (extraItems * extraHeightPerItem)
+        
+        val layoutParams = chart.layoutParams
+        layoutParams.height = (calculatedHeight * density).toInt()
+        chart.layoutParams = layoutParams
+        
         chart.invalidate()
     }
 
