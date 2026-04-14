@@ -39,6 +39,10 @@ class AddTransactionActivity : AppCompatActivity() {
     private var currentOperator: String? = null  // 当前操作符 (+, -, ×, ÷)
     private var waitingForSecondNumber = false  // 是否等待输入第二个数
 
+    // 保存原始备注内容，用于回退取消
+    private var originalDescription: String = ""
+    private var isEditMode: Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FileLogger.log(TAG, "onCreate: Starting AddTransactionActivity")
@@ -113,9 +117,11 @@ class AddTransactionActivity : AppCompatActivity() {
         // 如果是编辑模式，设置标题并加载交易详情
         if (editingTransactionId > 0) {
             binding.tvTitle.text = getString(R.string.edit_transaction)
+            isEditMode = true
             loadTransactionDetails()
         } else {
             binding.tvTitle.text = getString(R.string.add_transaction)
+            isEditMode = false
         }
         
         // 设置键盘弹出时的滚动处理
@@ -372,6 +378,22 @@ class AddTransactionActivity : AppCompatActivity() {
         }
     }
 
+    override fun onBackPressed() {
+        // 如果是编辑模式且备注内容已修改，恢复原始备注内容
+        if (isEditMode) {
+            val currentDescription = binding.etDescription.text.toString()
+            if (currentDescription != originalDescription) {
+                binding.etDescription.setText(originalDescription)
+                // 清除焦点，关闭键盘
+                binding.etDescription.clearFocus()
+                // 显示提示
+                Toast.makeText(this, "备注已恢复", Toast.LENGTH_SHORT).show()
+                return
+            }
+        }
+        super.onBackPressed()
+    }
+
     private fun setupKeyboardScrolling() {
         // 获取数字键盘布局（保存按钮的父布局）
         val numberKeyboardLayout = binding.btnSave.parent as? android.view.ViewGroup
@@ -518,6 +540,8 @@ class AddTransactionActivity : AppCompatActivity() {
                 currentAmount = it.amount.toString()
                 updateAmountDisplay()
                 binding.etDescription.setText(it.description)
+                // 保存原始备注内容，用于回退取消
+                originalDescription = it.description ?: ""
                 FileLogger.log(TAG, "observeData: Loaded transaction amount = ${it.amount}")
             }
         }
