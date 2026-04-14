@@ -165,10 +165,43 @@ class StatisticsFragment : Fragment() {
     }
     
     private fun navigateToCategoryTransactions(categoryTotal: CategoryTotal) {
+        // 获取当前时间范围
+        val viewModel = this.viewModel
+        val viewMode = viewModel.viewMode.value ?: StatisticsViewModel.VIEW_MODE_MONTH
+        val currentTimestamp = System.currentTimeMillis()
+        
+        val (startTime, endTime, periodName) = when (viewMode) {
+            StatisticsViewModel.VIEW_MODE_WEEK -> {
+                Triple(
+                    com.example.moneytracker.utils.DateUtils.getWeekStart(currentTimestamp),
+                    com.example.moneytracker.utils.DateUtils.getWeekEnd(currentTimestamp),
+                    com.example.moneytracker.utils.DateUtils.formatWeek(currentTimestamp)
+                )
+            }
+            StatisticsViewModel.VIEW_MODE_YEAR -> {
+                Triple(
+                    com.example.moneytracker.utils.DateUtils.getYearStart(currentTimestamp),
+                    com.example.moneytracker.utils.DateUtils.getYearEnd(currentTimestamp),
+                    com.example.moneytracker.utils.DateUtils.formatYear(currentTimestamp)
+                )
+            }
+            else -> { // VIEW_MODE_MONTH
+                Triple(
+                    com.example.moneytracker.utils.DateUtils.getMonthStart(currentTimestamp),
+                    com.example.moneytracker.utils.DateUtils.getMonthEnd(currentTimestamp),
+                    com.example.moneytracker.utils.DateUtils.formatMonth(currentTimestamp)
+                )
+            }
+        }
+        
         val intent = Intent(requireContext(), AllTransactionsActivity::class.java).apply {
             // 传递分类ID用于过滤
-            putExtra("category_id", categoryTotal.categoryId)
+            putExtra("category_id", categoryTotal.id)
             putExtra("category_name", categoryTotal.name)
+            // 传递时间范围
+            putExtra("start_time", startTime)
+            putExtra("end_time", endTime)
+            putExtra("period_name", periodName)
         }
         startActivity(intent)
     }
