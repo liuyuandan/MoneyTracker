@@ -188,7 +188,7 @@ class AllTransactionsActivity : AppCompatActivity() {
         // 如果有时间范围过滤，按时间过滤
         if (filterStartTime != -1L && filterEndTime != -1L) {
             filteredList = filteredList.filter { 
-                it.transaction.timestamp in filterStartTime..filterEndTime 
+                it.transaction.date in filterStartTime..filterEndTime 
             }
         }
         
