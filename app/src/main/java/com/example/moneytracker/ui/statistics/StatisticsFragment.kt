@@ -127,14 +127,8 @@ class StatisticsFragment : Fragment() {
             setHoleColor(Color.TRANSPARENT)
             holeRadius = 50f
             transparentCircleRadius = 55f
-            legend.apply {
-                isEnabled = true
-                horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
-                verticalAlignment = Legend.LegendVerticalAlignment.CENTER
-                orientation = Legend.LegendOrientation.VERTICAL
-                setDrawInside(false)
-                textSize = 12f
-            }
+            // 禁用默认图例，使用自定义图例
+            legend.isEnabled = false
             setNoDataText(getString(R.string.no_data))
             
             // 启用点击高亮
@@ -206,6 +200,25 @@ class StatisticsFragment : Fragment() {
         startActivity(intent)
     }
 
+    private fun updateCustomLegend(legendContainer: android.widget.LinearLayout, totals: List<CategoryTotal>) {
+        legendContainer.removeAllViews()
+
+        for (total in totals) {
+            val legendItem = LayoutInflater.from(requireContext())
+                .inflate(R.layout.item_pie_legend, legendContainer, false)
+
+            val colorView = legendItem.findViewById<android.view.View>(R.id.legend_color)
+            val nameText = legendItem.findViewById<android.widget.TextView>(R.id.legend_name)
+            val amountText = legendItem.findViewById<android.widget.TextView>(R.id.legend_amount)
+
+            colorView.setBackgroundColor(total.color)
+            nameText.text = total.name
+            amountText.text = CurrencyUtils.format(total.totalAmount)
+
+            legendContainer.addView(legendItem)
+        }
+    }
+
     private fun setupLineChart() {
         binding.lineChart.apply {
             description.isEnabled = false
@@ -242,11 +255,13 @@ class StatisticsFragment : Fragment() {
         viewModel.expenseCategoryTotals.observe(viewLifecycleOwner) { totals ->
             updatePieChart(binding.pieChartExpense, totals)
             setupPieChartClickListener(binding.pieChartExpense, totals)
+            updateCustomLegend(binding.legendExpense, totals)
         }
 
         viewModel.incomeCategoryTotals.observe(viewLifecycleOwner) { totals ->
             updatePieChart(binding.pieChartIncome, totals)
             setupPieChartClickListener(binding.pieChartIncome, totals)
+            updateCustomLegend(binding.legendIncome, totals)
         }
 
         // 监听趋势数据
