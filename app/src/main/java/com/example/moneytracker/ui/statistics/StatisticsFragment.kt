@@ -1,5 +1,6 @@
 package com.example.moneytracker.ui.statistics
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import com.example.moneytracker.R
 import com.example.moneytracker.databinding.FragmentStatisticsBinding
 import com.example.moneytracker.data.database.entities.CategoryTotal
 import com.example.moneytracker.data.database.entities.DailyTotal
+import com.example.moneytracker.ui.transactions.AllTransactionsActivity
 import com.example.moneytracker.utils.CurrencyUtils
 import com.example.moneytracker.utils.ThemeManager
 import com.github.mikephil.charting.components.Legend
@@ -21,6 +23,8 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -132,7 +136,41 @@ class StatisticsFragment : Fragment() {
                 textSize = 12f
             }
             setNoDataText(getString(R.string.no_data))
+            
+            // 启用点击高亮
+            setTouchEnabled(true)
+            setHighlightPerTapEnabled(true)
         }
+    }
+    
+    private fun setupPieChartClickListener(
+        chart: com.github.mikephil.charting.charts.PieChart,
+        totals: List<CategoryTotal>
+    ) {
+        chart.setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
+            override fun onValueSelected(e: Entry?, h: Highlight?) {
+                if (e != null && h != null) {
+                    val index = h.x.toInt()
+                    if (index >= 0 && index < totals.size) {
+                        val categoryTotal = totals[index]
+                        navigateToCategoryTransactions(categoryTotal)
+                    }
+                }
+            }
+            
+            override fun onNothingSelected() {
+                // 取消选中时不做任何操作
+            }
+        })
+    }
+    
+    private fun navigateToCategoryTransactions(categoryTotal: CategoryTotal) {
+        val intent = Intent(requireContext(), AllTransactionsActivity::class.java).apply {
+            // 传递分类ID用于过滤
+            putExtra("category_id", categoryTotal.categoryId)
+            putExtra("category_name", categoryTotal.name)
+        }
+        startActivity(intent)
     }
 
     private fun setupLineChart() {
@@ -170,10 +208,12 @@ class StatisticsFragment : Fragment() {
 
         viewModel.expenseCategoryTotals.observe(viewLifecycleOwner) { totals ->
             updatePieChart(binding.pieChartExpense, totals)
+            setupPieChartClickListener(binding.pieChartExpense, totals)
         }
 
         viewModel.incomeCategoryTotals.observe(viewLifecycleOwner) { totals ->
             updatePieChart(binding.pieChartIncome, totals)
+            setupPieChartClickListener(binding.pieChartIncome, totals)
         }
 
         // 监听趋势数据
