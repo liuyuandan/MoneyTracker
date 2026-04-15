@@ -395,13 +395,9 @@ class AddTransactionActivity : AppCompatActivity() {
     }
 
     private fun setupKeyboardScrolling() {
-        // 获取数字键盘布局（保存按钮的父布局）
-        val numberKeyboardLayout = binding.btnSave.parent as? android.view.ViewGroup
-
-        // 监听布局变化，当系统键盘弹出时隐藏数字键盘
+        // 监听布局变化，当系统键盘弹出时动态调整 ScrollView 的 bottomPadding
         binding.root.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             private var wasKeyboardVisible = false
-            private var lastScrollY = 0
 
             override fun onGlobalLayout() {
                 val rect = android.graphics.Rect()
@@ -410,44 +406,35 @@ class AddTransactionActivity : AppCompatActivity() {
                 val keypadHeight = screenHeight - rect.bottom
                 val isKeyboardVisible = keypadHeight > screenHeight * 0.15
 
-                // 如果键盘刚刚弹出
+                // 动态调整 ScrollView 的 bottomPadding，防止内容被键盘遮挡
                 if (isKeyboardVisible && !wasKeyboardVisible) {
-                    // 保存当前滚动位置
-                    lastScrollY = binding.scrollViewContent.scrollY
-
-                    // 隐藏数字键盘，让出空间
-                    numberKeyboardLayout?.visibility = android.view.View.GONE
-
-                    // 如果备注栏有焦点，滚动到备注栏
+                    // 键盘刚刚弹出：压缩 ScrollView 底部
+                    binding.scrollViewContent.setPadding(
+                        0,
+                        0,
+                        0,
+                        keypadHeight
+                    )
+                    // 如果备注栏有焦点，确保它可见
                     if (binding.etDescription.hasFocus()) {
                         binding.scrollViewContent.postDelayed({
                             scrollToDescription()
                         }, 100)
                     }
                 } else if (!isKeyboardVisible && wasKeyboardVisible) {
-                    // 键盘收起时，显示数字键盘并恢复滚动位置
-                    numberKeyboardLayout?.visibility = android.view.View.VISIBLE
-                    binding.scrollViewContent.post {
-                        binding.scrollViewContent.smoothScrollTo(0, lastScrollY)
-                    }
+                    // 键盘收起：恢复 ScrollView 底部
+                    binding.scrollViewContent.setPadding(0, 0, 0, 0)
                 }
                 wasKeyboardVisible = isKeyboardVisible
             }
         })
 
-        // 备注栏获得焦点时的处理
+        // 备注栏获得焦点时主动滚动到该位置
         binding.etDescription.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
-                // 隐藏数字键盘
-                numberKeyboardLayout?.visibility = android.view.View.GONE
-
-                // 滚动到备注栏
                 binding.scrollViewContent.postDelayed({
                     scrollToDescription()
                 }, 200)
-            } else {
-                // 失去焦点时显示数字键盘
-                numberKeyboardLayout?.visibility = android.view.View.VISIBLE
             }
         }
 
