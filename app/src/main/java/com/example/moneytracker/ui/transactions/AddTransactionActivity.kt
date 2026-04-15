@@ -3,6 +3,8 @@ package com.example.moneytracker.ui.transactions
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -36,6 +38,10 @@ class AddTransactionActivity : AppCompatActivity() {
     private var storedAmount: Double = 0.0  // 存储的第一个数值
     private var currentOperator: String? = null  // 当前操作符 (+, -, ×, ÷)
     private var waitingForSecondNumber = false  // 是否等待输入第二个数
+
+    // 保存原始备注内容，用于回退取消
+    private var originalDescription: String = ""
+    private var isEditMode: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,10 +117,15 @@ class AddTransactionActivity : AppCompatActivity() {
         // 如果是编辑模式，设置标题并加载交易详情
         if (editingTransactionId > 0) {
             binding.tvTitle.text = getString(R.string.edit_transaction)
+            isEditMode = true
             loadTransactionDetails()
         } else {
             binding.tvTitle.text = getString(R.string.add_transaction)
+            isEditMode = false
         }
+        
+        // 设置键盘弹出时的滚动处理
+        setupKeyboardScrolling()
         
         // 应用强调色
         applyAccentColor()
@@ -367,6 +378,121 @@ class AddTransactionActivity : AppCompatActivity() {
         }
     }
 
+    override fun onBackPressed() {
+        // 如果是编辑模式且备注内容已修改，恢复原始备注内容
+        if (isEditMode) {
+            val currentDescription = binding.etDescription.text.toString()
+            if (currentDescription != originalDescription) {
+                binding.etDescription.setText(originalDescription)
+                // 清除焦点，关闭键盘
+                binding.etDescription.clearFocus()
+                // 显示提示
+                Toast.makeText(this, "备注已恢复", Toast.LENGTH_SHORT).show()
+                return
+            }
+        }
+        super.onBackPressed()
+    }
+
+    private fun setupKeyboardScrolling() {
+        // 获取数字键盘布局（保存按钮的父布局）
+        val numberKeyboardLayout = binding.btnSave.parent as? android.view.ViewGroup
+
+        // 监听布局变化，当系统键盘弹出时隐藏数字键盘
+        binding.root.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            private var wasKeyboardVisible = false
+            private var lastScrollY = 0
+
+            override fun onGlobalLayout() {
+                val rect = android.graphics.Rect()
+                binding.root.getWindowVisibleDisplayFrame(rect)
+                val screenHeight = binding.root.rootView.height
+                val keypadHeight = screenHeight - rect.bottom
+                val isKeyboardVisible = keypadHeight > screenHeight * 0.15
+
+                // 如果键盘刚刚弹出
+                if (isKeyboardVisible && !wasKeyboardVisible) {
+                    // 保存当前滚动位置
+                    lastScrollY = binding.scrollViewContent.scrollY
+
+                    // 隐藏数字键盘，让出空间
+                    numberKeyboardLayout?.visibility = android.view.View.GONE
+
+                    // 如果备注栏有焦点，滚动到备注栏
+                    if (binding.etDescription.hasFocus()) {
+                        binding.scrollViewContent.postDelayed({
+                            scrollToDescription()
+                        }, 100)
+                    }
+                } else if (!isKeyboardVisible && wasKeyboardVisible) {
+                    // 键盘收起时，显示数字键盘并恢复滚动位置
+                    numberKeyboardLayout?.visibility = android.view.View.VISIBLE
+                    binding.scrollViewContent.post {
+                        binding.scrollViewContent.smoothScrollTo(0, lastScrollY)
+                    }
+                }
+                wasKeyboardVisible = isKeyboardVisible
+            }
+        })
+
+        // 备注栏获得焦点时的处理
+        binding.etDescription.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                // 隐藏数字键盘
+                numberKeyboardLayout?.visibility = android.view.View.GONE
+
+                // 滚动到备注栏
+                binding.scrollViewContent.postDelayed({
+                    scrollToDescription()
+                }, 200)
+            } else {
+                // 失去焦点时显示数字键盘
+                numberKeyboardLayout?.visibility = android.view.View.VISIBLE
+            }
+        }
+
+        // 备注栏内容变化时的处理 - 确保光标可见
+        binding.etDescription.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                binding.etDescription.postDelayed({
+                    val selectionStart = binding.etDescription.selectionStart
+                    if (selectionStart >= 0) {
+                        val layout = binding.etDescription.layout
+                        if (layout != null) {
+                            val line = layout.getLineForOffset(selectionStart)
+                            val lineTop = layout.getLineTop(line)
+                            val lineBottom = layout.getLineBottom(line)
+                            val scrollY = binding.etDescription.scrollY
+                            val height = binding.etDescription.height
+
+                            if (lineTop < scrollY) {
+                                binding.etDescription.scrollTo(0, lineTop)
+                            } else if (lineBottom > scrollY + height) {
+                                binding.etDescription.scrollTo(0, lineBottom - height)
+                            }
+                        }
+                    }
+                }, 50)
+            }
+        })
+    }
+
+    private fun scrollToDescription() {
+        val rect = android.graphics.Rect()
+        binding.root.getWindowVisibleDisplayFrame(rect)
+        val location = IntArray(2)
+        binding.etDescription.getLocationInWindow(location)
+        val etTop = location[1]
+
+        // 计算需要滚动的距离：让备注栏顶部对齐到可见区域上方留出间距
+        val scrollTo = etTop - rect.top - 100 // 留出100dp的顶部间距
+        if (scrollTo > 0) {
+            binding.scrollViewContent.smoothScrollTo(0, scrollTo)
+        }
+    }
+
     private fun loadTransactionDetails() {
         FileLogger.log(TAG, "loadTransactionDetails: Loading transaction $editingTransactionId")
         viewModel.loadTransaction(editingTransactionId)
@@ -414,6 +540,8 @@ class AddTransactionActivity : AppCompatActivity() {
                 currentAmount = it.amount.toString()
                 updateAmountDisplay()
                 binding.etDescription.setText(it.description)
+                // 保存原始备注内容，用于回退取消
+                originalDescription = it.description ?: ""
                 FileLogger.log(TAG, "observeData: Loaded transaction amount = ${it.amount}")
             }
         }

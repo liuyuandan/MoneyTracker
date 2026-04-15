@@ -87,11 +87,14 @@
         android:textStyle="bold" />
 
     <!-- 内容区域 -->
-    <androidx.core.widget.NestedScrollView
+    <ScrollView
+        android:id="@+id/scrollView_content"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:scrollbars="vertical"
+        android:overScrollMode="always">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -164,14 +167,17 @@
                 android:background="@drawable/card_background"
                 android:hint="@string/description_hint"
                 android:inputType="textMultiLine"
-                android:maxLines="3"
+                android:maxLines="5"
+                android:scrollbars="vertical"
+                android:overScrollMode="always"
+                android:gravity="top|start"
                 android:minHeight="48dp"
                 android:padding="12dp"
                 android:textColor="@color/text_primary"
                 android:textColorHint="@color/text_hint"
                 android:textSize="16sp" />
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+    </ScrollView>
 
     <!-- 快捷加按钮 -->
     <LinearLayout

@@ -13,7 +13,7 @@ import com.example.moneytracker.R
 import com.example.moneytracker.databinding.FragmentStatisticsBinding
 import com.example.moneytracker.data.database.entities.CategoryTotal
 import com.example.moneytracker.data.database.entities.DailyTotal
-import com.example.moneytracker.data.database.entities.Transaction
+import com.example.moneytracker.ui.transactions.AllTransactionsActivity
 import com.example.moneytracker.utils.CurrencyUtils
 import com.example.moneytracker.utils.ThemeManager
 import com.github.mikephil.charting.components.Legend
@@ -23,8 +23,8 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -112,14 +112,14 @@ class StatisticsFragment : Fragment() {
 
     private fun setupCharts() {
         // 设置饼图
-        setupPieChart(binding.pieChartExpense, Transaction.TYPE_EXPENSE)
-        setupPieChart(binding.pieChartIncome, Transaction.TYPE_INCOME)
+        setupPieChart(binding.pieChartExpense)
+        setupPieChart(binding.pieChartIncome)
 
         // 设置折线图
         setupLineChart()
     }
 
-    private fun setupPieChart(chart: com.github.mikephil.charting.charts.PieChart, transactionType: Int) {
+    private fun setupPieChart(chart: com.github.mikephil.charting.charts.PieChart) {
         chart.apply {
             description.isEnabled = false
             setUsePercentValues(true)
@@ -127,77 +127,96 @@ class StatisticsFragment : Fragment() {
             setHoleColor(Color.TRANSPARENT)
             holeRadius = 50f
             transparentCircleRadius = 55f
-            legend.apply {
-                isEnabled = true
-                horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
-                verticalAlignment = Legend.LegendVerticalAlignment.TOP
-                orientation = Legend.LegendOrientation.VERTICAL
-                setDrawInside(false)
-                textSize = 12f
-                isWordWrapEnabled = true
-                maxSizePercent = 0.8f
-            }
+            // 禁用默认图例，使用自定义图例
+            legend.isEnabled = false
             setNoDataText(getString(R.string.no_data))
-            // 允许图表内部滚动以显示更多图例
-            isHighlightPerTapEnabled = true
             
-            // 设置点击监听
-            setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
-                override fun onValueSelected(e: Entry?, h: Highlight?) {
-                    if (e is PieEntry) {
-                        val dataSet = chart.data?.getDataSetByIndex(0) as? PieDataSet
-                        val index = dataSet?.values?.indexOf(e) ?: -1
-                        if (index >= 0) {
-                            val totals = if (transactionType == Transaction.TYPE_EXPENSE) {
-                                viewModel.expenseCategoryTotals.value
-                            } else {
-                                viewModel.incomeCategoryTotals.value
-                            }
-                            totals?.getOrNull(index)?.let { categoryTotal ->
-                                openCategoryTransactions(categoryTotal, transactionType)
-                            }
-                        }
-                    }
-                }
-                
-                override fun onNothingSelected() {}
-            })
+            // 启用点击高亮
+            setTouchEnabled(true)
+            setHighlightPerTapEnabled(true)
         }
     }
-
-    private fun openCategoryTransactions(categoryTotal: CategoryTotal, transactionType: Int) {
+    
+    private fun setupPieChartClickListener(
+        chart: com.github.mikephil.charting.charts.PieChart,
+        totals: List<CategoryTotal>
+    ) {
+        chart.setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
+            override fun onValueSelected(e: Entry?, h: Highlight?) {
+                if (e != null && h != null) {
+                    val index = h.x.toInt()
+                    if (index >= 0 && index < totals.size) {
+                        val categoryTotal = totals[index]
+                        navigateToCategoryTransactions(categoryTotal)
+                    }
+                }
+            }
+            
+            override fun onNothingSelected() {
+                // 取消选中时不做任何操作
+            }
+        })
+    }
+    
+    private fun navigateToCategoryTransactions(categoryTotal: CategoryTotal) {
+        // 获取当前时间范围
+        val viewModel = this.viewModel
         val viewMode = viewModel.viewMode.value ?: StatisticsViewModel.VIEW_MODE_MONTH
-        val startTime: Long
-        val endTime: Long
-
-        when (viewMode) {
+        val currentTimestamp = System.currentTimeMillis()
+        
+        val (startTime, endTime, periodName) = when (viewMode) {
             StatisticsViewModel.VIEW_MODE_WEEK -> {
-                startTime = com.example.moneytracker.utils.DateUtils.getWeekStart(viewModel.currentTimestamp)
-                endTime = com.example.moneytracker.utils.DateUtils.getWeekEnd(viewModel.currentTimestamp)
+                Triple(
+                    com.example.moneytracker.utils.DateUtils.getWeekStart(currentTimestamp),
+                    com.example.moneytracker.utils.DateUtils.getWeekEnd(currentTimestamp),
+                    com.example.moneytracker.utils.DateUtils.formatWeek(currentTimestamp)
+                )
             }
             StatisticsViewModel.VIEW_MODE_YEAR -> {
-                startTime = com.example.moneytracker.utils.DateUtils.getYearStart(viewModel.currentTimestamp)
-                endTime = com.example.moneytracker.utils.DateUtils.getYearEnd(viewModel.currentTimestamp)
+                Triple(
+                    com.example.moneytracker.utils.DateUtils.getYearStart(currentTimestamp),
+                    com.example.moneytracker.utils.DateUtils.getYearEnd(currentTimestamp),
+                    com.example.moneytracker.utils.DateUtils.formatYear(currentTimestamp)
+                )
             }
-            else -> {
-                startTime = com.example.moneytracker.utils.DateUtils.getMonthStart(viewModel.currentTimestamp)
-                endTime = com.example.moneytracker.utils.DateUtils.getMonthEnd(viewModel.currentTimestamp)
+            else -> { // VIEW_MODE_MONTH
+                Triple(
+                    com.example.moneytracker.utils.DateUtils.getMonthStart(currentTimestamp),
+                    com.example.moneytracker.utils.DateUtils.getMonthEnd(currentTimestamp),
+                    com.example.moneytracker.utils.DateUtils.formatMonth(currentTimestamp)
+                )
             }
         }
-
-        val timeRangeText = viewModel.currentPeriod.value ?: ""
-
-        val intent = Intent(requireContext(), CategoryTransactionsActivity::class.java).apply {
-            putExtra(CategoryTransactionsActivity.EXTRA_CATEGORY_ID, categoryTotal.id)
-            putExtra(CategoryTransactionsActivity.EXTRA_CATEGORY_NAME, categoryTotal.name)
-            putExtra(CategoryTransactionsActivity.EXTRA_CATEGORY_ICON, categoryTotal.icon)
-            putExtra(CategoryTransactionsActivity.EXTRA_CATEGORY_COLOR, categoryTotal.color)
-            putExtra(CategoryTransactionsActivity.EXTRA_TRANSACTION_TYPE, transactionType)
-            putExtra(CategoryTransactionsActivity.EXTRA_START_TIME, startTime)
-            putExtra(CategoryTransactionsActivity.EXTRA_END_TIME, endTime)
-            putExtra(CategoryTransactionsActivity.EXTRA_TIME_RANGE_TEXT, timeRangeText)
+        
+        val intent = Intent(requireContext(), AllTransactionsActivity::class.java).apply {
+            // 传递分类ID用于过滤
+            putExtra("category_id", categoryTotal.id)
+            putExtra("category_name", categoryTotal.name)
+            // 传递时间范围
+            putExtra("start_time", startTime)
+            putExtra("end_time", endTime)
+            putExtra("period_name", periodName)
         }
         startActivity(intent)
+    }
+
+    private fun updateCustomLegend(legendContainer: android.widget.LinearLayout, totals: List<CategoryTotal>) {
+        legendContainer.removeAllViews()
+
+        for (total in totals) {
+            val legendItem = LayoutInflater.from(requireContext())
+                .inflate(R.layout.item_pie_legend, legendContainer, false)
+
+            val colorView = legendItem.findViewById<android.view.View>(R.id.legend_color)
+            val nameText = legendItem.findViewById<android.widget.TextView>(R.id.legend_name)
+            val amountText = legendItem.findViewById<android.widget.TextView>(R.id.legend_amount)
+
+            colorView.setBackgroundColor(total.color)
+            nameText.text = total.name
+            amountText.text = CurrencyUtils.format(total.totalAmount)
+
+            legendContainer.addView(legendItem)
+        }
     }
 
     private fun setupLineChart() {
@@ -235,10 +254,14 @@ class StatisticsFragment : Fragment() {
 
         viewModel.expenseCategoryTotals.observe(viewLifecycleOwner) { totals ->
             updatePieChart(binding.pieChartExpense, totals)
+            setupPieChartClickListener(binding.pieChartExpense, totals)
+            updateCustomLegend(binding.legendExpense, totals)
         }
 
         viewModel.incomeCategoryTotals.observe(viewLifecycleOwner) { totals ->
             updatePieChart(binding.pieChartIncome, totals)
+            setupPieChartClickListener(binding.pieChartIncome, totals)
+            updateCustomLegend(binding.legendIncome, totals)
         }
 
         // 监听趋势数据
@@ -299,20 +322,6 @@ class StatisticsFragment : Fragment() {
         }
 
         chart.data = data
-        
-        // 根据分类数量动态调整图表高度
-        // 基础高度 250dp，每多一个分类增加 20dp（为图例留空间）
-        val density = resources.displayMetrics.density
-        val baseHeight = 250f
-        val extraHeightPerItem = 20f
-        val maxVisibleWithoutScroll = 6 // 超过6个分类时需要更多高度
-        val extraItems = maxOf(0, totals.size - maxVisibleWithoutScroll)
-        val calculatedHeight = baseHeight + (extraItems * extraHeightPerItem)
-        
-        val layoutParams = chart.layoutParams
-        layoutParams.height = (calculatedHeight * density).toInt()
-        chart.layoutParams = layoutParams
-        
         chart.invalidate()
     }
 
