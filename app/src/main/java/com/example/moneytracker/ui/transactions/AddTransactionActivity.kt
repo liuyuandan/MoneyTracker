@@ -3,8 +3,6 @@ package com.example.moneytracker.ui.transactions
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.view.ViewTreeObserver
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -152,6 +150,8 @@ class AddTransactionActivity : AppCompatActivity() {
         )
         binding.rvCategories.layoutManager = GridLayoutManager(this, 4)
         binding.rvCategories.adapter = categoryAdapter
+        // nestedScrollingEnabled=false 让 RecyclerView 不拦截滚动事件，交给 ScrollView 处理
+        binding.rvCategories.isNestedScrollingEnabled = false
     }
 
     private fun setupTabLayout() {
@@ -395,88 +395,14 @@ class AddTransactionActivity : AppCompatActivity() {
     }
 
     private fun setupKeyboardScrolling() {
-        // 监听布局变化，当系统键盘弹出时动态调整 ScrollView 的 bottomPadding
-        binding.root.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            private var wasKeyboardVisible = false
-
-            override fun onGlobalLayout() {
-                val rect = android.graphics.Rect()
-                binding.root.getWindowVisibleDisplayFrame(rect)
-                val screenHeight = binding.root.rootView.height
-                val keypadHeight = screenHeight - rect.bottom
-                val isKeyboardVisible = keypadHeight > screenHeight * 0.15
-
-                // 动态调整 ScrollView 的 bottomPadding，防止内容被键盘遮挡
-                if (isKeyboardVisible && !wasKeyboardVisible) {
-                    // 键盘刚刚弹出：压缩 ScrollView 底部
-                    binding.scrollViewContent.setPadding(
-                        0,
-                        0,
-                        0,
-                        keypadHeight
-                    )
-                    // 如果备注栏有焦点，确保它可见
-                    if (binding.etDescription.hasFocus()) {
-                        binding.scrollViewContent.postDelayed({
-                            scrollToDescription()
-                        }, 100)
-                    }
-                } else if (!isKeyboardVisible && wasKeyboardVisible) {
-                    // 键盘收起：恢复 ScrollView 底部
-                    binding.scrollViewContent.setPadding(0, 0, 0, 0)
-                }
-                wasKeyboardVisible = isKeyboardVisible
-            }
-        })
-
-        // 备注栏获得焦点时主动滚动到该位置
+        // 备注栏获得焦点时，滚动到备注位置
         binding.etDescription.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 binding.scrollViewContent.postDelayed({
-                    scrollToDescription()
+                    // ScrollView 整体滚动到备注区域可见（键盘弹出后自动在上方）
+                    binding.scrollViewContent.fullScroll(android.view.View.FOCUS_DOWN)
                 }, 200)
             }
-        }
-
-        // 备注栏内容变化时的处理 - 确保光标可见
-        binding.etDescription.addTextChangedListener(object : android.text.TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: android.text.Editable?) {
-                binding.etDescription.postDelayed({
-                    val selectionStart = binding.etDescription.selectionStart
-                    if (selectionStart >= 0) {
-                        val layout = binding.etDescription.layout
-                        if (layout != null) {
-                            val line = layout.getLineForOffset(selectionStart)
-                            val lineTop = layout.getLineTop(line)
-                            val lineBottom = layout.getLineBottom(line)
-                            val scrollY = binding.etDescription.scrollY
-                            val height = binding.etDescription.height
-
-                            if (lineTop < scrollY) {
-                                binding.etDescription.scrollTo(0, lineTop)
-                            } else if (lineBottom > scrollY + height) {
-                                binding.etDescription.scrollTo(0, lineBottom - height)
-                            }
-                        }
-                    }
-                }, 50)
-            }
-        })
-    }
-
-    private fun scrollToDescription() {
-        val rect = android.graphics.Rect()
-        binding.root.getWindowVisibleDisplayFrame(rect)
-        val location = IntArray(2)
-        binding.etDescription.getLocationInWindow(location)
-        val etTop = location[1]
-
-        // 计算需要滚动的距离：让备注栏顶部对齐到可见区域上方留出间距
-        val scrollTo = etTop - rect.top - 100 // 留出100dp的顶部间距
-        if (scrollTo > 0) {
-            binding.scrollViewContent.smoothScrollTo(0, scrollTo)
         }
     }
 
