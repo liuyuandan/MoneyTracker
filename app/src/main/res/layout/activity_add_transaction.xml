@@ -86,8 +86,9 @@
         android:textSize="36sp"
         android:textStyle="bold" />
 
-    <!-- 中间区域：分类 + 日期 -->
+    <!-- 中间区域：分类（自动扩展）+ 日期 -->
     <LinearLayout
+        android:id="@+id/layout_middle"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -107,11 +108,11 @@
             android:paddingBottom="4dp"
             android:paddingEnd="16dp" />
 
-        <!-- 分类列表：固定高度，内部滚动，不受外层影响 -->
+        <!-- 分类列表：wrap_content 自动扩展高度 -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_categories"
             android:layout_width="match_parent"
-            android:layout_height="280dp"
+            android:layout_height="wrap_content"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             android:paddingBottom="8dp"
