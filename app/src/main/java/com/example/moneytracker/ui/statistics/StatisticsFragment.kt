@@ -203,7 +203,7 @@ class StatisticsFragment : Fragment() {
     private fun updateCustomLegend(legendContainer: android.widget.LinearLayout, totals: List<CategoryTotal>) {
         legendContainer.removeAllViews()
 
-        for (total in totals) {
+        totals.forEachIndexed { index, total ->
             val legendItem = LayoutInflater.from(requireContext())
                 .inflate(R.layout.item_pie_legend, legendContainer, false)
 
@@ -214,6 +214,11 @@ class StatisticsFragment : Fragment() {
             colorView.setBackgroundColor(total.color)
             nameText.text = total.name
             amountText.text = CurrencyUtils.format(total.totalAmount)
+
+            // 点击图例项跳转到对应分类的记录列表
+            legendItem.setOnClickListener {
+                navigateToCategoryTransactions(total)
+            }
 
             legendContainer.addView(legendItem)
         }
