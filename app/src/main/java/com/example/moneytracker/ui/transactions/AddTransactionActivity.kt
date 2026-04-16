@@ -400,12 +400,86 @@ class AddTransactionActivity : AppCompatActivity() {
             if (hasFocus) {
                 // 延迟等软键盘完全弹出（adjustResize 触发窗口重新布局）
                 binding.scrollViewContent.postDelayed({
-                    // requestRectangleOnScreen 会让 ScrollView 滚动，使该 View 的矩形区域完整可见
-                    val rect = android.graphics.Rect(0, 0, view.width, view.height)
-                    view.requestRectangleOnScreen(rect, false)
+                    // 直接滚动到备注栏位置，确保它出现在视口内
+                    scrollToDescription()
                 }, 300)
             }
         }
+    }
+
+    /**
+     * 动态计算 RecyclerView 的正确高度。
+     * 由于 RecyclerView 嵌套在 ScrollView 中，直接使用 wrap_content
+     * 只能测量出可见区域高度，导致只显示部分行。
+     * 通过获取第一个 item 的测量高度，再乘以行数，得到正确总高度。
+     */
+    private fun updateRecyclerViewHeight() {
+        val layoutManager = binding.rvCategories.layoutManager as? GridLayoutManager ?: return
+        val adapter = binding.rvCategories.adapter ?: return
+        if (adapter.itemCount == 0) return
+
+        // 找到第一个可见的 itemView，测量它的实际高度
+        val firstVisible = layoutManager.findFirstVisibleItemPosition()
+        if (firstVisible < 0) {
+            // 还没测量到，延迟再试
+            binding.rvCategories.post { updateRecyclerViewHeight() }
+            return
+        }
+        val itemView = layoutManager.findViewByPosition(firstVisible) ?: return
+
+        // 强制测量，确保拿到正确的宽高
+        val widthSpec = android.view.View.MeasureSpec.makeMeasureSpec(
+            binding.rvCategories.width, android.view.View.MeasureSpec.EXACTLY
+        )
+        val heightSpec = android.view.View.MeasureSpec.makeMeasureSpec(0, android.view.View.MeasureSpec.UNSPECIFIED)
+        itemView.measure(widthSpec, heightSpec)
+        val itemHeight = itemView.measuredHeight
+
+        if (itemHeight <= 0) {
+            binding.rvCategories.post { updateRecyclerViewHeight() }
+            return
+        }
+
+        // 计算总行数：总item数 / 每行span数，向上取整
+        val spanCount = layoutManager.spanCount
+        val totalRows = (adapter.itemCount + spanCount - 1) / spanCount
+        val totalHeight = totalRows * itemHeight
+
+        // 设置 RecyclerView 的高度为计算出的总高度
+        val params = binding.rvCategories.layoutParams
+        if (params.height != totalHeight) {
+            params.height = totalHeight
+            binding.rvCategories.layoutParams = params
+            FileLogger.log(TAG, "updateRecyclerViewHeight: set height = ${totalHeight}dp ($totalRows rows, $spanCount cols, ${adapter.itemCount} items)")
+        }
+    }
+
+    /**
+     * 滚动 ScrollView，使备注栏可见。
+     * 计算备注栏在 ScrollView 内容中的位置，然后滚动到该位置。
+     */
+    private fun scrollToDescription() {
+        val scrollView = binding.scrollViewContent
+        val description = binding.etDescription
+
+        // 获取备注栏在其父容器中的顶部位置
+        var top = 0
+        var current: android.view.View = description
+        val parent = current.parent as? android.view.View ?: return
+
+        // 遍历到 ScrollView，累加所有子 View 的高度
+        var vp: android.view.View? = parent
+        while (vp != null && vp != scrollView) {
+            // 对于 LinearLayout 子容器（包含标签、日期、备注等），加上它的 top margin
+            top += current.top
+            current = vp
+            vp = vp.parent as? android.view.View
+        }
+
+        // 加上 ScrollView 本身的 padding 和目标上方的额外空间
+        val targetScrollY = top - scrollView.paddingTop - 16 // 16dp 的上方间距
+        scrollView.scrollTo(0, maxOf(0, targetScrollY))
+        FileLogger.log(TAG, "scrollToDescription: scrolling to y = $targetScrollY")
     }
 
     private fun loadTransactionDetails() {
@@ -435,6 +509,10 @@ class AddTransactionActivity : AppCompatActivity() {
         viewModel.categories.observe(this) { categories ->
             FileLogger.log(TAG, "observeData: categories updated, size = ${categories?.size ?: 0}")
             categoryAdapter.submitList(categories ?: emptyList())
+            // 等待 RecyclerView 布局完成后，动态计算并设置正确高度
+            binding.rvCategories.post {
+                updateRecyclerViewHeight()
+            }
         }
 
         viewModel.selectedCategory.observe(this) { category ->
