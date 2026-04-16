@@ -86,109 +86,100 @@
         android:textSize="36sp"
         android:textStyle="bold" />
 
-    <!-- 整个内容区（键盘上方），可整体滚动 -->
-    <ScrollView
-        android:id="@+id/scrollView_content"
+    <!-- 中间区域：分类 + 日期 -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true"
-        android:overScrollMode="always">
+        android:orientation="vertical">
 
+        <!-- 分类标题 -->
+        <TextView
+            android:id="@+id/tv_category_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/category"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:paddingStart="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp"
+            android:paddingEnd="16dp" />
+
+        <!-- 分类列表：固定高度，内部滚动，不受外层影响 -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_categories"
+            android:layout_width="match_parent"
+            android:layout_height="280dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="8dp"
+            android:clipToPadding="false" />
+
+        <!-- 日期选择 -->
         <LinearLayout
+            android:id="@+id/layout_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:background="@drawable/card_background"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="8dp">
 
-            <!-- 分类标题 -->
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_time"
+                app:tint="@color/text_secondary"
+                android:contentDescription="@string/date" />
+
             <TextView
-                android:id="@+id/tv_category_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/category"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:paddingStart="16dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="4dp"
-                android:paddingEnd="16dp" />
-
-            <!-- 分类列表（wrap_content，由内部 GridLayoutManager 自动决定高度） -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_categories"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:paddingBottom="8dp"
-                android:clipToPadding="false"
-                android:nestedScrollingEnabled="false" />
-
-            <!-- 日期选择 -->
-            <LinearLayout
-                android:id="@+id/layout_date"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="12dp"
-                android:background="@drawable/card_background"
                 android:layout_marginStart="12dp"
-                android:layout_marginEnd="12dp"
-                android:layout_marginBottom="8dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_time"
-                    app:tint="@color/text_secondary"
-                    android:contentDescription="@string/date" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:text="@string/date"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp" />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-                <TextView
-                    android:id="@+id/tv_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="2024-01-01"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <!-- 备注 -->
-            <EditText
-                android:id="@+id/et_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="12dp"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/card_background"
-                android:hint="@string/description_hint"
-                android:inputType="textMultiLine"
-                android:maxLines="5"
-                android:scrollbars="vertical"
-                android:overScrollMode="always"
-                android:gravity="top|start"
-                android:minHeight="48dp"
-                android:padding="12dp"
+                android:text="@string/date"
                 android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_hint"
                 android:textSize="16sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tv_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2024-01-01"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
         </LinearLayout>
-    </ScrollView>
+    </LinearLayout>
+
+    <!-- 备注区域（固定在键盘上方） -->
+    <EditText
+        android:id="@+id/et_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/card_background"
+        android:hint="@string/description_hint"
+        android:inputType="textMultiLine"
+        android:maxLines="3"
+        android:scrollbars="vertical"
+        android:overScrollMode="always"
+        android:gravity="top|start"
+        android:minHeight="48dp"
+        android:padding="12dp"
+        android:textColor="@color/text_primary"
+        android:textColorHint="@color/text_hint"
+        android:textSize="16sp" />
 
     <!-- 快捷运算符 -->
     <LinearLayout
