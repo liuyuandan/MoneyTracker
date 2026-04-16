@@ -395,13 +395,15 @@ class AddTransactionActivity : AppCompatActivity() {
     }
 
     private fun setupKeyboardScrolling() {
-        // 备注栏获得焦点时，滚动到备注位置
-        binding.etDescription.setOnFocusChangeListener { _, hasFocus ->
+        // 备注栏获得焦点时，确保其在软键盘弹出后仍然可见
+        binding.etDescription.setOnFocusChangeListener { view, hasFocus ->
             if (hasFocus) {
+                // 延迟等软键盘完全弹出（adjustResize 触发窗口重新布局）
                 binding.scrollViewContent.postDelayed({
-                    // ScrollView 整体滚动到备注区域可见（键盘弹出后自动在上方）
-                    binding.scrollViewContent.fullScroll(android.view.View.FOCUS_DOWN)
-                }, 200)
+                    // requestRectangleOnScreen 会让 ScrollView 滚动，使该 View 的矩形区域完整可见
+                    val rect = android.graphics.Rect(0, 0, view.width, view.height)
+                    view.requestRectangleOnScreen(rect, false)
+                }, 300)
             }
         }
     }
