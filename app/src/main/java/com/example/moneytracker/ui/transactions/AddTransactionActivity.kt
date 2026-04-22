@@ -150,8 +150,6 @@ class AddTransactionActivity : AppCompatActivity() {
         )
         binding.rvCategories.layoutManager = GridLayoutManager(this, 4)
         binding.rvCategories.adapter = categoryAdapter
-        // nestedScrollingEnabled=false 让 RecyclerView 不拦截滚动事件，交给 ScrollView 处理
-        binding.rvCategories.isNestedScrollingEnabled = false
     }
 
     private fun setupTabLayout() {
@@ -395,14 +393,9 @@ class AddTransactionActivity : AppCompatActivity() {
     }
 
     private fun setupKeyboardScrolling() {
-        // 备注栏获得焦点时，滚动到备注位置
+        // 备注栏焦点变化时不做额外滚动，adjustPan 在 Manifest 中配置，会自动将焦点区域滚动到可见位置
         binding.etDescription.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                binding.scrollViewContent.postDelayed({
-                    // ScrollView 整体滚动到备注区域可见（键盘弹出后自动在上方）
-                    binding.scrollViewContent.fullScroll(android.view.View.FOCUS_DOWN)
-                }, 200)
-            }
+            FileLogger.log(TAG, "setupKeyboardScrolling: description focus changed to $hasFocus")
         }
     }
 
