@@ -89,22 +89,11 @@ class StatisticsFragment : Fragment() {
 
     private fun setupPeriodToggle() {
         binding.chipGroupPeriod.setOnCheckedChangeListener { _, checkedId ->
-            log("ChipGroup checked changed: checkedId=$checkedId, isUpdatingFromViewModel=$isUpdatingFromViewModel")
             if (isUpdatingFromViewModel) return@setOnCheckedChangeListener
             when (checkedId) {
-                R.id.chip_week -> {
-                    log("Setting view mode to WEEK")
-                    viewModel.setViewMode(StatisticsViewModel.VIEW_MODE_WEEK)
-                }
-                R.id.chip_month -> {
-                    log("Setting view mode to MONTH")
-                    viewModel.setViewMode(StatisticsViewModel.VIEW_MODE_MONTH)
-                }
-                R.id.chip_year -> {
-                    log("Setting view mode to YEAR")
-                    viewModel.setViewMode(StatisticsViewModel.VIEW_MODE_YEAR)
-                }
-                else -> log("Unknown chip checked: $checkedId")
+                R.id.chip_week -> viewModel.setViewMode(StatisticsViewModel.VIEW_MODE_WEEK)
+                R.id.chip_month -> viewModel.setViewMode(StatisticsViewModel.VIEW_MODE_MONTH)
+                R.id.chip_year -> viewModel.setViewMode(StatisticsViewModel.VIEW_MODE_YEAR)
             }
         }
     }
