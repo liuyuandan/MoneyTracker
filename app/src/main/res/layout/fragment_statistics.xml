@@ -76,6 +76,7 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_week"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="周"
@@ -86,10 +87,11 @@
                         app:chipMinHeight="36dp"
                         app:chipStartPadding="12dp"
                         app:chipEndPadding="12dp"
-                        app:checkedIconEnabled="false" />
+                        app:checkedIconVisible="false" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_month"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="月"
@@ -100,10 +102,11 @@
                         app:chipMinHeight="36dp"
                         app:chipStartPadding="12dp"
                         app:chipEndPadding="12dp"
-                        app:checkedIconEnabled="false" />
+                        app:checkedIconVisible="false" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_year"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="年"
@@ -114,7 +117,7 @@
                         app:chipMinHeight="36dp"
                         app:chipStartPadding="12dp"
                         app:chipEndPadding="12dp"
-                        app:checkedIconEnabled="false" />
+                        app:checkedIconVisible="false" />
 
                 </com.google.android.material.chip.ChipGroup>
 
