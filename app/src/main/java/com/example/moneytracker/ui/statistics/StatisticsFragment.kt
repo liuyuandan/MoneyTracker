@@ -88,24 +88,13 @@ class StatisticsFragment : Fragment() {
     }
 
     private fun setupPeriodToggle() {
-        // 周视图
-        binding.chipWeek.setOnCheckedChangeListener { chip, isChecked ->
-            if (isChecked && !isUpdatingFromViewModel) {
-                viewModel.setViewMode(StatisticsViewModel.VIEW_MODE_WEEK)
-            }
-        }
-
-        // 月视图
-        binding.chipMonth.setOnCheckedChangeListener { chip, isChecked ->
-            if (isChecked && !isUpdatingFromViewModel) {
-                viewModel.setViewMode(StatisticsViewModel.VIEW_MODE_MONTH)
-            }
-        }
-
-        // 年视图
-        binding.chipYear.setOnCheckedChangeListener { chip, isChecked ->
-            if (isChecked && !isUpdatingFromViewModel) {
-                viewModel.setViewMode(StatisticsViewModel.VIEW_MODE_YEAR)
+        binding.chipGroupPeriod.setOnCheckedStateChangeListener { _, checkedIds ->
+            if (isUpdatingFromViewModel) return@setOnCheckedStateChangeListener
+            val checkedId = checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener
+            when (checkedId) {
+                R.id.chip_week -> viewModel.setViewMode(StatisticsViewModel.VIEW_MODE_WEEK)
+                R.id.chip_month -> viewModel.setViewMode(StatisticsViewModel.VIEW_MODE_MONTH)
+                R.id.chip_year -> viewModel.setViewMode(StatisticsViewModel.VIEW_MODE_YEAR)
             }
         }
     }
